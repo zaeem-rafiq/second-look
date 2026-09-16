@@ -1,0 +1,8 @@
+# macOS
+.DS_Store
+
+# Internal planning docs, kept local only
+prds/
+task.md
+changelog.md
+.cursor/

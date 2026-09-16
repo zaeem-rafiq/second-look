@@ -1,0 +1,4 @@
+interface:
+  display_name: "ChatGPT Sites + Convex"
+  short_description: "Publish Sites with a Convex backend"
+  default_prompt: "Use $codex-sites-convex to build, validate, and publish a durable shared ChatGPT Site backed by Convex production."

@@ -1,0 +1,42 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: Fwd: Your Amazon.com order #112-3456789-0123456
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <amazon-order-gmail@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_amazonordergmail"
+
+------=_Part_amazonordergmail
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Did I order this?
+
+---------- Forwarded message ---------
+From: Amazon.com <auto-confirm@amazon.com>
+Date: Tue, Sep 15, 2026 at 9:12 AM
+Subject: Your Amazon.com order #112-3456789-0123456
+To: <mom.demo@example.com>
+
+
+Hello,
+
+Thank you for your order. We'll send a confirmation when your item ships.
+
+Order #112-3456789-0123456
+Kirkland Signature Green Tea, 100 count  $18.99
+Arriving: Thursday, September 18
+
+View or manage your order: https://www.amazon.com/gp/css/order-history
+
+Amazon.com
+
+
+------=_Part_amazonordergmail
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<div dir="ltr">Did I order this?<br><div><br><div class="gmail_quote gmail_quote_container"><div dir="ltr" class="gmail_attr">---------- Forwarded message ---------<br>From: <b class="gmail_sendername" dir="auto">Amazon.com</b> <span dir="auto">&lt;<a href="mailto:auto-confirm@amazon.com">auto-confirm@amazon.com</a>&gt;</span><br>Date: Tue, Sep 15, 2026 at 9:12 AM<br>Subject: Your Amazon.com order #112-3456789-0123456<br>To:  &lt;<a href="mailto:mom.demo@example.com">mom.demo@example.com</a>&gt;<br></div><br><br><p>Hello,</p><p>Thank you for your order. We'll send a confirmation when your item ships.</p><p>Order #112-3456789-0123456<br>Kirkland Signature Green Tea, 100 count &nbsp; $18.99<br>Arriving: Thursday, September 18</p><p><a href="https://www.amazon.com/gp/css/order-history">View or manage your order</a></p><p>Amazon.com</p>
+</div></div></div>
+
+------=_Part_amazonordergmail--
