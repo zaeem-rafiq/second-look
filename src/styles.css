@@ -62,9 +62,9 @@ a { color: var(--accent); }
 .evidence summary { cursor: pointer; font-weight: 600; }
 .evidence ul { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 10px; }
 .evidence li { padding: 10px 12px; border-radius: 10px; background: var(--grey-soft); }
-.ev-bad { background: var(--red-soft); }
-.ev-ok { background: var(--green-soft); }
-.ev-warn { background: var(--amber-soft); }
+.evidence li.ev-bad { background: var(--red-soft); }
+.evidence li.ev-ok { background: var(--green-soft); }
+.evidence li.ev-warn { background: var(--amber-soft); }
 .ev-name { font-weight: 600; margin-right: 8px; }
 .ev-text .claim { color: var(--red); }
 .evidence blockquote { margin: 8px 0 0; padding-left: 10px; border-left: 3px solid rgba(0,0,0,0.15); font-style: italic; }
