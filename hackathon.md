@@ -39,3 +39,6 @@ Experiment, not enabled: TypeSafe Jev as the payment-method gate. That gate deci
 
 ### 2026-09-17 - working tree
 The production extraction schema now defines each payment method. Money-transfer apps such as Western Union, Zelle, Venmo and Cash App count as wire, and receipts, balance notices, gifts, news and warnings are excluded. The definitions live in one shared module (`lib/paymentDefinitions.ts`). On the 50-case payment eval, the production model now misses no payment requests (previously 7) but flags 11 mentions (previously 7). The final verdict improves because the regex backstop already flags those mentions. The spec evals all pass, including the safety check. Pushed to the dev deployment.
+
+### 2026-09-17 - working tree
+The AI's answer is now final for the payment-method gate. The keyword check used to be combined with the AI's answer, and it flagged receipts, "you received" notices, gifts and warnings as payment requests, which forced false mismatches. It now applies only when the AI call fails (`lib/extract.ts`). On the 50-case payment eval, false alarms drop from 20 to 11 with no missed payment requests. With the Jev flag on, they would drop to 1. Spec evals still pass all checks, including safety. Pushed to the dev deployment.

@@ -226,10 +226,12 @@ async function main() {
     summarize("Jev alone @0.5 (no fallback)", (r) => r.jevOnly.pass, (r) => r.jevOnly.decision, (r) => r.jev.ms, (r) => r.jev.cost),
     summarize("Regex backstop (context)", (r) => r.regex.pass, (r) => r.regex.decision),
   ];
-  // What the verdict actually sees: production ORs the regex with the model's answer.
+  // What the verdict sees. Since 2026-09-17 the AI's answer is final when the AI ran (lib/extract.ts
+  // mergeExtraction); the keyword check applies only when the AI is unavailable, which never happens here.
   const verdictView = [
-    summarize("Verdict today: regex OR LLM", (r) => (r.regex.decision || r.llm.decision) === r.label, (r) => r.regex.decision || r.llm.decision),
-    summarize("Verdict, flag on: regex OR cascade", (r) => (r.regex.decision || r.cascade.decision) === r.label, (r) => r.regex.decision || r.cascade.decision),
+    summarize("Before override: regex OR LLM", (r) => (r.regex.decision || r.llm.decision) === r.label, (r) => r.regex.decision || r.llm.decision),
+    summarize("Now: LLM answer is final", (r) => r.llm.pass, (r) => r.llm.decision),
+    summarize("Now, Jev flag on: cascade is final", (r) => r.cascade.pass, (r) => r.cascade.decision),
   ];
   const escalations = rows.filter((r) => r.cascade.source === "llm").length;
 

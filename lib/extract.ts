@@ -155,8 +155,11 @@ export function mergeExtraction(det: Extracted, llm: LlmExtraction | null, norma
     const u = raw.replace(/[*_`]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
     if (u && !urgency.includes(u)) urgency.push(u);
   }
-  const payments = [...det.paymentMethods];
-  for (const p of llm.paymentMethods) if (!payments.includes(p)) payments.push(p);
+  // Payment methods: the AI's answer is final whenever the AI ran. The keyword check over-fires on
+  // receipts, "you received" notices, gifts and warnings (20 of 32 non-payment emails in the payment
+  // eval), and a gift card, crypto or wire answer forces a hard mismatch, so it is only a fallback
+  // for when the AI is unavailable (the early return above). Decision made 2026-09-17.
+  const payments = [...new Set(llm.paymentMethods)];
   return {
     claimedOrganization: det.claimedOrganization ?? llm.claimedOrganization,
     originalSender: {

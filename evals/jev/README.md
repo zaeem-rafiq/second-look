@@ -57,6 +57,18 @@
 
 **The cascade's one miss came from escalation.** The escalated case was the neighbor offering to pay by Zelle, and the updated LLM now says yes to it.
 
+## Update: the AI's answer overrides the keyword check (2026-09-17)
+
+`mergeExtraction` in `lib/extract.ts` now takes payment methods only from the AI when the AI ran. The keyword check is used only when the AI call fails. Recomputed from run 4's stored decisions (no new API calls):
+
+| What decides the gate | Right | False alarms | Missed requests |
+|---|---|---|---|
+| Before: keyword check OR LLM | 30/50 | 20 | 0 |
+| Now: LLM answer is final | 39/50 | 11 | 0 |
+| Now, with the Jev flag on: cascade is final | 49/50 | 1 | 0 |
+
+**Remaining false alarms come from the LLM.** The 11 that remain are the live LLM flagging mentions (receipts, "you received" notices, warnings). Turning on the Jev flag would bring that to 1 on this set; it needs the TypeSafe key on the Convex deployment and the flag set.
+
 ## Reading the results honestly
 
 - **The production prompt's definition is the main gap.** The existing extraction schema never says that Western Union, MoneyGram, Zelle, Venmo and Cash App count as `wire`. The model files them under `other` or `card`. It also never excludes mentions, warnings or gifts. Given the definitions, the same model rises from 36/50 to 47/50.

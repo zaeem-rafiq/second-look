@@ -10,6 +10,7 @@ import { findOrg, orgKey } from "../lib/registry";
 import { countImperativeSentences, formatPhoneForHumans, templateReply, validateReply } from "../lib/replyTemplates";
 import { normalizePhone } from "../lib/phones";
 import type { OfficialOrg } from "../lib/types";
+import type { LlmExtraction } from "../lib/extract";
 
 const orgs: OfficialOrg[] = [
   {
@@ -278,5 +279,39 @@ describe("explanation guard hardening", () => {
     expect(text).toBe(templateReply(unknown));
     expect(validateReply(text, unknown)).toEqual({ ok: true });
     void mismatch;
+  });
+});
+
+describe("payment methods: the AI's answer overrides the keyword check", () => {
+  const receipt = `---------- Forwarded message ---------
+From: Maple Grove Market <receipts@maplegrovemarket.example.com>
+Date: Tue, Sep 15, 2026 at 9:12 AM
+Subject: Your receipt
+To: <mom.demo@example.com>
+
+1 x Everyday Gift Card (load $50.00)  $50.00. Paid: Visa ending 4471. Zelle and Bitcoin not accepted.
+`;
+  const aiAnswer = (paymentMethods: LlmExtraction["paymentMethods"]): LlmExtraction => ({
+    claimedOrganization: null, originalSenderName: null, originalSenderAddress: null, urls: [], phones: [],
+    actionRequested: null, actionType: "none", urgencyPhrases: [], moneyAmounts: [], dates: [], deadline: null,
+    paymentMethods, requestsPersonalInfo: false, threatensPenalty: false, claimsSuspension: false, summary: "A store receipt.",
+  });
+
+  it("keyword check alone flags the receipt (fallback when the AI is unavailable)", () => {
+    const parsed = parseForwardedEmail(receipt, "");
+    const det = deterministicExtract(parsed, receipt, "", orgs);
+    expect(det.paymentMethods.sort()).toEqual(["crypto", "gift_card", "wire"]);
+    expect(mergeExtraction(det, null, normalizePhone).paymentMethods.sort()).toEqual(["crypto", "gift_card", "wire"]);
+  });
+  it("an AI 'no' removes the keyword check's gift card, crypto and wire", () => {
+    const parsed = parseForwardedEmail(receipt, "");
+    const det = deterministicExtract(parsed, receipt, "", orgs);
+    expect(mergeExtraction(det, aiAnswer(["card"]), normalizePhone).paymentMethods).toEqual(["card"]);
+    expect(mergeExtraction(det, aiAnswer([]), normalizePhone).paymentMethods).toEqual([]);
+  });
+  it("an AI 'yes' is kept, de-duplicated", () => {
+    const parsed = parseForwardedEmail(receipt, "");
+    const det = deterministicExtract(parsed, receipt, "", orgs);
+    expect(mergeExtraction(det, aiAnswer(["gift_card", "gift_card", "wire"]), normalizePhone).paymentMethods).toEqual(["gift_card", "wire"]);
   });
 });
