@@ -1,0 +1,2966 @@
+{
+ "cutoff": 0.8,
+ "prices": {
+  "llm": {
+   "model": "gpt-5.4-nano",
+   "input": 0.2,
+   "output": 1.25
+  },
+  "jev": {
+   "model": "jev-latest",
+   "input": 0.042,
+   "output": 0
+  }
+ },
+ "summary": [
+  {
+   "name": "Existing LLM",
+   "accuracy": 0.72,
+   "ci95": [
+    0.5833461285401034,
+    0.8252598564231963
+   ],
+   "nearMiss": "23/32",
+   "passes": 36,
+   "falseYes": 7,
+   "falseNo": 7,
+   "p50": 1953.700666499999,
+   "p95": 2713.0277910000004,
+   "meanMs": 2031.17386586,
+   "costPerCase": 0.00037004800000000005
+  },
+  {
+   "name": "Control: LLM + Jev's definitions",
+   "accuracy": 0.94,
+   "ci95": [
+    0.8378265662912299,
+    0.9793854036353695
+   ],
+   "nearMiss": "30/32",
+   "passes": 47,
+   "falseYes": 3,
+   "falseNo": 0,
+   "p50": 1029.1260204999999,
+   "p95": 2071.4994590000006,
+   "meanMs": 1133.9521508799996,
+   "costPerCase": 0.000126984
+  },
+  {
+   "name": "Jev cascade @0.8",
+   "accuracy": 1,
+   "ci95": [
+    0.9286499658256813,
+    1
+   ],
+   "nearMiss": "32/32",
+   "passes": 50,
+   "falseYes": 0,
+   "falseNo": 0,
+   "p50": 182.3724580000012,
+   "p95": 347.35183400000096,
+   "meanMs": 234.9042141400003,
+   "costPerCase": 0.00005524720000000001
+  },
+  {
+   "name": "Jev alone @0.5 (no fallback)",
+   "accuracy": 1,
+   "ci95": [
+    0.9286499658256813,
+    1
+   ],
+   "nearMiss": "32/32",
+   "passes": 50,
+   "falseYes": 0,
+   "falseNo": 0,
+   "p50": 181.99606250000124,
+   "p95": 320.9186660000014,
+   "meanMs": 197.9194391400003,
+   "costPerCase": 0.000048556200000000015
+  },
+  {
+   "name": "Regex backstop (context)",
+   "accuracy": 0.5,
+   "ci95": [
+    0.36644286412332855,
+    0.6335571358766714
+   ],
+   "nearMiss": "7/32",
+   "passes": 25,
+   "falseYes": 20,
+   "falseNo": 5,
+   "p50": null,
+   "p95": null,
+   "meanMs": null,
+   "costPerCase": null
+  }
+ ],
+ "verdictView": [
+  {
+   "name": "Verdict today: regex OR LLM",
+   "accuracy": 0.56,
+   "ci95": [
+    0.4230578680014353,
+    0.6883801278976466
+   ],
+   "nearMiss": "10/32",
+   "passes": 28,
+   "falseYes": 20,
+   "falseNo": 2,
+   "p50": null,
+   "p95": null,
+   "meanMs": null,
+   "costPerCase": null
+  },
+  {
+   "name": "Verdict, flag on: regex OR cascade",
+   "accuracy": 0.6,
+   "ci95": [
+    0.4618118910275937,
+    0.7239181021375425
+   ],
+   "nearMiss": "12/32",
+   "passes": 30,
+   "falseYes": 20,
+   "falseNo": 0,
+   "p50": null,
+   "p95": null,
+   "meanMs": null,
+   "costPerCase": null
+  }
+ ],
+ "escalations": 1,
+ "rows": [
+  {
+   "id": "chain-letter-angel-blessing",
+   "category": "personal",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Mentions 'found money' and pressure to act fast, but no payment is requested at all.",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1931.2692080000002,
+    "cost": 0.00034535,
+    "inTok": 708,
+    "outTok": 163
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.01,
+     "crypto": 0.01,
+     "wire": 0.01
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 172.11358299999984,
+    "cost": 0.000048342000000000006,
+    "inTok": 1151,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1250.6965000000005,
+    "cost": 0.0001267
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 172.11358299999984,
+    "cost": 0.000048342000000000006
+   },
+   "regex": {
+    "decision": false,
+    "pass": true
+   }
+  },
+  {
+   "id": "western-union-bail-grandson",
+   "category": "scam",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "straightforward",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [
+     "other"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": false,
+    "ms": 2228.127,
+    "cost": 0.00041035,
+    "inTok": 758,
+    "outTok": 207
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.05,
+     "crypto": 0.02,
+     "wire": 0.99
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 182.60183299999971,
+    "cost": 0.000050526000000000004,
+    "inTok": 1203,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": true,
+    "ms": 1212.204334,
+    "cost": 0.0001355
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 182.60183299999971,
+    "cost": 0.000050526000000000004
+   },
+   "regex": {
+    "decision": true,
+    "pass": true
+   }
+  },
+  {
+   "id": "gift-card-purchase-receipt",
+   "category": "legit_business",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Gift card purchase receipt: gift card is mentioned and money was spent, but it is a record of a past card purchase, not a request to pay with gift cards.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "card"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1907.9402910000003,
+    "cost": 0.00036064999999999996,
+    "inTok": 722,
+    "outTok": 173
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.01,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 187.96129199999996,
+    "cost": 0.000049686,
+    "inTok": 1183,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 971.3500000000004,
+    "cost": 0.00012969999999999998
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 187.96129199999996,
+    "cost": 0.000049686
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "zelle-received-40",
+   "category": "legit_business",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Zelle is named, but the reader is receiving money; there is no request to send anything.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 2284.6186669999997,
+    "cost": 0.0003575,
+    "inTok": 700,
+    "outTok": 174
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.01,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 147.82683300000008,
+    "cost": 0.000048342000000000006,
+    "inTok": 1151,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1169.386375,
+    "cost": 0.0001263
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 147.82683300000008,
+    "cost": 0.000048342000000000006
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "crypto-kiosk-warrant",
+   "category": "scam",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "Uses 'crypto kiosk' instead of the word Bitcoin, and the reader inserts cash, but the payment still goes through a crypto kiosk.",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [
+     "crypto",
+     "other"
+    ],
+    "decision": true,
+    "methods": [
+     "crypto"
+    ],
+    "pass": true,
+    "ms": 2065.7628750000003,
+    "cost": 0.00041320000000000007,
+    "inTok": 741,
+    "outTok": 212
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.05,
+     "crypto": 0.96,
+     "wire": 0.05
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 170.96887500000048,
+    "cost": 0.00004985400000000001,
+    "inTok": 1187,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "crypto"
+    ],
+    "pass": true,
+    "ms": 860.5225,
+    "cost": 0.0001329
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 170.96887500000048,
+    "cost": 0.00004985400000000001
+   },
+   "regex": {
+    "decision": true,
+    "pass": true
+   }
+  },
+  {
+   "id": "ssn-verification-scam",
+   "category": "scam",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Clearly a scam with urgency, but it asks for a Social Security number, not for payment via gift card, crypto, or wire.",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 2003.145125,
+    "cost": 0.0003757,
+    "inTok": 691,
+    "outTok": 190
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.01,
+     "crypto": 0.01,
+     "wire": 0.01
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 189.88658300000043,
+    "cost": 0.000047544000000000004,
+    "inTok": 1132,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 843.0643749999999,
+    "cost": 0.0001235
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 189.88658300000043,
+    "cost": 0.000047544000000000004
+   },
+   "regex": {
+    "decision": false,
+    "pass": true
+   }
+  },
+  {
+   "id": "ceo-apple-cards-for-clients",
+   "category": "scam",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "straightforward",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [
+     "gift_card"
+    ],
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": true,
+    "ms": 1983.0665420000005,
+    "cost": 0.00036570000000000005,
+    "inTok": 716,
+    "outTok": 178
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.87,
+     "crypto": 0.01,
+     "wire": 0.03
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 193.7955839999995,
+    "cost": 0.000048762,
+    "inTok": 1161,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": true,
+    "ms": 780.9775,
+    "cost": 0.00012890000000000002
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 193.7955839999995,
+    "cost": 0.000048762
+   },
+   "regex": {
+    "decision": true,
+    "pass": true
+   }
+  },
+  {
+   "id": "pharmacy-refill-reminder",
+   "category": "legit_business",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Mentions that the pharmacy sells gift cards and asks for a copay at pickup, but does not ask the reader to pay with gift cards.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "other"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1936.085332999999,
+    "cost": 0.00036125,
+    "inTok": 700,
+    "outTok": 177
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.01,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 161.27995900000042,
+    "cost": 0.0000483,
+    "inTok": 1150,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 2071.4994590000006,
+    "cost": 0.0001261
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 161.27995900000042,
+    "cost": 0.0000483
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "venmo-payback-friend",
+   "category": "personal",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "Legitimate, friendly and low pressure, but it still asks the reader to pay through Venmo, which counts as YES.",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [
+     "other"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": false,
+    "ms": 1861.4158750000006,
+    "cost": 0.00032615,
+    "inTok": 687,
+    "outTok": 151
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.02,
+     "wire": 0.98
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 285.52637500000037,
+    "cost": 0.000047502,
+    "inTok": 1131,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": true,
+    "ms": 811.4544999999998,
+    "cost": 0.0001227
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 285.52637500000037,
+    "cost": 0.000047502
+   },
+   "regex": {
+    "decision": true,
+    "pass": true
+   }
+  },
+  {
+   "id": "utility-no-gift-card-warning",
+   "category": "newsletter_or_warning",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Names every payment method in the gate, but only to warn that the utility never accepts them.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "gift_card",
+     "crypto",
+     "wire",
+     "other"
+    ],
+    "decision": true,
+    "methods": [
+     "gift_card",
+     "crypto",
+     "wire"
+    ],
+    "pass": false,
+    "ms": 2456.260542,
+    "cost": 0.0003725,
+    "inTok": 725,
+    "outTok": 182
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.02,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 129.90516600000046,
+    "cost": 0.000049392000000000004,
+    "inTok": 1176,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1016.578125,
+    "cost": 0.0001305
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 129.90516600000046,
+    "cost": 0.000049392000000000004
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "grandparent-scam-cash-courier",
+   "category": "scam",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Classic grandparent scam, but payment is cash handed to a courier in person, which is outside the gift card, crypto, and wire methods.",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [
+     "other"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1997.6404160000002,
+    "cost": 0.00037335000000000005,
+    "inTok": 723,
+    "outTok": 183
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.02,
+     "wire": 0.03
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 142.49391699999978,
+    "cost": 0.000049098,
+    "inTok": 1169,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": false,
+    "ms": 949.480125,
+    "cost": 0.00013010000000000002
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 142.49391699999978,
+    "cost": 0.000049098
+   },
+   "regex": {
+    "decision": false,
+    "pass": true
+   }
+  },
+  {
+   "id": "utility-shutoff-prepaid-cards",
+   "category": "scam",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "straightforward",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "gift_card",
+     "other"
+    ],
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": true,
+    "ms": 2444.629000000001,
+    "cost": 0.00041685,
+    "inTok": 703,
+    "outTok": 221
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.99,
+     "crypto": 0.02,
+     "wire": 0.04
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 174.37295799999993,
+    "cost": 0.000048636,
+    "inTok": 1158,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": true,
+    "ms": 1035.1075410000012,
+    "cost": 0.0001259
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 174.37295799999993,
+    "cost": 0.000048636
+   },
+   "regex": {
+    "decision": false,
+    "pass": false
+   }
+  },
+  {
+   "id": "crypto-price-alert-newsletter",
+   "category": "newsletter_or_warning",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Talks about Bitcoin and prices, but it's informational and does not ask the reader to send or pay anything.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1905.6741250000014,
+    "cost": 0.0003615,
+    "inTok": 720,
+    "outTok": 174
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.01,
+     "crypto": 0.02,
+     "wire": 0.01
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 232.67958400000134,
+    "cost": 0.000049182000000000004,
+    "inTok": 1171,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 909.0576669999991,
+    "cost": 0.0001305
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 232.67958400000134,
+    "cost": 0.000049182000000000004
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "title-company-closing-wire",
+   "category": "legit_business",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "Looks legitimate and even includes a fraud warning, but it directly asks the reader to wire closing funds, so it is YES no matter who sent it.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "wire"
+    ],
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": true,
+    "ms": 2379.6218339999996,
+    "cost": 0.00042945000000000006,
+    "inTok": 741,
+    "outTok": 225
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.01,
+     "crypto": 0.01,
+     "wire": 0.98
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 153.81008399999882,
+    "cost": 0.000050358,
+    "inTok": 1199,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": true,
+    "ms": 1111.2440829999996,
+    "cost": 0.00013410000000000003
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 153.81008399999882,
+    "cost": 0.000050358
+   },
+   "regex": {
+    "decision": false,
+    "pass": false
+   }
+  },
+  {
+   "id": "church-bake-sale-cash",
+   "category": "personal",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Asks for payment, but only cash in person.",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [
+     "other"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1921.444958,
+    "cost": 0.0003668,
+    "inTok": 709,
+    "outTok": 180
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.01,
+     "crypto": 0.01,
+     "wire": 0.01
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 278.5096250000006,
+    "cost": 0.000048342000000000006,
+    "inTok": 1151,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 804.3287499999988,
+    "cost": 0.0001273
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 278.5096250000006,
+    "cost": 0.000048342000000000006
+   },
+   "regex": {
+    "decision": false,
+    "pass": true
+   }
+  },
+  {
+   "id": "medicare-card-call-number",
+   "category": "scam",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Scam that pushes the reader to call a number, but the message itself names no payment method and asks for no payment.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 3086.214084000001,
+    "cost": 0.0003793,
+    "inTok": 684,
+    "outTok": 194
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.01,
+     "crypto": 0.01,
+     "wire": 0.01
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 181.84904199999983,
+    "cost": 0.000047292,
+    "inTok": 1126,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1857.7061250000006,
+    "cost": 0.00012190000000000001
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 181.84904199999983,
+    "cost": 0.000047292
+   },
+   "regex": {
+    "decision": false,
+    "pass": true
+   }
+  },
+  {
+   "id": "usdt-wallet-romance",
+   "category": "scam",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "straightforward",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "crypto"
+    ],
+    "decision": true,
+    "methods": [
+     "crypto"
+    ],
+    "pass": true,
+    "ms": 2106.505292,
+    "cost": 0.00038525,
+    "inTok": 745,
+    "outTok": 189
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.03,
+     "crypto": 0.99,
+     "wire": 0.1
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 180.78199999999924,
+    "cost": 0.000050064,
+    "inTok": 1192,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "crypto"
+    ],
+    "pass": true,
+    "ms": 831.2784579999989,
+    "cost": 0.0001343
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 180.78199999999924,
+    "cost": 0.000050064
+   },
+   "regex": {
+    "decision": false,
+    "pass": false
+   }
+  },
+  {
+   "id": "venmo-you-paid-sam",
+   "category": "legit_business",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Venmo payment receipt: money was sent through Venmo, but this only records a finished payment and asks for nothing new.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "other"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 2094.145624999999,
+    "cost": 0.0003275,
+    "inTok": 675,
+    "outTok": 154
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.01,
+     "crypto": 0.02,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 159.97120799999902,
+    "cost": 0.000047040000000000004,
+    "inTok": 1120,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 834.6940840000007,
+    "cost": 0.0001199
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 159.97120799999902,
+    "cost": 0.000047040000000000004
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "property-tax-notice-online",
+   "category": "legit_business",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Real payment request with a deadline, but only via online bill pay, card, check or in person.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "card",
+     "check",
+     "other"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 2072.2125419999975,
+    "cost": 0.0003875,
+    "inTok": 725,
+    "outTok": 194
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.02,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 167.1897089999984,
+    "cost": 0.000049728,
+    "inTok": 1184,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 832.9820419999996,
+    "cost": 0.00013030000000000002
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 167.1897089999984,
+    "cost": 0.000049728
+   },
+   "regex": {
+    "decision": false,
+    "pass": true
+   }
+  },
+  {
+   "id": "pharmacy-store-cards-no-brand",
+   "category": "scam",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "Never says 'gift card' or names a brand; describes buying store cards and reading the scratched-off numbers, which is still a gift card payment.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "card"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": false,
+    "ms": 1973.251874999998,
+    "cost": 0.00043395000000000006,
+    "inTok": 726,
+    "outTok": 231
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.99,
+     "crypto": 0.02,
+     "wire": 0.05
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 182.9018329999999,
+    "cost": 0.000049098,
+    "inTok": 1169,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": true,
+    "ms": 876.0560829999995,
+    "cost": 0.00013010000000000002
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 182.9018329999999,
+    "cost": 0.000049098
+   },
+   "regex": {
+    "decision": false,
+    "pass": false
+   }
+  },
+  {
+   "id": "do-not-send-western-union-grandson",
+   "category": "personal",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Uses the words 'send Western Union' and grandson, but only to warn the reader not to do it.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "other"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 2078.5071669999998,
+    "cost": 0.00034085,
+    "inTok": 723,
+    "outTok": 157
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.02,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 347.35183400000096,
+    "cost": 0.000049098,
+    "inTok": 1169,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": false,
+    "ms": 1145.1067920000023,
+    "cost": 0.00013010000000000002
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 347.35183400000096,
+    "cost": 0.000049098
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "bank-security-tips-gift-cards",
+   "category": "newsletter_or_warning",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Says 'gift cards', 'codes', 'PINs' and 'Bitcoin', but only in security advice telling the reader never to pay that way.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "gift_card",
+     "crypto",
+     "other"
+    ],
+    "decision": true,
+    "methods": [
+     "gift_card",
+     "crypto"
+    ],
+    "pass": false,
+    "ms": 1772.0057910000032,
+    "cost": 0.00033125,
+    "inTok": 725,
+    "outTok": 149
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.02,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 185.53058299999975,
+    "cost": 0.000049266000000000006,
+    "inTok": 1173,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 912.0464170000014,
+    "cost": 0.0001315
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 185.53058299999975,
+    "cost": 0.000049266000000000006
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "zelle-overpayment-refund",
+   "category": "scam",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "straightforward",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [
+     "other",
+     "card",
+     "other"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": false,
+    "ms": 1741.3736669999998,
+    "cost": 0.00038925,
+    "inTok": 715,
+    "outTok": 197
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.02,
+     "wire": 0.93
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 140.43249999999898,
+    "cost": 0.000048804,
+    "inTok": 1162,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": true,
+    "ms": 1066.3306249999987,
+    "cost": 0.00012810000000000002
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 140.43249999999898,
+    "cost": 0.000048804
+   },
+   "regex": {
+    "decision": true,
+    "pass": true
+   }
+  },
+  {
+   "id": "eye-doctor-appointment-reminder",
+   "category": "legit_business",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "straightforward",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1662.270457999999,
+    "cost": 0.00039475,
+    "inTok": 705,
+    "outTok": 203
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.01,
+     "crypto": 0.01,
+     "wire": 0.01
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 146.18825000000288,
+    "cost": 0.000048678000000000004,
+    "inTok": 1159,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1159.7779999999984,
+    "cost": 0.0001267
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 146.18825000000288,
+    "cost": 0.000048678000000000004
+   },
+   "regex": {
+    "decision": false,
+    "pass": true
+   }
+  },
+  {
+   "id": "sextortion-bitcoin-or-gift-cards",
+   "category": "scam",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "Asks for payment by either of two methods, crypto or gift cards, so both belong in methods.",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [
+     "crypto",
+     "gift_card"
+    ],
+    "decision": true,
+    "methods": [
+     "gift_card",
+     "crypto"
+    ],
+    "pass": true,
+    "ms": 1982.4382499999992,
+    "cost": 0.0003868,
+    "inTok": 709,
+    "outTok": 196
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.98,
+     "crypto": 0.99,
+     "wire": 0.05
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 143.59666600000128,
+    "cost": 0.000048678000000000004,
+    "inTok": 1159,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "gift_card",
+     "crypto"
+    ],
+    "pass": true,
+    "ms": 1266.112500000003,
+    "cost": 0.0001267
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 143.59666600000128,
+    "cost": 0.000048678000000000004
+   },
+   "regex": {
+    "decision": true,
+    "pass": true
+   }
+  },
+  {
+   "id": "store-promo-free-gift-card",
+   "category": "legit_business",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Promotion that gives the reader a gift card; asks the reader to shop, but not to pay with gift cards.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1773.070541000001,
+    "cost": 0.00038285,
+    "inTok": 708,
+    "outTok": 193
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.01,
+     "wire": 0.01
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 192.58654100000058,
+    "cost": 0.000048804,
+    "inTok": 1162,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1373.9434169999986,
+    "cost": 0.0001275
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 192.58654100000058,
+    "cost": 0.000048804
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "reply-for-payment-instructions",
+   "category": "scam",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Clear advance-fee scam asking for a fee, but it never says how to pay yet. With no gift card, crypto, or wire method named, the answer is NO.",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1925.2447920000013,
+    "cost": 0.00038165,
+    "inTok": 702,
+    "outTok": 193
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.03,
+     "crypto": 0.02,
+     "wire": 0.11
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 171.32425000000148,
+    "cost": 0.000048384,
+    "inTok": 1152,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 811.8446670000012,
+    "cost": 0.0001261
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 171.32425000000148,
+    "cost": 0.000048384
+   },
+   "regex": {
+    "decision": false,
+    "pass": true
+   }
+  },
+  {
+   "id": "digital-currency-deposit-vague",
+   "category": "scam",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "Never says Bitcoin or crypto; the 'digital currency deposit' machine, scanned code and 'wallet' describe a crypto ATM deposit.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "other"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": false,
+    "ms": 2302.990540999999,
+    "cost": 0.00038655,
+    "inTok": 714,
+    "outTok": 195
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.05,
+     "crypto": 0.85,
+     "wire": 0.05
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 270.49012500000026,
+    "cost": 0.000048678000000000004,
+    "inTok": 1159,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "crypto"
+    ],
+    "pass": true,
+    "ms": 995.3951660000021,
+    "cost": 0.0001283
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 270.49012500000026,
+    "cost": 0.000048678000000000004
+   },
+   "regex": {
+    "decision": false,
+    "pass": false
+   }
+  },
+  {
+   "id": "tech-support-299-credit-card",
+   "category": "scam",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Tech support scam with a demand for money, but payment is by credit card only.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "card"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 2024.426916999997,
+    "cost": 0.00036455,
+    "inTok": 704,
+    "outTok": 179
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.03,
+     "crypto": 0.02,
+     "wire": 0.03
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 173.2567080000008,
+    "cost": 0.000048384,
+    "inTok": 1152,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1023.1444999999985,
+    "cost": 0.0001261
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 173.2567080000008,
+    "cost": 0.000048384
+   },
+   "regex": {
+    "decision": false,
+    "pass": true
+   }
+  },
+  {
+   "id": "western-union-hours-change",
+   "category": "legit_business",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Lists Western Union and gift card sales among store services, but asks the reader to pay nothing.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "gift_card",
+     "other"
+    ],
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": false,
+    "ms": 1742.019833000002,
+    "cost": 0.00031864999999999997,
+    "inTok": 687,
+    "outTok": 145
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.01,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 206.13700000000244,
+    "cost": 0.00004746,
+    "inTok": 1130,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 971.3445839999986,
+    "cost": 0.0001227
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 206.13700000000244,
+    "cost": 0.00004746
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "google-play-codes-over-phone",
+   "category": "scam",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "straightforward",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [
+     "gift_card"
+    ],
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": true,
+    "ms": 2142.407708999999,
+    "cost": 0.00039985000000000004,
+    "inTok": 718,
+    "outTok": 205
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.99,
+     "crypto": 0.02,
+     "wire": 0.06
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 138.86354199999914,
+    "cost": 0.000049182000000000004,
+    "inTok": 1171,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": true,
+    "ms": 925.4771670000009,
+    "cost": 0.00012910000000000002
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 138.86354199999914,
+    "cost": 0.000049182000000000004
+   },
+   "regex": {
+    "decision": true,
+    "pass": true
+   }
+  },
+  {
+   "id": "grandchild-sent-birthday-gift-card",
+   "category": "personal",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Gift card and code are mentioned by a family member, but it is a gift to the reader and nothing is asked in return.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "gift_card"
+    ],
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": false,
+    "ms": 1850.3064170000034,
+    "cost": 0.0003288,
+    "inTok": 694,
+    "outTok": 152
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.01,
+     "wire": 0.01
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 205.8132919999989,
+    "cost": 0.000047754000000000004,
+    "inTok": 1137,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 754.2977920000012,
+    "cost": 0.0001245
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 205.8132919999989,
+    "cost": 0.000047754000000000004
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "gift-card-balance-notice",
+   "category": "legit_business",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Gift card balance notice that shows a card number fragment, but asks the reader to pay nothing.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "gift_card"
+    ],
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": false,
+    "ms": 1905.161874999998,
+    "cost": 0.00032785000000000003,
+    "inTok": 683,
+    "outTok": 153
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.01,
+     "wire": 0.01
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 215.2100419999988,
+    "cost": 0.000047376,
+    "inTok": 1128,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 809.9822910000003,
+    "cost": 0.0001221
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 215.2100419999988,
+    "cost": 0.000047376
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "moneygram-lottery-tax",
+   "category": "scam",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "straightforward",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [
+     "other"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": false,
+    "ms": 2528.1461249999993,
+    "cost": 0.00037565,
+    "inTok": 722,
+    "outTok": 185
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.03,
+     "crypto": 0.02,
+     "wire": 0.99
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 148.9175000000032,
+    "cost": 0.00004914,
+    "inTok": 1170,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": true,
+    "ms": 2340.2684999999983,
+    "cost": 0.0001299
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 148.9175000000032,
+    "cost": 0.00004914
+   },
+   "regex": {
+    "decision": true,
+    "pass": true
+   }
+  },
+  {
+   "id": "charity-appeal-check",
+   "category": "legit_business",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Asks for money, but only by mailed check.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "check"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1741.1595000000016,
+    "cost": 0.000348,
+    "inTok": 715,
+    "outTok": 164
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.01,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 259.32920899999954,
+    "cost": 0.000049182000000000004,
+    "inTok": 1171,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 847.7082499999997,
+    "cost": 0.00012910000000000002
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 259.32920899999954,
+    "cost": 0.000049182000000000004
+   },
+   "regex": {
+    "decision": false,
+    "pass": true
+   }
+  },
+  {
+   "id": "offer-to-pay-reader-zelle",
+   "category": "personal",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Mentions Zelle and asks for Zelle details, but the neighbor is offering to pay the reader; the reader is not sending money.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "other"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1849.2387500000004,
+    "cost": 0.00033455000000000003,
+    "inTok": 704,
+    "outTok": 155
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.02,
+     "wire": 0.44
+    },
+    "outcome": "escalate",
+    "model": "jev-1.13.0",
+    "ms": 144.78350000000137,
+    "cost": 0.0000483,
+    "inTok": 1150,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": false,
+    "ms": 1567.1319999999978,
+    "cost": 0.0001263
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "llm",
+    "pass": true,
+    "ms": 1994.0222500000018,
+    "cost": 0.00038285
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "bitcoin-atm-fraud-dept",
+   "category": "scam",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "straightforward",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [
+     "crypto"
+    ],
+    "decision": true,
+    "methods": [
+     "crypto"
+    ],
+    "pass": true,
+    "ms": 2713.0277910000004,
+    "cost": 0.00037195000000000007,
+    "inTok": 716,
+    "outTok": 183
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.04,
+     "crypto": 0.98,
+     "wire": 0.05
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 255.3547499999986,
+    "cost": 0.00004893,
+    "inTok": 1165,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "crypto"
+    ],
+    "pass": true,
+    "ms": 2490.480667,
+    "cost": 0.00012790000000000002
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 255.3547499999986,
+    "cost": 0.00004893
+   },
+   "regex": {
+    "decision": true,
+    "pass": true
+   }
+  },
+  {
+   "id": "credit-card-link-scam",
+   "category": "scam",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Scam asking for a credit card number on a link, not a gift card, crypto, or wire payment.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "card"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 2052.6057089999995,
+    "cost": 0.00034930000000000003,
+    "inTok": 684,
+    "outTok": 170
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.05,
+     "crypto": 0.02,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 213.4905409999992,
+    "cost": 0.000047502,
+    "inTok": 1131,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 750.1840000000011,
+    "cost": 0.00012190000000000001
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 213.4905409999992,
+    "cost": 0.000047502
+   },
+   "regex": {
+    "decision": false,
+    "pass": true
+   }
+  },
+  {
+   "id": "cash-app-login-phishing",
+   "category": "scam",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Names Cash App and is a phishing scam, but it wants login details, not a payment or transfer.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1893.2378339999996,
+    "cost": 0.00035595000000000006,
+    "inTok": 686,
+    "outTok": 175
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.01,
+     "crypto": 0.01,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 178.39412500000253,
+    "cost": 0.000047334000000000005,
+    "inTok": 1127,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1121.5528750000012,
+    "cost": 0.0001225
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 178.39412500000253,
+    "cost": 0.000047334000000000005
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "pastor-gift-cards-nursing-home",
+   "category": "scam",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "straightforward",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [
+     "gift_card"
+    ],
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": true,
+    "ms": 1757.1086250000008,
+    "cost": 0.00036205,
+    "inTok": 704,
+    "outTok": 177
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.92,
+     "crypto": 0.02,
+     "wire": 0.03
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 320.9186660000014,
+    "cost": 0.000048258000000000005,
+    "inTok": 1149,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": true,
+    "ms": 1094.0636249999989,
+    "cost": 0.0001267
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 320.9186660000014,
+    "cost": 0.000048258000000000005
+   },
+   "regex": {
+    "decision": true,
+    "pass": true
+   }
+  },
+  {
+   "id": "news-bitcoin-atm-scam-article",
+   "category": "newsletter_or_warning",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "News story that describes someone being told to deposit cash into a Bitcoin ATM; that was the victim's instruction, and nothing asks the reader to pay.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "crypto"
+    ],
+    "decision": true,
+    "methods": [
+     "crypto"
+    ],
+    "pass": false,
+    "ms": 1769.9813330000034,
+    "cost": 0.0003533,
+    "inTok": 729,
+    "outTok": 166
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.02,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 198.2495830000007,
+    "cost": 0.000049728,
+    "inTok": 1184,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1142.387749999998,
+    "cost": 0.00013130000000000002
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 198.2495830000007,
+    "cost": 0.000049728
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "cash-app-prize-fee",
+   "category": "scam",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "straightforward",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [
+     "card",
+     "other"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": false,
+    "ms": 1849.1061670000017,
+    "cost": 0.0003688,
+    "inTok": 694,
+    "outTok": 184
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.05,
+     "crypto": 0.04,
+     "wire": 0.99
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 159.27524999999878,
+    "cost": 0.0000483,
+    "inTok": 1150,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": true,
+    "ms": 839.9162079999987,
+    "cost": 0.0001237
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 159.27524999999878,
+    "cost": 0.0000483
+   },
+   "regex": {
+    "decision": true,
+    "pass": true
+   }
+  },
+  {
+   "id": "utility-bill-card-check-autopay",
+   "category": "legit_business",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Real bill asking for payment, but only by card, check or autopay.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "card",
+     "check",
+     "other"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1913.9629999999997,
+    "cost": 0.00038875,
+    "inTok": 700,
+    "outTok": 199
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.01,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 135.61575000000084,
+    "cost": 0.000048468000000000004,
+    "inTok": 1154,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1623.4462079999976,
+    "cost": 0.0001261
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 135.61575000000084,
+    "cost": 0.000048468000000000004
+   },
+   "regex": {
+    "decision": false,
+    "pass": true
+   }
+  },
+  {
+   "id": "gift-card-replaced-notice",
+   "category": "legit_business",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Gift card customer-service message about a replacement card; nothing asks the reader to buy or send codes.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "card",
+     "other"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1971.315999999999,
+    "cost": 0.00034695000000000006,
+    "inTok": 691,
+    "outTok": 167
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.01,
+     "wire": 0.01
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 155.25641600000017,
+    "cost": 0.000048048000000000005,
+    "inTok": 1144,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1072.234042,
+    "cost": 0.0001237
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 155.25641600000017,
+    "cost": 0.000048048000000000005
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "fake-investment-btc-topup",
+   "category": "scam",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "straightforward",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [
+     "crypto"
+    ],
+    "decision": true,
+    "methods": [
+     "crypto"
+    ],
+    "pass": true,
+    "ms": 1930.2345830000013,
+    "cost": 0.00039210000000000004,
+    "inTok": 723,
+    "outTok": 198
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.99,
+     "wire": 0.03
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 245.03041699999812,
+    "cost": 0.000049308,
+    "inTok": 1174,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "crypto"
+    ],
+    "pass": true,
+    "ms": 1294.752916999998,
+    "cost": 0.00013030000000000002
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 245.03041699999812,
+    "cost": 0.000049308
+   },
+   "regex": {
+    "decision": true,
+    "pass": true
+   }
+  },
+  {
+   "id": "prize-gift-card-shipping-debit",
+   "category": "scam",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Scam featuring a gift card, but the gift card goes to the reader and the fee is paid by debit card.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "card"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1918.4741670000003,
+    "cost": 0.00037515,
+    "inTok": 682,
+    "outTok": 191
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.04,
+     "crypto": 0.02,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 154.86437499999738,
+    "cost": 0.000047418000000000006,
+    "inTok": 1129,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1643.7960410000014,
+    "cost": 0.0001215
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 154.86437499999738,
+    "cost": 0.000047418000000000006
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "landlord-portal-no-zelle",
+   "category": "legit_business",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Rent request names Zelle and Venmo only to say they are no longer accepted; payment is by portal, debit card or check.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "card",
+     "check",
+     "other"
+    ],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 2822.410499999998,
+    "cost": 0.00040170000000000006,
+    "inTok": 696,
+    "outTok": 210
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.02,
+     "crypto": 0.02,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 199.72816700000112,
+    "cost": 0.000048006,
+    "inTok": 1143,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1174.580167,
+    "cost": 0.0001247
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 199.72816700000112,
+    "cost": 0.000048006
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "target-cards-ssa-suspension",
+   "category": "scam",
+   "label": true,
+   "unanimousLabel": true,
+   "trap": "straightforward",
+   "nearMiss": false,
+   "llm": {
+    "rawMethods": [
+     "gift_card"
+    ],
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": true,
+    "ms": 2183.3603339999972,
+    "cost": 0.00044935,
+    "inTok": 703,
+    "outTok": 247
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.99,
+     "crypto": 0.02,
+     "wire": 0.05
+    },
+    "outcome": "yes",
+    "model": "jev-1.13.0",
+    "ms": 197.74895800000377,
+    "cost": 0.000048216,
+    "inTok": 1148,
+    "outTok": 53
+   },
+   "control": {
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": true,
+    "ms": 936.5944999999992,
+    "cost": 0.0001255
+   },
+   "jevOnly": {
+    "decision": true,
+    "pass": true
+   },
+   "cascade": {
+    "decision": true,
+    "source": "jev",
+    "pass": true,
+    "ms": 197.74895800000377,
+    "cost": 0.000048216
+   },
+   "regex": {
+    "decision": true,
+    "pass": true
+   }
+  },
+  {
+   "id": "son-bitcoin-birthday-gift",
+   "category": "personal",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Bitcoin and a wallet are mentioned, but it is a gift to the reader and nothing is asked in return.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [
+     "crypto"
+    ],
+    "decision": true,
+    "methods": [
+     "crypto"
+    ],
+    "pass": false,
+    "ms": 1749.3253330000007,
+    "cost": 0.00034070000000000004,
+    "inTok": 691,
+    "outTok": 162
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.01,
+     "crypto": 0.02,
+     "wire": 0.01
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 182.14308300000266,
+    "cost": 0.00004779600000000001,
+    "inTok": 1138,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1051.2167499999996,
+    "cost": 0.0001239
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 182.14308300000266,
+    "cost": 0.00004779600000000001
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  },
+  {
+   "id": "thanks-for-the-venmo",
+   "category": "personal",
+   "label": false,
+   "unanimousLabel": true,
+   "trap": "Mentions a past Venmo payment the reader made, but asks for nothing more.",
+   "nearMiss": true,
+   "llm": {
+    "rawMethods": [],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1374.7423750000016,
+    "cost": 0.00030470000000000003,
+    "inTok": 661,
+    "outTok": 138
+   },
+   "jev": {
+    "probs": {
+     "gift_card": 0.01,
+     "crypto": 0.01,
+     "wire": 0.02
+    },
+    "outcome": "no",
+    "model": "jev-1.13.0",
+    "ms": 533.664291000001,
+    "cost": 0.000046242,
+    "inTok": 1101,
+    "outTok": 53
+   },
+   "control": {
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1462.8205000000016,
+    "cost": 0.0001175
+   },
+   "jevOnly": {
+    "decision": false,
+    "pass": true
+   },
+   "cascade": {
+    "decision": false,
+    "source": "jev",
+    "pass": true,
+    "ms": 533.664291000001,
+    "cost": 0.000046242
+   },
+   "regex": {
+    "decision": true,
+    "pass": false
+   }
+  }
+ ]
+}

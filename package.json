@@ -14,7 +14,8 @@
     "dev": "vite",
     "test:evals": "tsx evals/run.ts",
     "fixtures": "tsx evals/build-fixtures.ts",
-    "spike:firecrawl": "tsx scripts/spike-firecrawl.ts"
+    "spike:firecrawl": "tsx scripts/spike-firecrawl.ts",
+    "eval:jev-payment": "tsx evals/jev/payment-gate.ts"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +30,7 @@
     "@convex-dev/static-hosting": "^0.2.1",
     "@convex-dev/workflow": "^0.4.8",
     "@convex-dev/workpool": "^0.4.12",
+    "@typesafe-ai/sdk": "^0.6.0",
     "agentmail": "^0.5.25",
     "convex": "^1.45.0",
     "libphonenumber-js": "^1.13.13",

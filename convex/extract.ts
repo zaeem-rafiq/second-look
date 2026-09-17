@@ -11,6 +11,7 @@ import {
   parseForwardedEmail,
   type LlmExtraction,
 } from "../lib/extract";
+import { htmlToText } from "../lib/forwardParser";
 import { normalizePhone } from "../lib/phones";
 import { EXTRACT_MODEL, openaiClient, openaiConfigured } from "./clients/openai";
 import { getMessage, type MessageReceivedEvent } from "./clients/agentmail";
@@ -59,6 +60,17 @@ export const extractCase = internalAction({
         // The deterministic extraction still stands; the verdict never depends on the model.
         console.error("openai extraction failed; using deterministic extraction only", String(err));
       }
+    }
+
+    // Experiment behind a flag (off unless PAYMENT_GATE_MODE is set): TypeSafe Jev answers the
+    // payment-method gate, falling back to the LLM answer when Jev is not confident.
+    const gateMode = process.env.PAYMENT_GATE_MODE;
+    if (llm && (gateMode === "jev_shadow" || gateMode === "jev_cascade")) {
+      const [{ applyPaymentGateFlag }, { gateEmailFromParsed }] = await Promise.all([
+        import("../lib/paymentGateClient"),
+        import("../lib/paymentGate"),
+      ]);
+      llm = await applyPaymentGateFlag(gateMode, llm, gateEmailFromParsed(parsed, text || htmlToText(html)));
     }
 
     const merged = mergeExtraction(det, llm, normalizePhone);
