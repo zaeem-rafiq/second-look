@@ -46,6 +46,17 @@ const CHECK_LABELS: Record<string, string> = {
   payment_method: "Payment method",
 };
 
+const PAYMENT_WORDS: Record<string, string> = { gift_card: "gift card", crypto: "cryptocurrency", wire: "wire or money transfer" };
+
+/** "gift_card, wire" -> "gift card or wire or money transfer" */
+function paymentWords(claim: string): string {
+  return claim
+    .split(/,\s*/)
+    .filter(Boolean)
+    .map((m) => PAYMENT_WORDS[m] ?? m.replace(/_/g, " "))
+    .join(" or ");
+}
+
 function fmtDate(ms: number | null): string {
   if (!ms) return "";
   return new Date(ms).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
@@ -170,6 +181,10 @@ function CaseCard({ c }: { c: Case }) {
                   {e.matched ? (
                     <span className="ev-text">
                       matches {e.officialValue ? <span className="mono">{e.officialValue}</span> : "the official source"}
+                    </span>
+                  ) : e.check === "payment_method" ? (
+                    <span className="ev-text">
+                      asks for payment by <span className="claim">{paymentWords(e.claimValue)}</span>
                     </span>
                   ) : (
                     <span className="ev-text">

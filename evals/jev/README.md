@@ -15,7 +15,7 @@
 | `evals/jev/cases.json` | The 50 cases. |
 | `evals/jev/results.json` | Per-case results: ids, probabilities, decisions, timings. No email bodies. |
 
-**Status (2026-09-17).** The code is deployed to the dev deployment. `TYPESAFE_API_KEY` is set there, and `PAYMENT_GATE_MODE` is `jev_cascade`, so Jev's confident answers decide the payment gate and uncertain ones fall back to the LLM. The stored key was checked with synthetic calls using the production gate questions: a gift-card request scored 0.95 (yes) and a gift card balance notice 0.02 (no). The gate has not yet run inside Convex on a real forwarded email. Set the mode to `jev_shadow` to log without applying, or remove it to turn Jev off.
+**Status (2026-09-17).** The code is deployed to the dev deployment. `TYPESAFE_API_KEY` is set there, and `PAYMENT_GATE_MODE` is `jev_cascade`, so Jev's confident answers decide the payment gate and uncertain ones fall back to the LLM. The stored key was checked with synthetic calls using the production gate questions: a gift-card request scored 0.95 (yes) and a gift card balance notice 0.02 (no). A real forward (the gift-card tech-support fixture) ran through the gate inside Convex on 2026-09-17: Jev answered gift card at p = 0.99 in 283 ms, decided the gate itself, and the case came back as a mismatch. Set the mode to `jev_shadow` to log without applying, or remove it to turn Jev off.
 
 ## How the cases were made
 

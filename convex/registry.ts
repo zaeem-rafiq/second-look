@@ -3,7 +3,7 @@ import { internalAction, internalMutation, internalQuery } from "./_generated/se
 import { internal } from "./_generated/api";
 import { policyQuote } from "./schema";
 import { SEED_ORGS } from "../lib/registrySeed";
-import { findOrg, orgKey } from "../lib/registry";
+import { NOT_OFFICIAL_SITES, findOrg, orgKey, pickOfficialCandidate } from "../lib/registry";
 import { extractPhones } from "../lib/phones";
 import { registrableDomain, hostOf } from "../lib/domains";
 import { firecrawlConfigured, scrape, search } from "./clients/firecrawl";
@@ -13,7 +13,6 @@ import type { OfficialOrg } from "../lib/types";
 import { normalizeQuoteText } from "../lib/quotes";
 import type { Id } from "./_generated/dataModel";
 
-const NOT_OFFICIAL_SITES = ["wikipedia.org", "facebook.com", "linkedin.com", "twitter.com", "x.com", "yelp.com", "bbb.org", "instagram.com", "youtube.com", "reddit.com"];
 
 export const listAliases = internalQuery({
   args: {},
@@ -80,6 +79,30 @@ export const upsertCrawled = internalMutation({
   },
 });
 
+/**
+ * Remove a registry entry that the unknown-organization web lookup created, and detach cases from it.
+ * Refuses to touch hand-verified seed entries.
+ */
+export const removeWebLookupOrg = internalMutation({
+  args: { key: v.string() },
+  returns: v.object({ removed: v.boolean(), casesDetached: v.number() }),
+  handler: async (ctx, args) => {
+    const org = await ctx.db.query("officialOrgs").withIndex("by_key", (q) => q.eq("key", args.key)).unique();
+    if (!org) return { removed: false, casesDetached: 0 };
+    if (org.seededBy !== "firecrawl") throw new Error(`refusing to remove ${args.key}: not created by the web lookup`);
+    let casesDetached = 0;
+    const scope = org.familyId ? ctx.db.query("cases").withIndex("by_family", (q) => q.eq("familyId", org.familyId!)) : ctx.db.query("cases");
+    for await (const c of scope) {
+      if (c.orgId === org._id) {
+        await ctx.db.patch("cases", c._id, { orgId: undefined });
+        casesDetached += 1;
+      }
+    }
+    await ctx.db.delete("officialOrgs", org._id);
+    return { removed: true, casesDetached };
+  },
+});
+
 export const markCrawled = internalMutation({
   args: { orgId: v.id("officialOrgs"), phones: v.array(v.string()), policyQuotes: v.array(policyQuote) },
   returns: v.null(),
@@ -141,14 +164,8 @@ export const resolveForCase = internalAction({
 
     try {
       const hits = await search(`${claim} official website contact us`, { limit: 3 });
-      const claimWords = claim.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2);
-      const candidate = hits.find((h) => {
-        const host = hostOf(h.url);
-        const domain = host ? registrableDomain(host) : null;
-        if (!domain || NOT_OFFICIAL_SITES.includes(domain)) return false;
-        const hay = `${h.title ?? ""} ${h.description ?? ""} ${h.url}`.toLowerCase();
-        return claimWords.some((w) => hay.includes(w));
-      });
+      // The site's own domain must match the claimed name; page text alone is not enough.
+      const candidate = pickOfficialCandidate(claim, hits);
       if (!candidate) {
         await ctx.runMutation(internal.cases.setOrg, { caseId: args.caseId, orgId: null });
         return null;
