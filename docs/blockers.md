@@ -1,5 +1,7 @@
 # Blockers — Day 1 (2026-09-15)
 
+> **Resolved 2026-09-16.** Convex login done, cloud dev deployment `friendly-retriever-712` selected, OpenAI, Firecrawl and organization-scoped AgentMail keys verified with read-only calls, AgentMail inboxes and helper-scoped webhook created. Remaining Day-1 work: seed the registry and demo family, send the real Medicare forward, upload the convex.site placeholder.
+
 Not an error: the build is complete and proven locally; the cloud half of the Day-1 gate is waiting on the four pre-conditions you said you would provide. Each is something only you can do. Nothing else is outstanding.
 
 ## What is blocked and why

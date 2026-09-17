@@ -43,6 +43,11 @@ export const agentmailWebhook = httpAction(async (ctx, request) => {
   if (event.event_type !== "message.received" || !event.message) {
     return new Response(null, { status: 204 });
   }
+  // Only mail addressed to the helper inbox is processed; nothing else is stored.
+  const helperInbox = process.env.AGENTMAIL_INBOX_ID;
+  if (!helperInbox || event.message.inbox_id?.toLowerCase() !== helperInbox.toLowerCase()) {
+    return new Response(null, { status: 204 });
+  }
 
   const rawStorageId = await ctx.storage.store(new Blob([body], { type: "application/json" }));
   await ctx.runMutation(internal.inbound.ingest, {
