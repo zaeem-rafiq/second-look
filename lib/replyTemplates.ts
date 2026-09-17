@@ -60,19 +60,95 @@ function fixedParts(f: ReplyFacts): { defaultExplanation: string; action: string
   }
 }
 
+export type EvidenceLike = { check: string; applicable: boolean; matched: boolean; severity: "hard" | "soft"; claimValue: string };
+
+/** Plain-language reasons the model may mention, derived only from failed hard checks. No numbers or domains. */
+export function explanationReasons(verdict: Verdict, orgName: string | null, evidence: EvidenceLike[]): string[] {
+  const org = orgName ?? "the organization";
+  if (verdict === "matches_official") return [`the sender and links match ${org}'s official contact information`];
+  if (verdict === "cannot_verify") return ["there was no official source to check it against"];
+  const reasons: string[] = [];
+  for (const e of evidence) {
+    if (!e.applicable || e.matched || e.severity !== "hard") continue;
+    let r: string | null = null;
+    switch (e.check) {
+      case "sender_domain":
+        r = `the sender's email address is not an official ${org} address`;
+        break;
+      case "link_domains":
+        r = `the links go to a website that is not ${org}'s`;
+        break;
+      case "phone":
+        r = `the phone number in it is not one ${org} lists`;
+        break;
+      case "policy_contradiction": {
+        const what = e.claimValue.replace(/^email\s+/i, "").replace(/\+?\d[\d\s().-]{6,}\d/g, "a number").trim();
+        r = what ? `it ${what}, which ${org} says it only does in limited situations` : null;
+        break;
+      }
+      case "payment_method":
+        r = `it asks for payment by ${e.claimValue.replace(/_/g, " ")}, which real organizations don't ask for`;
+        break;
+    }
+    if (r && !reasons.includes(r)) reasons.push(r);
+  }
+  return reasons;
+}
+
+// Topics a model might invent. An explanation may mention one only if the reasons do.
+const CLAIM_TOPICS: RegExp[] = [
+  /suspend/i,
+  /polic(y|ies)/i,
+  /arrest|warrant|legal|police|law enforcement|court|lawsuit|jail|deport/i,
+  /gift ?card|crypto|bitcoin|wire/i,
+  /refund|prize|lottery|winn/i,
+  /cancel|terminat|clos(e|ed|ing) your/i,
+  /password|login|log in|social security/i,
+  /deadline|hours|today|urgent/i,
+  /lock(ed)?\b|hack|compromis|virus|infect/i,
+  /\bowe\b|owed|penalt|\bfines?\b|\btax(es)?\b|debt/i,
+  /\blos(e|ing|t)\b/i,
+];
+const NUMBER_WORDS = /\b(zero|oh|one|two|three|four|five|six|seven|eight|nine|ten|hundred|thousand)\b(?:[\s,-]+\b(zero|oh|one|two|three|four|five|six|seven|eight|nine|ten|hundred|thousand)\b){2,}/i;
+const LINKISH = /https?:\/\/|www\.|\b[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}\b|\bdot\s+(com|net|org|gov|us|info|co|biz|io|center)\b/i;
+
+export type ExplanationGuard = {
+  /** Plain reasons from explanationReasons(); topics outside them are rejected. */
+  reasons: string[];
+  /** The organization the checks resolved to, or null. */
+  orgName?: string | null;
+  /** Registry names and aliases; any other organization named in the explanation is rejected. */
+  knownOrgNames?: string[];
+};
+
+function mentions(text: string, name: string): boolean {
+  if (name.length < 3) return false;
+  return new RegExp(`(^|[^a-z0-9])${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z0-9]|$)`, "i").test(text);
+}
+
 /** A model explanation is used only if it is short, states facts, and repeats no numbers, links or commands. */
-export function acceptableExplanation(text: string | null | undefined): string | null {
+export function acceptableExplanation(text: string | null | undefined, guard?: ExplanationGuard): string | null {
   if (!text) return null;
   const t = tidy(text).replace(/\n+/g, " ");
   if (!t) return null;
   const words = t.split(/\s+/).length;
   if (words > 40) return null;
-  if (/\d{3}[\s.-]?\d{4}|\d{3}[\s.-]\d{3}[\s.-]\d{4}/.test(t)) return null;
-  if (/https?:\/\/|www\.|\b[a-z0-9-]+\.(com|net|org|gov|us|info|co)\b/i.test(t)) return null;
-  if (/[$€£]\s?\d/.test(t)) return null;
+  if (/\d/.test(t)) return null;
+  if (NUMBER_WORDS.test(t)) return null;
+  if (LINKISH.test(t)) return null;
+  if (/[$€£]|\bdollars?\b|\busd\b/i.test(t)) return null;
   if (FORBIDDEN.some((re) => re.test(t))) return null;
   if (countImperativeSentences(t) > 0) return null;
   if (!/[.!?]$/.test(t)) return null;
+  if (guard) {
+    const allowed = guard.reasons.join(" ");
+    if (CLAIM_TOPICS.some((re) => re.test(t) && !re.test(allowed))) return null;
+    const own = guard.orgName ?? null;
+    for (const name of guard.knownOrgNames ?? []) {
+      const isOwn = own !== null && (name.toLowerCase() === own.toLowerCase() || mentions(own, name));
+      if (!isOwn && mentions(t, name)) return null;
+    }
+  }
   return t;
 }
 
@@ -80,9 +156,9 @@ export function acceptableExplanation(text: string | null | undefined): string |
  * Build the reply: explanation (model, if acceptable) + the code-owned action + code-owned
  * numbers, then the signature on its own line. Falls back to the template explanation.
  */
-export function composeReply(f: ReplyFacts, modelExplanation: string | null): string {
+export function composeReply(f: ReplyFacts, modelExplanation: string | null, guard?: ExplanationGuard): string {
   const parts = fixedParts(f);
-  const explanation = acceptableExplanation(modelExplanation) ?? parts.defaultExplanation;
+  const explanation = acceptableExplanation(modelExplanation, guard) ?? parts.defaultExplanation;
   const body = [explanation, parts.action, parts.after].filter(Boolean).join(" ");
   return tidy(`${body}\n${f.helperSignature}`);
 }

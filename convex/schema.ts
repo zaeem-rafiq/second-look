@@ -156,6 +156,10 @@ export default defineSchema({
     replySentAt: v.optional(v.number()),
     replyText: v.optional(v.string()),
     replyMessageId: v.optional(v.string()),
+    /** AgentMail thread id of the sent reply in the helper inbox (differs from the forward's thread). */
+    replyThreadId: v.optional(v.string()),
+    /** Composed reply saved before sending, so workflow retries resend byte-identical text. */
+    replyDraft: v.optional(v.string()),
     agentmailThreadId: v.string(),
     agentmailMessageId: v.string(),
     rawStorageId: v.id("_storage"),

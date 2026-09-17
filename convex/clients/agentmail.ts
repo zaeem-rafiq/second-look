@@ -41,7 +41,9 @@ async function call<T>(path: string, init: RequestInit & { idempotencyKey?: stri
   const res = await fetch(`${BASE}${path}`, { ...init, headers });
   const bodyText = await res.text();
   if (!res.ok) {
-    throw new Error(`AgentMail ${init.method ?? "GET"} ${path} failed: ${res.status} ${bodyText.slice(0, 500)}`);
+    const err = new Error(`AgentMail ${init.method ?? "GET"} ${path} failed: ${res.status} ${bodyText.slice(0, 500)}`) as Error & { status?: number };
+    err.status = res.status;
+    throw err;
   }
   return (bodyText ? JSON.parse(bodyText) : {}) as T;
 }
@@ -65,7 +67,7 @@ export async function replyToMessage(
 
 export async function sendMessage(
   inboxId: string,
-  body: { to: string | string[]; subject: string; text: string; html?: string },
+  body: { to: string | string[]; subject: string; text: string; html?: string; headers?: Record<string, string> },
   idempotencyKey: string,
 ): Promise<{ message_id: string; thread_id: string }> {
   return call(`/inboxes/${encodeURIComponent(inboxId)}/messages/send`, {
@@ -75,11 +77,4 @@ export async function sendMessage(
   });
 }
 
-/** Parse "Display Name <addr@x>" or a bare address into its parts. */
-export function parseFromHeader(from: string): { name: string | null; address: string | null } {
-  const angle = from.match(/^(.*?)\s*<\s*([^<>\s]+@[^<>\s]+)\s*>\s*$/);
-  if (angle) return { name: angle[1].replace(/^"|"$/g, "").trim() || null, address: angle[2].toLowerCase() };
-  const bare = from.match(/([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/);
-  if (bare) return { name: null, address: bare[1].toLowerCase() };
-  return { name: from.trim() || null, address: null };
-}
+export { parseFromHeader } from "../../lib/address";

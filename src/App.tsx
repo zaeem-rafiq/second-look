@@ -203,7 +203,7 @@ function CaseCard({ c }: { c: Case }) {
         </details>
       )}
 
-      {c.replyText && (
+      {c.replyText && c.replySentAt && (
         <div className="reply">
           <p className="eyebrow">Reply sent {fmtDate(c.replySentAt)}</p>
           <p>{c.replyText}</p>

@@ -210,3 +210,73 @@ describe("reviewer fixes 2026-09-17", () => {
     expect(merged.urgencyPhrases.some((p) => p.includes("*"))).toBe(false);
   });
 });
+
+describe("explanation grounding", () => {
+  const facts = { verdict: "mismatch" as const, orgName: "Medicare", officialPhone: "1-800-633-4227", deadlineText: null, amountText: null, helperSignature: "— The Demo Family's helper (Second Look)" };
+  const evidence = [
+    { check: "sender_domain", applicable: true, matched: false, severity: "hard" as const, claimValue: "medicare-benefits-center.com" },
+    { check: "link_domains", applicable: true, matched: false, severity: "hard" as const, claimValue: "medicare-benefits-center.com" },
+    { check: "phone", applicable: true, matched: false, severity: "hard" as const, claimValue: "+18005550199" },
+    { check: "policy_contradiction", applicable: true, matched: false, severity: "hard" as const, claimValue: "email asks for personal or account information" },
+    { check: "urgency_pressure", applicable: true, matched: false, severity: "soft" as const, claimValue: "within 24 hours" },
+  ];
+
+  it("turns evidence into plain reasons without numbers or domains", async () => {
+    const { explanationReasons } = await import("../lib/replyTemplates");
+    const reasons = explanationReasons(facts.verdict, facts.orgName, evidence);
+    expect(reasons).toEqual([
+      "the sender's email address is not an official Medicare address",
+      "the links go to a website that is not Medicare's",
+      "the phone number in it is not one Medicare lists",
+      "it asks for personal or account information, which Medicare says it only does in limited situations",
+    ]);
+    expect(reasons.join(" ")).not.toMatch(/\d{3}|\.com/);
+  });
+  it("rejects an explanation that brings up a topic the reasons do not support", async () => {
+    const { composeReply, explanationReasons, templateReply } = await import("../lib/replyTemplates");
+    const reasons = explanationReasons(facts.verdict, facts.orgName, evidence);
+    const invented = "It isn't really from Medicare. Its claim about suspended benefits conflicts with Medicare policy.";
+    expect(composeReply(facts, invented, { reasons })).toBe(templateReply(facts));
+    const grounded = "This didn't come from Medicare. The sender's address and the links aren't Medicare's, and it asks for personal information.";
+    expect(composeReply(facts, grounded, { reasons })).toContain(grounded);
+  });
+});
+
+describe("explanation guard hardening", () => {
+  const sig = "— The Demo Family's helper (Second Look)";
+  const mismatch = { verdict: "mismatch" as const, orgName: "Medicare", officialPhone: "1-800-633-4227", deadlineText: null, amountText: null, helperSignature: sig };
+  const unknown = { verdict: "cannot_verify" as const, orgName: null, officialPhone: null, deadlineText: null, amountText: null, helperSignature: sig };
+  const reasons = ["the sender's email address is not an official Medicare address", "the links go to a website that is not Medicare's"];
+  const knownOrgNames = ["Medicare", "CMS", "Internal Revenue Service", "IRS", "Amazon", "Social Security Administration", "SSA"];
+
+  it("rejects invented claims, other organizations, digits, spelled-out numbers and disguised links", async () => {
+    const { acceptableExplanation } = await import("../lib/replyTemplates");
+    const guard = { reasons, orgName: "Medicare", knownOrgNames };
+    for (const bad of [
+      "This didn't come from the IRS.",
+      "It says your account is locked.",
+      "It says you owe a penalty and could lose your benefits.",
+      "It points to medicare-benefits-center dot com.",
+      "It links to medicare-benefits.center instead.",
+      "It asks for 500 dollars.",
+      "It lists one eight hundred five five five as the number.",
+      "It claims your computer has a virus.",
+    ]) {
+      expect(acceptableExplanation(bad, guard), bad).toBeNull();
+    }
+    expect(acceptableExplanation("This didn't come from Medicare. The sender's address and the links aren't Medicare's.", guard)).not.toBeNull();
+  });
+  it("rejects any organization name when nothing could be verified", async () => {
+    const { acceptableExplanation } = await import("../lib/replyTemplates");
+    const guard = { reasons: ["there was no official source to check it against"], orgName: null, knownOrgNames };
+    expect(acceptableExplanation("It seems to be from Medicare.", guard)).toBeNull();
+    expect(acceptableExplanation("I couldn't confirm who sent it because there was no official source to check it against.", guard)).not.toBeNull();
+  });
+  it("still produces a valid reply through the template when the model is rejected", async () => {
+    const { composeReply, templateReply, validateReply } = await import("../lib/replyTemplates");
+    const text = composeReply(unknown, "It seems to be from Medicare.", { reasons: ["there was no official source to check it against"], orgName: null, knownOrgNames });
+    expect(text).toBe(templateReply(unknown));
+    expect(validateReply(text, unknown)).toEqual({ ok: true });
+    void mismatch;
+  });
+});

@@ -43,13 +43,27 @@ export const setOrg = internalMutation({
   },
 });
 
+export const setReplyDraft = internalMutation({
+  args: { caseId: v.id("cases"), replyDraft: v.string() },
+  returns: v.string(),
+  handler: async (ctx, args) => {
+    const c = await ctx.db.get("cases", args.caseId);
+    if (!c) throw new Error("case not found");
+    // First draft wins, so every retry sends exactly the same text under the same idempotency key.
+    if (c.replyDraft) return c.replyDraft;
+    await ctx.db.patch("cases", args.caseId, { replyDraft: args.replyDraft });
+    return args.replyDraft;
+  },
+});
+
 export const setReply = internalMutation({
-  args: { caseId: v.id("cases"), replyText: v.string(), replyMessageId: v.string() },
+  args: { caseId: v.id("cases"), replyText: v.string(), replyMessageId: v.string(), replyThreadId: v.optional(v.string()) },
   returns: v.null(),
   handler: async (ctx, args) => {
     await ctx.db.patch("cases", args.caseId, {
       replyText: args.replyText,
       replyMessageId: args.replyMessageId,
+      ...(args.replyThreadId ? { replyThreadId: args.replyThreadId } : {}),
       replySentAt: Date.now(),
       status: "replied",
     });

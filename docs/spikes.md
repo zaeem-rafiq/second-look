@@ -32,7 +32,9 @@ Webhook behavior on the cloud deployment:
 - signed delivery to the helper inbox from an unregistered sender → `200`, unrouted row, no case, no reply
 - the real AgentMail event re-delivered with a fresh signature → `200`, still one case, one inbound row, one reply
 
-Finding: `thread_id` is per inbox in AgentMail (the case stores the helper inbox's thread id; the parent inbox has its own), and message ids carry angle brackets, so they must be URL-encoded in REST paths. AgentMail's reply endpoint appends the quoted original below the reply text.
+Finding: `thread_id` is per inbox in AgentMail (the case stores the helper inbox's thread id; the parent inbox has its own), and message ids carry angle brackets, so they must be URL-encoded in REST paths.
+
+Finding: AgentMail's reply endpoint appends the quoted original below the reply text, which showed the parent the suspicious number and a clickable link again right under "Don't call or click". Fix (2026-09-17): replies are sent as a new message with `In-Reply-To` and `References` built from the forward (`lib/replyEnvelope.ts`), to the routed parent address only (same parser as routing, checked against the parent's registered addresses), with phone numbers and links removed from the subject. The composed reply is saved as a draft before sending so workflow retries resend identical text under the same idempotency key. If AgentMail ever rejects the threading headers, the same clean text is sent once without them; the quoting reply endpoint is no longer used. Final real test: reply in the parent inbox after 16 s, same thread, `in_reply_to` equal to the forward, no quoted original, neither the suspicious number nor the link present, official number present. In the helper inbox AgentMail files the sent reply in its own thread, so the case now records `replyThreadId` next to the forward's `agentmailThreadId`.
 
 ## (c) Hosting placeholder: chatgpt.site vs convex.site
 

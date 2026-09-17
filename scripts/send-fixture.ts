@@ -41,7 +41,7 @@ const sent = await call<{ message_id: string; thread_id: string }>(`/inboxes/${e
 console.log(`sent ${id} from ${parent} to ${helper}: message ${sent.message_id}, thread ${sent.thread_id}`);
 
 // Poll the parent's inbox for a reply from the helper (up to ~3 minutes).
-type Msg = { message_id: string; from: string; subject?: string; text?: string; timestamp?: string; in_reply_to?: string; thread_id?: string };
+type Msg = { message_id: string; from: string; subject?: string; text?: string; html?: string; timestamp?: string; in_reply_to?: string; thread_id?: string; references?: string[] };
 const startedAt = Date.now();
 while (Date.now() - startedAt < 240_000) {
   await new Promise((r) => setTimeout(r, 5000));
@@ -59,6 +59,12 @@ while (Date.now() - startedAt < 240_000) {
     console.log(`reply message_id: ${full.message_id}`);
     console.log(`reply subject: ${full.subject ?? ""}`);
     console.log(`same thread as the forward: ${full.thread_id === sent.thread_id}`);
+    const everything = `${full.text ?? ""}\n${full.html ?? ""}`;
+    console.log(`in_reply_to is the forward: ${full.in_reply_to === sent.message_id}`);
+    console.log(`quoted original included: ${/Forwarded message|wrote:|Begin forwarded message/i.test(everything)}`);
+    console.log(`suspicious number shown again: ${/555[-. ]?0199/.test(everything)}`);
+    console.log(`suspicious link shown again: ${/medicare-benefits-center/i.test(everything)}`);
+    console.log(`official number present: ${/1-800-633-4227/.test(everything)}`);
     console.log(`word count: ${words.length}`);
     console.log(`first 80 words: ${words.slice(0, 80).join(" ")}`);
     process.exit(0);
