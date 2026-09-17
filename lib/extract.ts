@@ -150,7 +150,10 @@ export function mergeExtraction(det: Extracted, llm: LlmExtraction | null, norma
     if (cleaned && !urls.includes(cleaned)) urls.push(cleaned);
   }
   const urgency = [...det.urgencyPhrases];
-  for (const u of llm.urgencyPhrases) if (!urgency.includes(u.toLowerCase())) urgency.push(u.toLowerCase());
+  for (const raw of llm.urgencyPhrases) {
+    const u = raw.replace(/[*_`]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+    if (u && !urgency.includes(u)) urgency.push(u);
+  }
   const payments = [...det.paymentMethods];
   for (const p of llm.paymentMethods) if (!payments.includes(p)) payments.push(p);
   return {

@@ -43,18 +43,27 @@ console.log(`sent ${id} from ${parent} to ${helper}: message ${sent.message_id},
 // Poll the parent's inbox for a reply from the helper (up to ~3 minutes).
 type Msg = { message_id: string; from: string; subject?: string; text?: string; timestamp?: string; in_reply_to?: string; thread_id?: string };
 const startedAt = Date.now();
-while (Date.now() - startedAt < 180_000) {
+while (Date.now() - startedAt < 240_000) {
   await new Promise((r) => setTimeout(r, 5000));
   const list = await call<{ messages: Msg[] }>(`/inboxes/${encodeURIComponent(parent)}/messages?limit=20`);
-  const reply = list.messages.find((m) => m.from.toLowerCase().includes(helper.toLowerCase()) && m.thread_id === sent.thread_id);
+  // The parent inbox is synthetic, so any message from the helper after the send is the reply.
+  const reply = list.messages.find(
+    (m) =>
+      m.from.toLowerCase().includes(helper.toLowerCase()) &&
+      (m.thread_id === sent.thread_id || (m.timestamp !== undefined && Date.parse(m.timestamp) >= startedAt - 60_000)),
+  );
   if (reply) {
     const full = await call<Msg>(`/inboxes/${encodeURIComponent(parent)}/messages/${encodeURIComponent(reply.message_id)}`);
-    const words = (full.text ?? "").trim().split(/\s+/).slice(0, 80).join(" ");
-    console.log(`\nreply landed in the parent's inbox: message ${full.message_id}`);
-    console.log(`first 80 words: ${words}`);
+    const words = (full.text ?? "").trim().split(/\s+/).filter(Boolean);
+    console.log(`\nreply landed in the parent's inbox after ${Math.round((Date.now() - startedAt) / 1000)}s`);
+    console.log(`reply message_id: ${full.message_id}`);
+    console.log(`reply subject: ${full.subject ?? ""}`);
+    console.log(`same thread as the forward: ${full.thread_id === sent.thread_id}`);
+    console.log(`word count: ${words.length}`);
+    console.log(`first 80 words: ${words.slice(0, 80).join(" ")}`);
     process.exit(0);
   }
   process.stdout.write(".");
 }
-console.log("\nno reply after 3 minutes; check npx convex logs");
+console.log("\nno reply after 4 minutes; check npx convex logs");
 process.exit(1);

@@ -1,11 +1,16 @@
 import { v } from "convex/values";
 import { internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
-import { formatPhoneForHumans, templateReply, validateReply, type ReplyFacts } from "../lib/replyTemplates";
+import { z } from "zod";
+import { zodTextFormat } from "openai/helpers/zod";
+import { composeReply, formatPhoneForHumans, templateReply, validateReply, type ReplyFacts } from "../lib/replyTemplates";
 import { REPLY_MODEL, openaiClient, openaiConfigured } from "./clients/openai";
 import { replyToMessage } from "./clients/agentmail";
 
-const REPLY_SYSTEM_PROMPT = `You write a short email reply, from a family helper, to an older parent who forwarded a confusing email. Warm, plain words, no jargon, no lecture, no alarm. At most 80 words. Exactly ONE sentence that tells them what to do, and it must be the sentence given to you. Never describe the email as harmless or use the words "scam", "fraud" or "phishing"; do not reassure with the s-word that means not-dangerous. Do not add greetings or subject lines. End with the signature given.`;
+// The model writes only the explanation. Code adds the one action, the official number, and the signature.
+const EXPLANATION_SYSTEM_PROMPT = `You help a family helper reply to an older parent who forwarded an email and asked if it is real. Write the opening of the reply: one or two short, warm, plain sentences that answer the question and say briefly why, based only on the verdict and facts given. Do not tell them what to do. Do not include any phone numbers, links, web addresses, or money amounts. Do not use the words "scam", "fraud", or "phishing", and never call anything harmless or not dangerous. No greeting, no signature. At most 35 words.`;
+
+const Explanation = z.object({ explanation: z.string().describe("One or two plain sentences, no instructions, no numbers or links") });
 
 function humanDate(iso: string | null): string | null {
   if (!iso) return null;
@@ -14,12 +19,18 @@ function humanDate(iso: string | null): string | null {
   return d.toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
 }
 
-/** Compose (model or template), validate, send through AgentMail as a reply on the parent's thread. */
+const VERDICT_WORDS = {
+  mismatch: "does not match the official source (it did not come from that organization)",
+  matches_official: "matches the official source",
+  cannot_verify: "could not be verified",
+} as const;
+
+/** Compose (model explanation + code-owned action), validate, send through AgentMail on the parent's thread. */
 export const sendReply = internalAction({
   args: { caseId: v.id("cases"), inboxId: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const { case: c, family, org } = await ctx.runQuery(internal.cases.getForPipeline, { caseId: args.caseId });
+    const { case: c, family, org, evidence } = await ctx.runQuery(internal.cases.getForPipeline, { caseId: args.caseId });
     if (!c.verdict) throw new Error("case has no verdict");
     if (c.replyMessageId) return null; // already sent (retry after a partial failure)
 
@@ -31,39 +42,38 @@ export const sendReply = internalAction({
       amountText: c.extracted?.moneyAmounts[0] ?? null,
       helperSignature: `— ${family?.name ?? "Your family"}'s helper (Second Look)`,
     };
-    const fallback = templateReply(facts);
-    let text = fallback;
+    let text = templateReply(facts);
 
     if (openaiConfigured()) {
       try {
-        const actionSentence = fallback.split(/(?<=[.!?])\s+/)[0];
-        const response = await openaiClient().responses.create({
+        const mismatches = evidence
+          .filter((e) => e.applicable && !e.matched && e.severity === "hard")
+          .map((e) => e.check.replace(/_/g, " "));
+        const response = await openaiClient().responses.parse({
           model: REPLY_MODEL,
           reasoning: { effort: "low" },
           input: [
-            { role: "system", content: REPLY_SYSTEM_PROMPT },
+            { role: "system", content: EXPLANATION_SYSTEM_PROMPT },
             {
               role: "user",
               content: [
-                `Verdict decided by our checks: ${c.verdict}.`,
+                `Verdict decided by our checks: the email ${VERDICT_WORDS[c.verdict]}.`,
                 `Organization the email claimed to be from: ${facts.orgName ?? "unknown"}.`,
-                facts.officialPhone ? `Official phone from their website (must appear verbatim): ${facts.officialPhone}.` : "No official phone available.",
-                `What the email said: ${c.summary ?? c.subject}.`,
-                facts.deadlineText ? `Date mentioned: ${facts.deadlineText}.` : "",
-                facts.amountText ? `Amount mentioned: ${facts.amountText}.` : "",
-                `The one action sentence to include, verbatim: "${actionSentence}"`,
-                `Signature to end with: ${facts.helperSignature}`,
+                mismatches.length ? `What did not match: ${[...new Set(mismatches)].join(", ")}.` : "",
+                `What the email said, in brief: ${c.summary ?? c.subject}`,
               ]
                 .filter(Boolean)
                 .join("\n"),
             },
           ],
+          text: { format: zodTextFormat(Explanation, "reply_explanation") },
         });
-        const candidate = response.output_text?.trim();
-        if (candidate && validateReply(candidate, facts).ok) text = candidate;
-        else console.warn("model reply rejected, using template", candidate ? validateReply(candidate, facts) : "empty");
+        const explanation = response.output_parsed?.explanation ?? null;
+        const candidate = composeReply(facts, explanation);
+        if (candidate === text) console.warn("model explanation not used; template explanation kept");
+        text = candidate;
       } catch (err) {
-        console.error("openai reply failed; using template", String(err));
+        console.error("openai explanation failed; using template", String(err));
       }
     }
 

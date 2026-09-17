@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
 import { api } from "../convex/_generated/api";
@@ -104,6 +104,10 @@ function CaseCard({ c }: { c: Case }) {
   const [note, setNote] = useState("");
   const [who, setWho] = useState(() => localStorage.getItem("secondlook.name") ?? "");
   const [open, setOpen] = useState(c.verdict === "mismatch");
+  // A card that arrives live gets its verdict after first render; open the evidence when it turns into a mismatch.
+  useEffect(() => {
+    if (c.verdict === "mismatch") setOpen(true);
+  }, [c.verdict]);
 
   const stepIndex = STEPS.findIndex((s) => s.key.includes(c.status));
   const done = c.status === "replied";

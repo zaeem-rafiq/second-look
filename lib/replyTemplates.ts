@@ -21,28 +21,75 @@ export function formatPhoneForHumans(e164: string): string {
   return e164;
 }
 
-/** Deterministic fallback replies. Each has exactly one imperative sentence and stays under 80 words. */
-export function templateReply(f: ReplyFacts): string {
+function tidy(text: string): string {
+  return text
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201c\u201d]/g, '"')
+    .split("\n")
+    .map((line) => line.replace(/[ \t]+/g, " ").trim())
+    .join("\n")
+    .trim();
+}
+
+/** The parts of a reply that code decides: the one action and any numbers or dates. */
+function fixedParts(f: ReplyFacts): { defaultExplanation: string; action: string; after: string } {
   const org = f.orgName ?? "this sender";
   switch (f.verdict) {
-    case "mismatch": {
-      const real = f.officialPhone
-        ? ` If you're worried, the real ${org} number is ${f.officialPhone}, from their official website.`
-        : ` If you're worried, use the number on your card or bill, not the one in the email.`;
-      return `Don't call or click anything in this email. It didn't come from ${org}: the address and details don't match their official contact information.${real} You did the right thing sending it to me. ${f.helperSignature}`;
-    }
-    case "matches_official": {
-      const bits = [
-        f.amountText ? `It mentions ${f.amountText}.` : null,
-        f.deadlineText ? `The date to know is ${f.deadlineText}.` : null,
-      ]
-        .filter(Boolean)
-        .join(" ");
-      return `This one checks out. The sender and links match ${org}'s official contact information. ${bits} Keep it with your other ${org} mail. ${f.helperSignature}`.replace(/\s{2,}/g, " ");
-    }
+    case "mismatch":
+      return {
+        defaultExplanation: `This didn't come from ${org}. The sender and the details don't match ${org}'s official contact information.`,
+        action: "Don't call or click anything in that email.",
+        after: f.officialPhone
+          ? `If you're worried, call ${org} at ${f.officialPhone}, the number on their official website.`
+          : "If you're worried, use the number on your card or bill instead.",
+      };
+    case "matches_official":
+      return {
+        defaultExplanation: `This one checks out. The sender and links match ${org}'s official contact information.`,
+        action: `Keep it with your other ${org} mail.`,
+        after: [f.amountText ? `It mentions ${f.amountText}.` : null, f.deadlineText ? `The date to know is ${f.deadlineText}.` : null]
+          .filter(Boolean)
+          .join(" "),
+      };
     case "cannot_verify":
-      return `I couldn't confirm who sent this. Don't act on it, click links, or send money; if it matters, use the number on your card or bill. Nothing else to do for now. ${f.helperSignature}`;
+      return {
+        defaultExplanation: "I couldn't confirm who sent this.",
+        action: "Don't act on it, click links, or send money.",
+        after: "If it matters, use the number on your card or bill.",
+      };
   }
+}
+
+/** A model explanation is used only if it is short, states facts, and repeats no numbers, links or commands. */
+export function acceptableExplanation(text: string | null | undefined): string | null {
+  if (!text) return null;
+  const t = tidy(text).replace(/\n+/g, " ");
+  if (!t) return null;
+  const words = t.split(/\s+/).length;
+  if (words > 40) return null;
+  if (/\d{3}[\s.-]?\d{4}|\d{3}[\s.-]\d{3}[\s.-]\d{4}/.test(t)) return null;
+  if (/https?:\/\/|www\.|\b[a-z0-9-]+\.(com|net|org|gov|us|info|co)\b/i.test(t)) return null;
+  if (/[$€£]\s?\d/.test(t)) return null;
+  if (FORBIDDEN.some((re) => re.test(t))) return null;
+  if (countImperativeSentences(t) > 0) return null;
+  if (!/[.!?]$/.test(t)) return null;
+  return t;
+}
+
+/**
+ * Build the reply: explanation (model, if acceptable) + the code-owned action + code-owned
+ * numbers, then the signature on its own line. Falls back to the template explanation.
+ */
+export function composeReply(f: ReplyFacts, modelExplanation: string | null): string {
+  const parts = fixedParts(f);
+  const explanation = acceptableExplanation(modelExplanation) ?? parts.defaultExplanation;
+  const body = [explanation, parts.action, parts.after].filter(Boolean).join(" ");
+  return tidy(`${body}\n${f.helperSignature}`);
+}
+
+/** Deterministic reply (no model). Exactly one imperative sentence, under 80 words. */
+export function templateReply(f: ReplyFacts): string {
+  return composeReply(f, null);
 }
 
 export type ReplyValidation = { ok: true } | { ok: false; reasons: string[] };

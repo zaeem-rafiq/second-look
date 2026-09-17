@@ -14,16 +14,19 @@ export const SEED_ORGS: SeedOrg[] = [
     name: "Medicare",
     aliases: ["1-800-MEDICARE", "CMS", "Centers for Medicare & Medicaid Services", "Medicare.gov"],
     domains: ["medicare.gov", "cms.gov", "hhs.gov"],
-    phones: ["+18006334227", "+18774862048", "+18777723379"],
+    // Main line and TTY, both printed on the cited contact page.
+    phones: ["+18006334227", "+18774862048"],
     contactEmail: null,
     policyQuotes: [
       {
+        // About Medicare calling you; an email asking you to call does not contradict it, so no tags.
         quote: "Remember that Medicare will never call you to sell you anything or visit you at your home.",
         sourceUrl: "https://www.medicare.gov/basics/reporting-medicare-fraud-and-abuse",
-        tags: ["never_calls_uninvited"],
+        tags: [],
       },
       {
-        quote: "Medicare, or someone representing Medicare, will only call and ask for personal information in limited situations",
+        quote:
+          "Medicare, or someone representing Medicare, will only call and ask for personal information in limited situations (like an agent or representative returning your call after you've joined a plan, reported fraud, or left a message for Medicare).",
         sourceUrl: "https://www.medicare.gov/basics/reporting-medicare-fraud-and-abuse",
         tags: ["never_asks_personal_info"],
       },

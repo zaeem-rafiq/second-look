@@ -202,3 +202,19 @@ describe("runChecks", () => {
     expect(rows.find((r) => r.check === "payment_method")!.matched).toBe(false);
   });
 });
+
+describe("reviewer fixes 2026-09-17", () => {
+  it("asking the reader to call a number does not by itself contradict a 'we never call you' policy", async () => {
+    const { violatedTags } = await import("../lib/checks");
+    const tags = violatedTags({ ...base, requestsPersonalInfo: false, claimsSuspension: false, threatensPenalty: false });
+    expect(tags.has("never_calls_uninvited")).toBe(false);
+  });
+  it("the seeded Medicare quotes only cite contradictions the email can actually make, verbatim and complete", async () => {
+    const { SEED_ORGS } = await import("../lib/registrySeed");
+    const m = SEED_ORGS.find((o) => o.key === "medicare")!;
+    const personal = m.policyQuotes.find((q) => q.tags.includes("never_asks_personal_info"))!;
+    expect(personal.quote.endsWith("left a message for Medicare).")).toBe(true);
+    expect(m.policyQuotes.find((q) => q.quote.startsWith("Remember that Medicare will never call you"))!.tags).toEqual([]);
+    expect(m.phones).not.toContain("+18777723379");
+  });
+});

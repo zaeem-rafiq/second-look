@@ -98,9 +98,9 @@ export function violatedTags(extracted: Extracted): Set<PolicyTag> {
   if (extracted.actionType === "pay" || extracted.actionType === "reply_with_info") {
     tags.add("never_asks_payment_by_phone_or_email");
   }
-  if (extracted.actionType === "call_number" && (pressured || extracted.requestsPersonalInfo)) {
-    tags.add("never_calls_uninvited");
-  }
+  // never_calls_uninvited is intentionally not derived: an email asking the reader to call a number
+  // does not contradict a policy about the organization calling people. It needs an explicit
+  // "we called you" signal, which extraction does not produce yet.
   if ((extracted.actionType === "click_link" || extracted.actionType === "reply_with_info") && pressured) {
     tags.add("never_emails_uninvited");
   }

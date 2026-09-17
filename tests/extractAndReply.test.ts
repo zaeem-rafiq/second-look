@@ -170,3 +170,43 @@ describe("reply templates", () => {
     expect(formatPhoneForHumans("+18006334227")).toBe("1-800-633-4227");
   });
 });
+
+describe("reviewer fixes 2026-09-17", () => {
+  const sig = "— The Demo Family's helper (Second Look)";
+  const facts = { verdict: "mismatch" as const, orgName: "Medicare", officialPhone: "1-800-633-4227", deadlineText: null, amountText: null, helperSignature: sig };
+
+  it("composeReply keeps code-owned action and number sentences and uses a clean model explanation", async () => {
+    const { composeReply, validateReply } = await import("../lib/replyTemplates");
+    const text = composeReply(facts, "This didn't come from Medicare. The sender's address and the phone number don't match Medicare's official contact information.");
+    expect(text).toContain("This didn't come from Medicare.");
+    expect(text).toContain("Don't call or click anything in that email.");
+    expect(text).toContain("If you're worried, call Medicare at 1-800-633-4227");
+    expect(validateReply(text, facts)).toEqual({ ok: true });
+  });
+  it("composeReply rejects model explanations that repeat numbers, links, commands or forbidden words", async () => {
+    const { composeReply, templateReply } = await import("../lib/replyTemplates");
+    const fallback = templateReply(facts);
+    expect(composeReply(facts, "They want you to call 1-800-555-0199.")).toBe(fallback);
+    expect(composeReply(facts, "It links to medicare-benefits-center.com/reactivate.")).toBe(fallback);
+    expect(composeReply(facts, "Delete it right away.")).toBe(fallback);
+    expect(composeReply(facts, "This is a scam.")).toBe(fallback);
+    expect(composeReply(facts, "")).toBe(fallback);
+  });
+  it("replies use straight apostrophes and no trailing spaces", async () => {
+    const { composeReply } = await import("../lib/replyTemplates");
+    const text = composeReply(facts, "This didn’t come from Medicare.  ");
+    expect(text).not.toMatch(/[‘’]/);
+    expect(text).not.toMatch(/ +\n| {2,}/);
+  });
+  it("model urgency phrases lose markdown emphasis", () => {
+    const parsed = parseForwardedEmail(gmailText, "");
+    const det = deterministicExtract(parsed, gmailText, "", orgs);
+    const merged = mergeExtraction(
+      det,
+      { claimedOrganization: null, originalSenderName: null, originalSenderAddress: null, urls: [], phones: [], actionRequested: null, actionType: "none", urgencyPhrases: ["call *1-800-555-0199* now"], moneyAmounts: [], dates: [], deadline: null, paymentMethods: [], requestsPersonalInfo: false, threatensPenalty: false, claimsSuspension: false, summary: "" },
+      normalizePhone,
+    );
+    expect(merged.urgencyPhrases).toContain("call 1-800-555-0199 now");
+    expect(merged.urgencyPhrases.some((p) => p.includes("*"))).toBe(false);
+  });
+});

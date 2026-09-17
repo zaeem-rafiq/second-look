@@ -20,16 +20,19 @@ Findings:
 
 ## (b) AgentMail webhook → Convex HTTP action
 
-Status: proven locally against the accountless Convex backend with a synthetic, Svix-signed `message.received` delivery; cloud delivery from AgentMail itself is pending the AgentMail key and `npx convex login` (see `docs/blockers.md` if present).
+Status: **proven with real AgentMail delivery on the Convex cloud dev deployment** (2026-09-16, US Central evening). First proven locally on 2026-09-15 with synthetic signed deliveries.
 
-Local proof (backend `http://127.0.0.1:3211`, route `/agentmail`):
-- bad signature → `401`; missing secret → `503`; wrong event type → `204`.
-- Gmail-format Medicare forward from the registered parent address → `200`, case created, workflow ran `received → extracting → resolving_org → checking → replying → replied`, verdict `mismatch` with 5 hard mismatches, two of them citing verbatim medicare.gov quotes with URLs.
-- The same `message_id` delivered again → `200` and no second case (idempotent on `inbound.by_message`).
-- A forward from an unregistered address → `200`, lands in the unrouted list, no case.
-- Reply composed and validated (≤ 80 words, one action, official number present, forbidden words absent) and stored with `replyMessageId = "dry-run:not-sent"` because no AgentMail key was configured; with the key the same step calls `POST /v0/inboxes/{inbox}/messages/{id}/reply`.
+Setup: `scripts/agentmail-setup.ts` created a helper inbox and a synthetic demo-parent inbox and a `message.received` webhook scoped to the helper inbox only, pointing at `https://friendly-retriever-712.convex.site/agentmail`. The signing secret lives in Convex environment variables.
 
-Replay command (any fixture, any deployment): `AGENTMAIL_WEBHOOK_SECRET=… CONVEX_SITE_URL=… npx tsx scripts/replay-webhook.ts medicare-suspension-gmail`.
+Real run (`scripts/send-fixture.ts medicare-suspension-gmail`): the demo-parent inbox sent the Gmail-format Medicare forward to the helper inbox. AgentMail delivered `message.received` with text and HTML inline; the HTTP action verified the Svix signature, stored the raw event, routed it to the demo family, and the Workflow ran extract (OpenAI plus deterministic parsing) → resolve org (Medicare) → checks → verdict `mismatch` → reply. The model-written reply passed validation and AgentMail delivered it into the parent inbox on the same thread 21 s after the send. The board, open in a browser before the send, showed the card appear at about 5.5 s and flip Received → Reading → Checking medicare.gov → Verdict → Replied by about 20.5 s on the same page load.
+
+Webhook behavior on the cloud deployment:
+- unsigned request → `401`
+- signed delivery addressed to another inbox → `204`, nothing stored
+- signed delivery to the helper inbox from an unregistered sender → `200`, unrouted row, no case, no reply
+- the real AgentMail event re-delivered with a fresh signature → `200`, still one case, one inbound row, one reply
+
+Finding: `thread_id` is per inbox in AgentMail (the case stores the helper inbox's thread id; the parent inbox has its own), and message ids carry angle brackets, so they must be URL-encoded in REST paths. AgentMail's reply endpoint appends the quoted original below the reply text.
 
 ## (c) Hosting placeholder: chatgpt.site vs convex.site
 
