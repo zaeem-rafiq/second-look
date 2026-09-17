@@ -15,7 +15,7 @@
 | `evals/jev/cases.json` | The 50 cases. |
 | `evals/jev/results.json` | Per-case results: ids, probabilities, decisions, timings. No email bodies. |
 
-**Not deployed.** The flag is not set anywhere, and `TYPESAFE_API_KEY` is not on the Convex deployment. Turning it on requires both, plus a deploy. That deploy would also be the first proof that the SDK bundles in Convex's runtime.
+**Status (2026-09-17).** The code is deployed to the dev deployment. `TYPESAFE_API_KEY` is set there, and `PAYMENT_GATE_MODE` is `jev_shadow`, so Jev logs its decision but changes nothing. The stored key was checked with synthetic calls using the production gate questions: a gift-card request scored 0.95 (yes) and a gift card balance notice 0.02 (no). The gate has not yet run inside Convex on a real forwarded email. Set the mode to `jev_cascade` to apply Jev's decisions, or remove it to turn Jev off.
 
 ## How the cases were made
 
