@@ -2,6 +2,7 @@ import { z } from "zod";
 import { extractPhones } from "./phones";
 import { extractUrls } from "./urls";
 import { htmlToText, parseForwardedEmail } from "./forwardParser";
+import { paymentMethodsDescription } from "./paymentDefinitions";
 import type { ActionType, Extracted, OfficialOrg, ParsedForward, PaymentMethod } from "./types";
 
 /** Zod schema for the model's structured extraction (strict: every field required, nullable not optional). */
@@ -24,7 +25,7 @@ export const ExtractionSchema = z.object({
   deadline: z.string().nullable().describe("A stated due date or deadline as YYYY-MM-DD, or null"),
   paymentMethods: z
     .array(z.enum(["gift_card", "crypto", "wire", "card", "check", "other"]))
-    .describe("Payment methods the message asks for; empty if none"),
+    .describe(paymentMethodsDescription()),
   requestsPersonalInfo: z
     .boolean()
     .describe("True if the reader is asked to provide or confirm personal, account, Medicare, Social Security or login details"),

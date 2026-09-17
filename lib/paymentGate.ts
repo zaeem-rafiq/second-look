@@ -11,6 +11,7 @@ import { noul, type NoulQuestion } from "@typesafe-ai/sdk";
 import { z } from "zod";
 import type { LlmExtraction } from "./extract";
 import type { PaymentMethod } from "./types";
+import { NOT_A_PAYMENT_REQUEST, ORDINARY_MEANS_ONLY, PAYMENT_METHOD_DEFINITIONS } from "./paymentDefinitions";
 
 export const GATE_METHODS = ["gift_card", "crypto", "wire"] as const;
 export type GateMethod = (typeof GATE_METHODS)[number];
@@ -37,19 +38,14 @@ export function buildPaymentGateState(email: { from: string; subject: string; bo
   return { email: { from: email.from, subject: email.subject, body: email.body.slice(0, MAX_BODY_CHARS) } };
 }
 
-const NOT_FOR = [
-  "receipts, order confirmations, balance notices, or notifications that money was received or already sent",
-  "promotions that give the reader something, gifts to the reader, news, or price alerts",
-  "warnings or advice such as 'we never accept this' or 'if anyone asks you to pay this way, hang up'",
-  "payment requested only by credit or debit card, check, autopay, online bill pay, or cash in person",
-];
+const NOT_FOR = [...NOT_A_PAYMENT_REQUEST, ORDINARY_MEANS_ONLY];
 
 // Policy definitions only. No example phrasings: examples copied from eval scenarios leaked into the
 // questions in the first eval run, so they were removed (see evals/jev/README.md).
 const METHOD_DEFS: Record<GateMethod, { method: string }> = {
-  gift_card: { method: "gift cards, prepaid or store cards, or vouchers, including reading out or sending card numbers, codes, or PINs" },
-  crypto: { method: "cryptocurrency, a crypto wallet or address, or a cryptocurrency ATM or kiosk" },
-  wire: { method: "a bank wire transfer or a money-transfer service such as Western Union, MoneyGram, Zelle, Venmo, or Cash App" },
+  gift_card: { method: PAYMENT_METHOD_DEFINITIONS.gift_card },
+  crypto: { method: PAYMENT_METHOD_DEFINITIONS.crypto },
+  wire: { method: PAYMENT_METHOD_DEFINITIONS.wire },
 };
 
 /** One Noul per method over the same email state; they run in parallel in a single request. */

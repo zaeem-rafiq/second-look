@@ -15,19 +15,19 @@
  "summary": [
   {
    "name": "Existing LLM",
-   "accuracy": 0.72,
+   "accuracy": 0.78,
    "ci95": [
-    0.5833461285401034,
-    0.8252598564231963
+    0.6475818431054045,
+    0.8724621377569771
    ],
-   "nearMiss": "23/32",
-   "passes": 36,
-   "falseYes": 7,
-   "falseNo": 7,
-   "p50": 1953.700666499999,
-   "p95": 2713.0277910000004,
-   "meanMs": 2031.17386586,
-   "costPerCase": 0.00037004800000000005
+   "nearMiss": "21/32",
+   "passes": 39,
+   "falseYes": 11,
+   "falseNo": 0,
+   "p50": 2017.9580205000002,
+   "p95": 2463.348833,
+   "meanMs": 1983.277916639999,
+   "costPerCase": 0.0004139480000000001
   },
   {
    "name": "Control: LLM + Jev's definitions",
@@ -40,26 +40,26 @@
    "passes": 47,
    "falseYes": 3,
    "falseNo": 0,
-   "p50": 1029.1260204999999,
-   "p95": 2071.4994590000006,
-   "meanMs": 1133.9521508799996,
+   "p50": 1065.1015415000002,
+   "p95": 1892.4408330000006,
+   "meanMs": 1154.4323583599999,
    "costPerCase": 0.000126984
   },
   {
    "name": "Jev cascade @0.8",
-   "accuracy": 1,
+   "accuracy": 0.98,
    "ci95": [
-    0.9286499658256813,
-    1
+    0.8950431352816304,
+    0.9964608319110235
    ],
-   "nearMiss": "32/32",
-   "passes": 50,
-   "falseYes": 0,
+   "nearMiss": "31/32",
+   "passes": 49,
+   "falseYes": 1,
    "falseNo": 0,
-   "p50": 182.3724580000012,
-   "p95": 347.35183400000096,
-   "meanMs": 234.9042141400003,
-   "costPerCase": 0.00005524720000000001
+   "p50": 178.97054149999985,
+   "p95": 406.354457999998,
+   "meanMs": 243.79250242,
+   "costPerCase": 0.000056577200000000004
   },
   {
    "name": "Jev alone @0.5 (no fallback)",
@@ -72,9 +72,9 @@
    "passes": 50,
    "falseYes": 0,
    "falseNo": 0,
-   "p50": 181.99606250000124,
-   "p95": 320.9186660000014,
-   "meanMs": 197.9194391400003,
+   "p50": 174.60647900000095,
+   "p95": 366.19187500000044,
+   "meanMs": 203.32310742,
    "costPerCase": 0.000048556200000000015
   },
   {
@@ -97,15 +97,15 @@
  "verdictView": [
   {
    "name": "Verdict today: regex OR LLM",
-   "accuracy": 0.56,
+   "accuracy": 0.6,
    "ci95": [
-    0.4230578680014353,
-    0.6883801278976466
+    0.4618118910275937,
+    0.7239181021375425
    ],
-   "nearMiss": "10/32",
-   "passes": 28,
+   "nearMiss": "12/32",
+   "passes": 30,
    "falseYes": 20,
-   "falseNo": 2,
+   "falseNo": 0,
    "p50": null,
    "p95": null,
    "meanMs": null,
@@ -142,10 +142,10 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1931.2692080000002,
-    "cost": 0.00034535,
-    "inTok": 708,
-    "outTok": 163
+    "ms": 2279.933167,
+    "cost": 0.00038310000000000004,
+    "inTok": 928,
+    "outTok": 158
    },
    "jev": {
     "probs": {
@@ -155,7 +155,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 172.11358299999984,
+    "ms": 570.9672909999999,
     "cost": 0.000048342000000000006,
     "inTok": 1151,
     "outTok": 53
@@ -164,7 +164,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1250.6965000000005,
+    "ms": 1200.9642919999997,
     "cost": 0.0001267
    },
    "jevOnly": {
@@ -175,7 +175,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 172.11358299999984,
+    "ms": 570.9672909999999,
     "cost": 0.000048342000000000006
    },
    "regex": {
@@ -192,15 +192,17 @@
    "nearMiss": false,
    "llm": {
     "rawMethods": [
-     "other"
+     "wire"
     ],
-    "decision": false,
-    "methods": [],
-    "pass": false,
-    "ms": 2228.127,
-    "cost": 0.00041035,
-    "inTok": 758,
-    "outTok": 207
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": true,
+    "ms": 2081.8202089999995,
+    "cost": 0.00045935,
+    "inTok": 978,
+    "outTok": 211
    },
    "jev": {
     "probs": {
@@ -210,7 +212,7 @@
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 182.60183299999971,
+    "ms": 283.47408300000006,
     "cost": 0.000050526000000000004,
     "inTok": 1203,
     "outTok": 53
@@ -221,7 +223,7 @@
      "wire"
     ],
     "pass": true,
-    "ms": 1212.204334,
+    "ms": 935.7688750000002,
     "cost": 0.0001355
    },
    "jevOnly": {
@@ -232,7 +234,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 182.60183299999971,
+    "ms": 283.47408300000006,
     "cost": 0.000050526000000000004
    },
    "regex": {
@@ -248,16 +250,14 @@
    "trap": "Gift card purchase receipt: gift card is mentioned and money was spent, but it is a record of a past card purchase, not a request to pay with gift cards.",
    "nearMiss": true,
    "llm": {
-    "rawMethods": [
-     "card"
-    ],
+    "rawMethods": [],
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1907.9402910000003,
-    "cost": 0.00036064999999999996,
-    "inTok": 722,
-    "outTok": 173
+    "ms": 2189.3969999999995,
+    "cost": 0.00040964999999999996,
+    "inTok": 942,
+    "outTok": 177
    },
    "jev": {
     "probs": {
@@ -267,7 +267,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 187.96129199999996,
+    "ms": 147.58429099999967,
     "cost": 0.000049686,
     "inTok": 1183,
     "outTok": 53
@@ -276,7 +276,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 971.3500000000004,
+    "ms": 1035.2534580000006,
     "cost": 0.00012969999999999998
    },
    "jevOnly": {
@@ -287,7 +287,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 187.96129199999996,
+    "ms": 147.58429099999967,
     "cost": 0.000049686
    },
    "regex": {
@@ -303,14 +303,18 @@
    "trap": "Zelle is named, but the reader is receiving money; there is no request to send anything.",
    "nearMiss": true,
    "llm": {
-    "rawMethods": [],
-    "decision": false,
-    "methods": [],
-    "pass": true,
-    "ms": 2284.6186669999997,
-    "cost": 0.0003575,
-    "inTok": 700,
-    "outTok": 174
+    "rawMethods": [
+     "wire"
+    ],
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": false,
+    "ms": 2106.096042,
+    "cost": 0.00041525,
+    "inTok": 920,
+    "outTok": 185
    },
    "jev": {
     "probs": {
@@ -320,7 +324,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 147.82683300000008,
+    "ms": 137.86495900000045,
     "cost": 0.000048342000000000006,
     "inTok": 1151,
     "outTok": 53
@@ -329,7 +333,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1169.386375,
+    "ms": 1908.3793330000008,
     "cost": 0.0001263
    },
    "jevOnly": {
@@ -340,7 +344,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 147.82683300000008,
+    "ms": 137.86495900000045,
     "cost": 0.000048342000000000006
    },
    "regex": {
@@ -357,28 +361,27 @@
    "nearMiss": false,
    "llm": {
     "rawMethods": [
-     "crypto",
-     "other"
+     "crypto"
     ],
     "decision": true,
     "methods": [
      "crypto"
     ],
     "pass": true,
-    "ms": 2065.7628750000003,
-    "cost": 0.00041320000000000007,
-    "inTok": 741,
-    "outTok": 212
+    "ms": 1998.4097089999996,
+    "cost": 0.00043845000000000006,
+    "inTok": 961,
+    "outTok": 197
    },
    "jev": {
     "probs": {
-     "gift_card": 0.05,
-     "crypto": 0.96,
-     "wire": 0.05
+     "gift_card": 0.06,
+     "crypto": 0.97,
+     "wire": 0.06
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 170.96887500000048,
+    "ms": 150.5460410000005,
     "cost": 0.00004985400000000001,
     "inTok": 1187,
     "outTok": 53
@@ -389,7 +392,7 @@
      "crypto"
     ],
     "pass": true,
-    "ms": 860.5225,
+    "ms": 1050.3414579999999,
     "cost": 0.0001329
    },
    "jevOnly": {
@@ -400,7 +403,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 170.96887500000048,
+    "ms": 150.5460410000005,
     "cost": 0.00004985400000000001
    },
    "regex": {
@@ -420,10 +423,10 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 2003.145125,
-    "cost": 0.0003757,
-    "inTok": 691,
-    "outTok": 190
+    "ms": 2463.348833,
+    "cost": 0.00046095000000000006,
+    "inTok": 911,
+    "outTok": 223
    },
    "jev": {
     "probs": {
@@ -433,7 +436,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 189.88658300000043,
+    "ms": 132.68504200000007,
     "cost": 0.000047544000000000004,
     "inTok": 1132,
     "outTok": 53
@@ -442,7 +445,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 843.0643749999999,
+    "ms": 894.7482919999993,
     "cost": 0.0001235
    },
    "jevOnly": {
@@ -453,7 +456,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 189.88658300000043,
+    "ms": 132.68504200000007,
     "cost": 0.000047544000000000004
    },
    "regex": {
@@ -477,20 +480,20 @@
      "gift_card"
     ],
     "pass": true,
-    "ms": 1983.0665420000005,
-    "cost": 0.00036570000000000005,
-    "inTok": 716,
-    "outTok": 178
+    "ms": 1647.9671659999995,
+    "cost": 0.00041470000000000005,
+    "inTok": 936,
+    "outTok": 182
    },
    "jev": {
     "probs": {
-     "gift_card": 0.87,
-     "crypto": 0.01,
+     "gift_card": 0.85,
+     "crypto": 0.02,
      "wire": 0.03
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 193.7955839999995,
+    "ms": 265.0600830000003,
     "cost": 0.000048762,
     "inTok": 1161,
     "outTok": 53
@@ -501,7 +504,7 @@
      "gift_card"
     ],
     "pass": true,
-    "ms": 780.9775,
+    "ms": 1720.0759170000001,
     "cost": 0.00012890000000000002
    },
    "jevOnly": {
@@ -512,7 +515,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 193.7955839999995,
+    "ms": 265.0600830000003,
     "cost": 0.000048762
    },
    "regex": {
@@ -528,16 +531,14 @@
    "trap": "Mentions that the pharmacy sells gift cards and asks for a copay at pickup, but does not ask the reader to pay with gift cards.",
    "nearMiss": true,
    "llm": {
-    "rawMethods": [
-     "other"
-    ],
+    "rawMethods": [],
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1936.085332999999,
-    "cost": 0.00036125,
-    "inTok": 700,
-    "outTok": 177
+    "ms": 1730.4599580000013,
+    "cost": 0.00038775,
+    "inTok": 920,
+    "outTok": 163
    },
    "jev": {
     "probs": {
@@ -547,7 +548,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 161.27995900000042,
+    "ms": 183.7998750000006,
     "cost": 0.0000483,
     "inTok": 1150,
     "outTok": 53
@@ -556,7 +557,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 2071.4994590000006,
+    "ms": 1144.5929579999993,
     "cost": 0.0001261
    },
    "jevOnly": {
@@ -567,7 +568,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 161.27995900000042,
+    "ms": 183.7998750000006,
     "cost": 0.0000483
    },
    "regex": {
@@ -584,15 +585,17 @@
    "nearMiss": false,
    "llm": {
     "rawMethods": [
-     "other"
+     "wire"
     ],
-    "decision": false,
-    "methods": [],
-    "pass": false,
-    "ms": 1861.4158750000006,
-    "cost": 0.00032615,
-    "inTok": 687,
-    "outTok": 151
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": true,
+    "ms": 2160.7091250000003,
+    "cost": 0.0003564,
+    "inTok": 907,
+    "outTok": 140
    },
    "jev": {
     "probs": {
@@ -602,7 +605,7 @@
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 285.52637500000037,
+    "ms": 132.50537500000064,
     "cost": 0.000047502,
     "inTok": 1131,
     "outTok": 53
@@ -613,7 +616,7 @@
      "wire"
     ],
     "pass": true,
-    "ms": 811.4544999999998,
+    "ms": 1090.5277920000008,
     "cost": 0.0001227
    },
    "jevOnly": {
@@ -624,7 +627,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 285.52637500000037,
+    "ms": 132.50537500000064,
     "cost": 0.000047502
    },
    "regex": {
@@ -640,22 +643,13 @@
    "trap": "Names every payment method in the gate, but only to warn that the utility never accepts them.",
    "nearMiss": true,
    "llm": {
-    "rawMethods": [
-     "gift_card",
-     "crypto",
-     "wire",
-     "other"
-    ],
-    "decision": true,
-    "methods": [
-     "gift_card",
-     "crypto",
-     "wire"
-    ],
-    "pass": false,
-    "ms": 2456.260542,
-    "cost": 0.0003725,
-    "inTok": 725,
+    "rawMethods": [],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 2204.999540999999,
+    "cost": 0.0004165,
+    "inTok": 945,
     "outTok": 182
    },
    "jev": {
@@ -666,7 +660,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 129.90516600000046,
+    "ms": 175.324125000001,
     "cost": 0.000049392000000000004,
     "inTok": 1176,
     "outTok": 53
@@ -675,7 +669,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1016.578125,
+    "ms": 1032.1450829999994,
     "cost": 0.0001305
    },
    "jevOnly": {
@@ -686,7 +680,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 129.90516600000046,
+    "ms": 175.324125000001,
     "cost": 0.000049392000000000004
    },
    "regex": {
@@ -708,20 +702,20 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1997.6404160000002,
-    "cost": 0.00037335000000000005,
-    "inTok": 723,
-    "outTok": 183
+    "ms": 1571.2513340000005,
+    "cost": 0.00040235000000000005,
+    "inTok": 943,
+    "outTok": 171
    },
    "jev": {
     "probs": {
      "gift_card": 0.02,
      "crypto": 0.02,
-     "wire": 0.03
+     "wire": 0.02
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 142.49391699999978,
+    "ms": 193.05670800000007,
     "cost": 0.000049098,
     "inTok": 1169,
     "outTok": 53
@@ -732,7 +726,7 @@
      "wire"
     ],
     "pass": false,
-    "ms": 949.480125,
+    "ms": 891.701583,
     "cost": 0.00013010000000000002
    },
    "jevOnly": {
@@ -743,7 +737,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 142.49391699999978,
+    "ms": 193.05670800000007,
     "cost": 0.000049098
    },
    "regex": {
@@ -760,18 +754,17 @@
    "nearMiss": true,
    "llm": {
     "rawMethods": [
-     "gift_card",
-     "other"
+     "gift_card"
     ],
     "decision": true,
     "methods": [
      "gift_card"
     ],
     "pass": true,
-    "ms": 2444.629000000001,
-    "cost": 0.00041685,
-    "inTok": 703,
-    "outTok": 221
+    "ms": 2560.4721660000014,
+    "cost": 0.00045335000000000004,
+    "inTok": 923,
+    "outTok": 215
    },
    "jev": {
     "probs": {
@@ -781,7 +774,7 @@
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 174.37295799999993,
+    "ms": 167.5232500000002,
     "cost": 0.000048636,
     "inTok": 1158,
     "outTok": 53
@@ -792,7 +785,7 @@
      "gift_card"
     ],
     "pass": true,
-    "ms": 1035.1075410000012,
+    "ms": 1336.9903329999997,
     "cost": 0.0001259
    },
    "jevOnly": {
@@ -803,7 +796,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 174.37295799999993,
+    "ms": 167.5232500000002,
     "cost": 0.000048636
    },
    "regex": {
@@ -823,10 +816,10 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1905.6741250000014,
-    "cost": 0.0003615,
-    "inTok": 720,
-    "outTok": 174
+    "ms": 1935.6010000000006,
+    "cost": 0.00041175,
+    "inTok": 940,
+    "outTok": 179
    },
    "jev": {
     "probs": {
@@ -836,7 +829,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 232.67958400000134,
+    "ms": 163.4036670000005,
     "cost": 0.000049182000000000004,
     "inTok": 1171,
     "outTok": 53
@@ -845,7 +838,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 909.0576669999991,
+    "ms": 902.2326669999984,
     "cost": 0.0001305
    },
    "jevOnly": {
@@ -856,7 +849,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 232.67958400000134,
+    "ms": 163.4036670000005,
     "cost": 0.000049182000000000004
    },
    "regex": {
@@ -880,20 +873,20 @@
      "wire"
     ],
     "pass": true,
-    "ms": 2379.6218339999996,
-    "cost": 0.00042945000000000006,
-    "inTok": 741,
-    "outTok": 225
+    "ms": 2110.0367499999993,
+    "cost": 0.0004672,
+    "inTok": 961,
+    "outTok": 220
    },
    "jev": {
     "probs": {
-     "gift_card": 0.01,
+     "gift_card": 0.02,
      "crypto": 0.01,
      "wire": 0.98
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 153.81008399999882,
+    "ms": 149.5019170000014,
     "cost": 0.000050358,
     "inTok": 1199,
     "outTok": 53
@@ -904,7 +897,7 @@
      "wire"
     ],
     "pass": true,
-    "ms": 1111.2440829999996,
+    "ms": 913.929709,
     "cost": 0.00013410000000000003
    },
    "jevOnly": {
@@ -915,7 +908,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 153.81008399999882,
+    "ms": 149.5019170000014,
     "cost": 0.000050358
    },
    "regex": {
@@ -937,20 +930,20 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1921.444958,
-    "cost": 0.0003668,
-    "inTok": 709,
-    "outTok": 180
+    "ms": 1891.6433749999997,
+    "cost": 0.00040955,
+    "inTok": 929,
+    "outTok": 179
    },
    "jev": {
     "probs": {
-     "gift_card": 0.01,
+     "gift_card": 0.02,
      "crypto": 0.01,
      "wire": 0.01
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 278.5096250000006,
+    "ms": 185.52945900000122,
     "cost": 0.000048342000000000006,
     "inTok": 1151,
     "outTok": 53
@@ -959,7 +952,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 804.3287499999988,
+    "ms": 903.7719580000012,
     "cost": 0.0001273
    },
    "jevOnly": {
@@ -970,7 +963,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 278.5096250000006,
+    "ms": 185.52945900000122,
     "cost": 0.000048342000000000006
    },
    "regex": {
@@ -990,10 +983,10 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 3086.214084000001,
-    "cost": 0.0003793,
-    "inTok": 684,
-    "outTok": 194
+    "ms": 2188.0516669999997,
+    "cost": 0.00043205,
+    "inTok": 904,
+    "outTok": 201
    },
    "jev": {
     "probs": {
@@ -1003,7 +996,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 181.84904199999983,
+    "ms": 164.84258299999965,
     "cost": 0.000047292,
     "inTok": 1126,
     "outTok": 53
@@ -1012,7 +1005,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1857.7061250000006,
+    "ms": 1192.4647920000007,
     "cost": 0.00012190000000000001
    },
    "jevOnly": {
@@ -1023,7 +1016,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 181.84904199999983,
+    "ms": 164.84258299999965,
     "cost": 0.000047292
    },
    "regex": {
@@ -1047,20 +1040,20 @@
      "crypto"
     ],
     "pass": true,
-    "ms": 2106.505292,
-    "cost": 0.00038525,
-    "inTok": 745,
-    "outTok": 189
+    "ms": 1508.1659999999993,
+    "cost": 0.000413,
+    "inTok": 965,
+    "outTok": 176
    },
    "jev": {
     "probs": {
      "gift_card": 0.03,
      "crypto": 0.99,
-     "wire": 0.1
+     "wire": 0.09
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 180.78199999999924,
+    "ms": 258.3855000000003,
     "cost": 0.000050064,
     "inTok": 1192,
     "outTok": 53
@@ -1071,7 +1064,7 @@
      "crypto"
     ],
     "pass": true,
-    "ms": 831.2784579999989,
+    "ms": 1096.755459,
     "cost": 0.0001343
    },
    "jevOnly": {
@@ -1082,7 +1075,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 180.78199999999924,
+    "ms": 258.3855000000003,
     "cost": 0.000050064
    },
    "regex": {
@@ -1099,25 +1092,27 @@
    "nearMiss": true,
    "llm": {
     "rawMethods": [
-     "other"
+     "wire"
     ],
-    "decision": false,
-    "methods": [],
-    "pass": true,
-    "ms": 2094.145624999999,
-    "cost": 0.0003275,
-    "inTok": 675,
-    "outTok": 154
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": false,
+    "ms": 2101.8017500000005,
+    "cost": 0.00037025,
+    "inTok": 895,
+    "outTok": 153
    },
    "jev": {
     "probs": {
      "gift_card": 0.01,
-     "crypto": 0.02,
+     "crypto": 0.01,
      "wire": 0.02
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 159.97120799999902,
+    "ms": 198.69058400000176,
     "cost": 0.000047040000000000004,
     "inTok": 1120,
     "outTok": 53
@@ -1126,7 +1121,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 834.6940840000007,
+    "ms": 1654.2913750000007,
     "cost": 0.0001199
    },
    "jevOnly": {
@@ -1137,7 +1132,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 159.97120799999902,
+    "ms": 198.69058400000176,
     "cost": 0.000047040000000000004
    },
    "regex": {
@@ -1161,20 +1156,20 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 2072.2125419999975,
-    "cost": 0.0003875,
-    "inTok": 725,
+    "ms": 1969.1022080000002,
+    "cost": 0.0004315,
+    "inTok": 945,
     "outTok": 194
    },
    "jev": {
     "probs": {
      "gift_card": 0.02,
-     "crypto": 0.02,
+     "crypto": 0.01,
      "wire": 0.02
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 167.1897089999984,
+    "ms": 157.56974999999875,
     "cost": 0.000049728,
     "inTok": 1184,
     "outTok": 53
@@ -1183,7 +1178,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 832.9820419999996,
+    "ms": 921.7624999999989,
     "cost": 0.00013030000000000002
    },
    "jevOnly": {
@@ -1194,7 +1189,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 167.1897089999984,
+    "ms": 157.56974999999875,
     "cost": 0.000049728
    },
    "regex": {
@@ -1211,15 +1206,17 @@
    "nearMiss": true,
    "llm": {
     "rawMethods": [
-     "card"
+     "gift_card"
     ],
-    "decision": false,
-    "methods": [],
-    "pass": false,
-    "ms": 1973.251874999998,
-    "cost": 0.00043395000000000006,
-    "inTok": 726,
-    "outTok": 231
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": true,
+    "ms": 2235.155208,
+    "cost": 0.00042420000000000007,
+    "inTok": 946,
+    "outTok": 188
    },
    "jev": {
     "probs": {
@@ -1229,7 +1226,7 @@
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 182.9018329999999,
+    "ms": 154.57179199999882,
     "cost": 0.000049098,
     "inTok": 1169,
     "outTok": 53
@@ -1240,7 +1237,7 @@
      "gift_card"
     ],
     "pass": true,
-    "ms": 876.0560829999995,
+    "ms": 1426.5364999999983,
     "cost": 0.00013010000000000002
    },
    "jevOnly": {
@@ -1251,7 +1248,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 182.9018329999999,
+    "ms": 154.57179199999882,
     "cost": 0.000049098
    },
    "regex": {
@@ -1268,15 +1265,17 @@
    "nearMiss": true,
    "llm": {
     "rawMethods": [
-     "other"
+     "wire"
     ],
-    "decision": false,
-    "methods": [],
-    "pass": true,
-    "ms": 2078.5071669999998,
-    "cost": 0.00034085,
-    "inTok": 723,
-    "outTok": 157
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": false,
+    "ms": 1991.0573330000007,
+    "cost": 0.0004236,
+    "inTok": 943,
+    "outTok": 188
    },
    "jev": {
     "probs": {
@@ -1286,18 +1285,16 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 347.35183400000096,
+    "ms": 193.1487500000003,
     "cost": 0.000049098,
     "inTok": 1169,
     "outTok": 53
    },
    "control": {
-    "decision": true,
-    "methods": [
-     "wire"
-    ],
-    "pass": false,
-    "ms": 1145.1067920000023,
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 945.4084170000024,
     "cost": 0.00013010000000000002
    },
    "jevOnly": {
@@ -1308,7 +1305,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 347.35183400000096,
+    "ms": 193.1487500000003,
     "cost": 0.000049098
    },
    "regex": {
@@ -1326,8 +1323,7 @@
    "llm": {
     "rawMethods": [
      "gift_card",
-     "crypto",
-     "other"
+     "crypto"
     ],
     "decision": true,
     "methods": [
@@ -1335,9 +1331,9 @@
      "crypto"
     ],
     "pass": false,
-    "ms": 1772.0057910000032,
-    "cost": 0.00033125,
-    "inTok": 725,
+    "ms": 1369.9912499999991,
+    "cost": 0.00037525,
+    "inTok": 945,
     "outTok": 149
    },
    "jev": {
@@ -1348,7 +1344,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 185.53058299999975,
+    "ms": 166.2382089999992,
     "cost": 0.000049266000000000006,
     "inTok": 1173,
     "outTok": 53
@@ -1357,7 +1353,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 912.0464170000014,
+    "ms": 1573.3112089999995,
     "cost": 0.0001315
    },
    "jevOnly": {
@@ -1368,7 +1364,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 185.53058299999975,
+    "ms": 166.2382089999992,
     "cost": 0.000049266000000000006
    },
    "regex": {
@@ -1385,27 +1381,27 @@
    "nearMiss": false,
    "llm": {
     "rawMethods": [
-     "other",
-     "card",
-     "other"
+     "wire"
     ],
-    "decision": false,
-    "methods": [],
-    "pass": false,
-    "ms": 1741.3736669999998,
-    "cost": 0.00038925,
-    "inTok": 715,
-    "outTok": 197
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": true,
+    "ms": 1869.172042000002,
+    "cost": 0.000412,
+    "inTok": 935,
+    "outTok": 180
    },
    "jev": {
     "probs": {
      "gift_card": 0.02,
      "crypto": 0.02,
-     "wire": 0.93
+     "wire": 0.9
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 140.43249999999898,
+    "ms": 173.8888330000009,
     "cost": 0.000048804,
     "inTok": 1162,
     "outTok": 53
@@ -1416,7 +1412,7 @@
      "wire"
     ],
     "pass": true,
-    "ms": 1066.3306249999987,
+    "ms": 906.4286659999998,
     "cost": 0.00012810000000000002
    },
    "jevOnly": {
@@ -1427,7 +1423,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 140.43249999999898,
+    "ms": 173.8888330000009,
     "cost": 0.000048804
    },
    "regex": {
@@ -1447,10 +1443,10 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1662.270457999999,
-    "cost": 0.00039475,
-    "inTok": 705,
-    "outTok": 203
+    "ms": 2141.5911659999983,
+    "cost": 0.00044125,
+    "inTok": 925,
+    "outTok": 205
    },
    "jev": {
     "probs": {
@@ -1460,7 +1456,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 146.18825000000288,
+    "ms": 155.2042909999982,
     "cost": 0.000048678000000000004,
     "inTok": 1159,
     "outTok": 53
@@ -1469,7 +1465,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1159.7779999999984,
+    "ms": 945.6183329999985,
     "cost": 0.0001267
    },
    "jevOnly": {
@@ -1480,7 +1476,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 146.18825000000288,
+    "ms": 155.2042909999982,
     "cost": 0.000048678000000000004
    },
    "regex": {
@@ -1506,10 +1502,10 @@
      "crypto"
     ],
     "pass": true,
-    "ms": 1982.4382499999992,
-    "cost": 0.0003868,
-    "inTok": 709,
-    "outTok": 196
+    "ms": 1991.5486249999994,
+    "cost": 0.00040705,
+    "inTok": 929,
+    "outTok": 177
    },
    "jev": {
     "probs": {
@@ -1519,7 +1515,7 @@
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 143.59666600000128,
+    "ms": 366.19187500000044,
     "cost": 0.000048678000000000004,
     "inTok": 1159,
     "outTok": 53
@@ -1531,7 +1527,7 @@
      "crypto"
     ],
     "pass": true,
-    "ms": 1266.112500000003,
+    "ms": 1107.815791000001,
     "cost": 0.0001267
    },
    "jevOnly": {
@@ -1542,7 +1538,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 143.59666600000128,
+    "ms": 366.19187500000044,
     "cost": 0.000048678000000000004
    },
    "regex": {
@@ -1562,10 +1558,10 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1773.070541000001,
-    "cost": 0.00038285,
-    "inTok": 708,
-    "outTok": 193
+    "ms": 1976.504334000001,
+    "cost": 0.00043435,
+    "inTok": 928,
+    "outTok": 199
    },
    "jev": {
     "probs": {
@@ -1575,7 +1571,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 192.58654100000058,
+    "ms": 231.3191250000018,
     "cost": 0.000048804,
     "inTok": 1162,
     "outTok": 53
@@ -1584,7 +1580,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1373.9434169999986,
+    "ms": 981.5431250000001,
     "cost": 0.0001275
    },
    "jevOnly": {
@@ -1595,7 +1591,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 192.58654100000058,
+    "ms": 231.3191250000018,
     "cost": 0.000048804
    },
    "regex": {
@@ -1615,10 +1611,10 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1925.2447920000013,
-    "cost": 0.00038165,
-    "inTok": 702,
-    "outTok": 193
+    "ms": 2054.988375000001,
+    "cost": 0.00044314999999999996,
+    "inTok": 922,
+    "outTok": 207
    },
    "jev": {
     "probs": {
@@ -1628,7 +1624,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 171.32425000000148,
+    "ms": 195.89783299999908,
     "cost": 0.000048384,
     "inTok": 1152,
     "outTok": 53
@@ -1637,7 +1633,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 811.8446670000012,
+    "ms": 1892.4408330000006,
     "cost": 0.0001261
    },
    "jevOnly": {
@@ -1648,7 +1644,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 171.32425000000148,
+    "ms": 195.89783299999908,
     "cost": 0.000048384
    },
    "regex": {
@@ -1665,15 +1661,17 @@
    "nearMiss": true,
    "llm": {
     "rawMethods": [
-     "other"
+     "crypto"
     ],
-    "decision": false,
-    "methods": [],
-    "pass": false,
-    "ms": 2302.990540999999,
-    "cost": 0.00038655,
-    "inTok": 714,
-    "outTok": 195
+    "decision": true,
+    "methods": [
+     "crypto"
+    ],
+    "pass": true,
+    "ms": 2259.7957080000015,
+    "cost": 0.00040805,
+    "inTok": 934,
+    "outTok": 177
    },
    "jev": {
     "probs": {
@@ -1683,7 +1681,7 @@
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 270.49012500000026,
+    "ms": 406.354457999998,
     "cost": 0.000048678000000000004,
     "inTok": 1159,
     "outTok": 53
@@ -1694,7 +1692,7 @@
      "crypto"
     ],
     "pass": true,
-    "ms": 995.3951660000021,
+    "ms": 1508.6340830000008,
     "cost": 0.0001283
    },
    "jevOnly": {
@@ -1705,7 +1703,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 270.49012500000026,
+    "ms": 406.354457999998,
     "cost": 0.000048678000000000004
    },
    "regex": {
@@ -1727,20 +1725,20 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 2024.426916999997,
-    "cost": 0.00036455,
-    "inTok": 704,
-    "outTok": 179
+    "ms": 1797.536,
+    "cost": 0.00040605000000000003,
+    "inTok": 924,
+    "outTok": 177
    },
    "jev": {
     "probs": {
      "gift_card": 0.03,
      "crypto": 0.02,
-     "wire": 0.03
+     "wire": 0.02
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 173.2567080000008,
+    "ms": 244.63879100000122,
     "cost": 0.000048384,
     "inTok": 1152,
     "outTok": 53
@@ -1749,7 +1747,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1023.1444999999985,
+    "ms": 1079.3029999999999,
     "cost": 0.0001261
    },
    "jevOnly": {
@@ -1760,7 +1758,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 173.2567080000008,
+    "ms": 244.63879100000122,
     "cost": 0.000048384
    },
    "regex": {
@@ -1777,18 +1775,21 @@
    "nearMiss": true,
    "llm": {
     "rawMethods": [
+     "wire",
      "gift_card",
+     "check",
      "other"
     ],
     "decision": true,
     "methods": [
-     "gift_card"
+     "gift_card",
+     "wire"
     ],
     "pass": false,
-    "ms": 1742.019833000002,
-    "cost": 0.00031864999999999997,
-    "inTok": 687,
-    "outTok": 145
+    "ms": 1608.9338749999988,
+    "cost": 0.0003564,
+    "inTok": 907,
+    "outTok": 140
    },
    "jev": {
     "probs": {
@@ -1798,7 +1799,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 206.13700000000244,
+    "ms": 187.52758299999914,
     "cost": 0.00004746,
     "inTok": 1130,
     "outTok": 53
@@ -1807,7 +1808,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 971.3445839999986,
+    "ms": 929.8934169999993,
     "cost": 0.0001227
    },
    "jevOnly": {
@@ -1818,7 +1819,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 206.13700000000244,
+    "ms": 187.52758299999914,
     "cost": 0.00004746
    },
    "regex": {
@@ -1842,10 +1843,10 @@
      "gift_card"
     ],
     "pass": true,
-    "ms": 2142.407708999999,
-    "cost": 0.00039985000000000004,
-    "inTok": 718,
-    "outTok": 205
+    "ms": 2272.9147080000002,
+    "cost": 0.00045010000000000004,
+    "inTok": 938,
+    "outTok": 210
    },
    "jev": {
     "probs": {
@@ -1855,7 +1856,7 @@
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 138.86354199999914,
+    "ms": 134.5514170000024,
     "cost": 0.000049182000000000004,
     "inTok": 1171,
     "outTok": 53
@@ -1866,7 +1867,7 @@
      "gift_card"
     ],
     "pass": true,
-    "ms": 925.4771670000009,
+    "ms": 838.9564170000012,
     "cost": 0.00012910000000000002
    },
    "jevOnly": {
@@ -1877,7 +1878,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 138.86354199999914,
+    "ms": 134.5514170000024,
     "cost": 0.000049182000000000004
    },
    "regex": {
@@ -1901,10 +1902,10 @@
      "gift_card"
     ],
     "pass": false,
-    "ms": 1850.3064170000034,
-    "cost": 0.0003288,
-    "inTok": 694,
-    "outTok": 152
+    "ms": 1595.2988750000004,
+    "cost": 0.00036405,
+    "inTok": 914,
+    "outTok": 145
    },
    "jev": {
     "probs": {
@@ -1914,7 +1915,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 205.8132919999989,
+    "ms": 152.00566699999763,
     "cost": 0.000047754000000000004,
     "inTok": 1137,
     "outTok": 53
@@ -1923,7 +1924,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 754.2977920000012,
+    "ms": 1122.5307500000017,
     "cost": 0.0001245
    },
    "jevOnly": {
@@ -1934,7 +1935,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 205.8132919999989,
+    "ms": 152.00566699999763,
     "cost": 0.000047754000000000004
    },
    "regex": {
@@ -1950,18 +1951,14 @@
    "trap": "Gift card balance notice that shows a card number fragment, but asks the reader to pay nothing.",
    "nearMiss": true,
    "llm": {
-    "rawMethods": [
-     "gift_card"
-    ],
-    "decision": true,
-    "methods": [
-     "gift_card"
-    ],
-    "pass": false,
-    "ms": 1905.161874999998,
-    "cost": 0.00032785000000000003,
-    "inTok": 683,
-    "outTok": 153
+    "rawMethods": [],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 1718.9569169999995,
+    "cost": 0.00038185000000000004,
+    "inTok": 903,
+    "outTok": 161
    },
    "jev": {
     "probs": {
@@ -1971,7 +1968,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 215.2100419999988,
+    "ms": 170.24975000000268,
     "cost": 0.000047376,
     "inTok": 1128,
     "outTok": 53
@@ -1980,7 +1977,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 809.9822910000003,
+    "ms": 1044.1729999999989,
     "cost": 0.0001221
    },
    "jevOnly": {
@@ -1991,7 +1988,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 215.2100419999988,
+    "ms": 170.24975000000268,
     "cost": 0.000047376
    },
    "regex": {
@@ -2008,15 +2005,17 @@
    "nearMiss": false,
    "llm": {
     "rawMethods": [
-     "other"
+     "wire"
     ],
-    "decision": false,
-    "methods": [],
-    "pass": false,
-    "ms": 2528.1461249999993,
-    "cost": 0.00037565,
-    "inTok": 722,
-    "outTok": 185
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": true,
+    "ms": 2473.3586670000004,
+    "cost": 0.00043715,
+    "inTok": 942,
+    "outTok": 199
    },
    "jev": {
     "probs": {
@@ -2026,7 +2025,7 @@
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 148.9175000000032,
+    "ms": 219.96616600000198,
     "cost": 0.00004914,
     "inTok": 1170,
     "outTok": 53
@@ -2037,7 +2036,7 @@
      "wire"
     ],
     "pass": true,
-    "ms": 2340.2684999999983,
+    "ms": 894.1233749999992,
     "cost": 0.0001299
    },
    "jevOnly": {
@@ -2048,7 +2047,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 148.9175000000032,
+    "ms": 219.96616600000198,
     "cost": 0.00004914
    },
    "regex": {
@@ -2070,10 +2069,10 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1741.1595000000016,
-    "cost": 0.000348,
-    "inTok": 715,
-    "outTok": 164
+    "ms": 1599.5017079999998,
+    "cost": 0.000402,
+    "inTok": 935,
+    "outTok": 172
    },
    "jev": {
     "probs": {
@@ -2083,7 +2082,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 259.32920899999954,
+    "ms": 155.17970799999966,
     "cost": 0.000049182000000000004,
     "inTok": 1171,
     "outTok": 53
@@ -2092,7 +2091,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 847.7082499999997,
+    "ms": 1169.7609999999986,
     "cost": 0.00012910000000000002
    },
    "jevOnly": {
@@ -2103,7 +2102,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 259.32920899999954,
+    "ms": 155.17970799999966,
     "cost": 0.000049182000000000004
    },
    "regex": {
@@ -2120,25 +2119,27 @@
    "nearMiss": true,
    "llm": {
     "rawMethods": [
-     "other"
+     "wire"
     ],
-    "decision": false,
-    "methods": [],
-    "pass": true,
-    "ms": 1849.2387500000004,
-    "cost": 0.00033455000000000003,
-    "inTok": 704,
-    "outTok": 155
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": false,
+    "ms": 2023.4697500000002,
+    "cost": 0.00040105,
+    "inTok": 924,
+    "outTok": 173
    },
    "jev": {
     "probs": {
      "gift_card": 0.02,
-     "crypto": 0.02,
-     "wire": 0.44
+     "crypto": 0.01,
+     "wire": 0.47
     },
     "outcome": "escalate",
     "model": "jev-1.13.0",
-    "ms": 144.78350000000137,
+    "ms": 160.6293749999968,
     "cost": 0.0000483,
     "inTok": 1150,
     "outTok": 53
@@ -2149,7 +2150,7 @@
      "wire"
     ],
     "pass": false,
-    "ms": 1567.1319999999978,
+    "ms": 1468.1536250000026,
     "cost": 0.0001263
    },
    "jevOnly": {
@@ -2157,11 +2158,11 @@
     "pass": true
    },
    "cascade": {
-    "decision": false,
+    "decision": true,
     "source": "llm",
-    "pass": true,
-    "ms": 1994.0222500000018,
-    "cost": 0.00038285
+    "pass": false,
+    "ms": 2184.099124999997,
+    "cost": 0.00044935
    },
    "regex": {
     "decision": true,
@@ -2184,10 +2185,10 @@
      "crypto"
     ],
     "pass": true,
-    "ms": 2713.0277910000004,
-    "cost": 0.00037195000000000007,
-    "inTok": 716,
-    "outTok": 183
+    "ms": 2289.2510839999995,
+    "cost": 0.0004922,
+    "inTok": 936,
+    "outTok": 244
    },
    "jev": {
     "probs": {
@@ -2197,7 +2198,7 @@
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 255.3547499999986,
+    "ms": 231.9371659999997,
     "cost": 0.00004893,
     "inTok": 1165,
     "outTok": 53
@@ -2208,7 +2209,7 @@
      "crypto"
     ],
     "pass": true,
-    "ms": 2490.480667,
+    "ms": 1191.2887500000033,
     "cost": 0.00012790000000000002
    },
    "jevOnly": {
@@ -2219,7 +2220,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 255.3547499999986,
+    "ms": 231.9371659999997,
     "cost": 0.00004893
    },
    "regex": {
@@ -2241,20 +2242,20 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 2052.6057089999995,
-    "cost": 0.00034930000000000003,
-    "inTok": 684,
-    "outTok": 170
+    "ms": 1644.2802499999998,
+    "cost": 0.00039455,
+    "inTok": 904,
+    "outTok": 171
    },
    "jev": {
     "probs": {
-     "gift_card": 0.05,
+     "gift_card": 0.04,
      "crypto": 0.02,
      "wire": 0.02
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 213.4905409999992,
+    "ms": 182.87791599999764,
     "cost": 0.000047502,
     "inTok": 1131,
     "outTok": 53
@@ -2263,7 +2264,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 750.1840000000011,
+    "ms": 1043.3192500000005,
     "cost": 0.00012190000000000001
    },
    "jevOnly": {
@@ -2274,7 +2275,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 213.4905409999992,
+    "ms": 182.87791599999764,
     "cost": 0.000047502
    },
    "regex": {
@@ -2294,20 +2295,20 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1893.2378339999996,
-    "cost": 0.00035595000000000006,
-    "inTok": 686,
-    "outTok": 175
+    "ms": 2270.0805419999997,
+    "cost": 0.00043620000000000003,
+    "inTok": 906,
+    "outTok": 204
    },
    "jev": {
     "probs": {
      "gift_card": 0.01,
-     "crypto": 0.01,
+     "crypto": 0.02,
      "wire": 0.02
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 178.39412500000253,
+    "ms": 238.12504199999967,
     "cost": 0.000047334000000000005,
     "inTok": 1127,
     "outTok": 53
@@ -2316,7 +2317,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1121.5528750000012,
+    "ms": 1359.0265419999996,
     "cost": 0.0001225
    },
    "jevOnly": {
@@ -2327,7 +2328,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 178.39412500000253,
+    "ms": 238.12504199999967,
     "cost": 0.000047334000000000005
    },
    "regex": {
@@ -2351,20 +2352,20 @@
      "gift_card"
     ],
     "pass": true,
-    "ms": 1757.1086250000008,
-    "cost": 0.00036205,
-    "inTok": 704,
-    "outTok": 177
+    "ms": 2012.4462910000002,
+    "cost": 0.00043605,
+    "inTok": 924,
+    "outTok": 201
    },
    "jev": {
     "probs": {
-     "gift_card": 0.92,
+     "gift_card": 0.93,
      "crypto": 0.02,
      "wire": 0.03
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 320.9186660000014,
+    "ms": 165.13908399999855,
     "cost": 0.000048258000000000005,
     "inTok": 1149,
     "outTok": 53
@@ -2375,7 +2376,7 @@
      "gift_card"
     ],
     "pass": true,
-    "ms": 1094.0636249999989,
+    "ms": 1050.9000830000004,
     "cost": 0.0001267
    },
    "jevOnly": {
@@ -2386,7 +2387,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 320.9186660000014,
+    "ms": 165.13908399999855,
     "cost": 0.000048258000000000005
    },
    "regex": {
@@ -2410,10 +2411,10 @@
      "crypto"
     ],
     "pass": false,
-    "ms": 1769.9813330000034,
-    "cost": 0.0003533,
-    "inTok": 729,
-    "outTok": 166
+    "ms": 2252.717832999999,
+    "cost": 0.00039855,
+    "inTok": 949,
+    "outTok": 167
    },
    "jev": {
     "probs": {
@@ -2423,7 +2424,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 198.2495830000007,
+    "ms": 182.6169579999987,
     "cost": 0.000049728,
     "inTok": 1184,
     "outTok": 53
@@ -2432,7 +2433,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1142.387749999998,
+    "ms": 1096.3781249999993,
     "cost": 0.00013130000000000002
    },
    "jevOnly": {
@@ -2443,7 +2444,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 198.2495830000007,
+    "ms": 182.6169579999987,
     "cost": 0.000049728
    },
    "regex": {
@@ -2460,26 +2461,27 @@
    "nearMiss": false,
    "llm": {
     "rawMethods": [
-     "card",
-     "other"
+     "wire"
     ],
-    "decision": false,
-    "methods": [],
-    "pass": false,
-    "ms": 1849.1061670000017,
-    "cost": 0.0003688,
-    "inTok": 694,
-    "outTok": 184
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": true,
+    "ms": 1659.4451249999984,
+    "cost": 0.00039905,
+    "inTok": 914,
+    "outTok": 173
    },
    "jev": {
     "probs": {
      "gift_card": 0.05,
-     "crypto": 0.04,
+     "crypto": 0.03,
      "wire": 0.99
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 159.27524999999878,
+    "ms": 236.99970799999937,
     "cost": 0.0000483,
     "inTok": 1150,
     "outTok": 53
@@ -2490,7 +2492,7 @@
      "wire"
     ],
     "pass": true,
-    "ms": 839.9162079999987,
+    "ms": 2336.1250419999997,
     "cost": 0.0001237
    },
    "jevOnly": {
@@ -2501,7 +2503,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 159.27524999999878,
+    "ms": 236.99970799999937,
     "cost": 0.0000483
    },
    "regex": {
@@ -2525,10 +2527,10 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1913.9629999999997,
-    "cost": 0.00038875,
-    "inTok": 700,
-    "outTok": 199
+    "ms": 1963.1579579999998,
+    "cost": 0.000409,
+    "inTok": 920,
+    "outTok": 180
    },
    "jev": {
     "probs": {
@@ -2538,7 +2540,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 135.61575000000084,
+    "ms": 128.08962500000052,
     "cost": 0.000048468000000000004,
     "inTok": 1154,
     "outTok": 53
@@ -2547,7 +2549,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1623.4462079999976,
+    "ms": 778.885291999999,
     "cost": 0.0001261
    },
    "jevOnly": {
@@ -2558,7 +2560,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 135.61575000000084,
+    "ms": 128.08962500000052,
     "cost": 0.000048468000000000004
    },
    "regex": {
@@ -2575,16 +2577,17 @@
    "nearMiss": true,
    "llm": {
     "rawMethods": [
-     "card",
-     "other"
+     "gift_card"
     ],
-    "decision": false,
-    "methods": [],
-    "pass": true,
-    "ms": 1971.315999999999,
-    "cost": 0.00034695000000000006,
-    "inTok": 691,
-    "outTok": 167
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": false,
+    "ms": 1713.8532500000001,
+    "cost": 0.00037845000000000006,
+    "inTok": 911,
+    "outTok": 157
    },
    "jev": {
     "probs": {
@@ -2594,7 +2597,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 155.25641600000017,
+    "ms": 268.49175000000105,
     "cost": 0.000048048000000000005,
     "inTok": 1144,
     "outTok": 53
@@ -2603,7 +2606,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1072.234042,
+    "ms": 958.3531670000011,
     "cost": 0.0001237
    },
    "jevOnly": {
@@ -2614,7 +2617,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 155.25641600000017,
+    "ms": 268.49175000000105,
     "cost": 0.000048048000000000005
    },
    "regex": {
@@ -2638,10 +2641,10 @@
      "crypto"
     ],
     "pass": true,
-    "ms": 1930.2345830000013,
-    "cost": 0.00039210000000000004,
-    "inTok": 723,
-    "outTok": 198
+    "ms": 2242.964,
+    "cost": 0.00044985,
+    "inTok": 943,
+    "outTok": 209
    },
    "jev": {
     "probs": {
@@ -2651,7 +2654,7 @@
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 245.03041699999812,
+    "ms": 152.80212500000198,
     "cost": 0.000049308,
     "inTok": 1174,
     "outTok": 53
@@ -2662,7 +2665,7 @@
      "crypto"
     ],
     "pass": true,
-    "ms": 1294.752916999998,
+    "ms": 1231.4904169999973,
     "cost": 0.00013030000000000002
    },
    "jevOnly": {
@@ -2673,7 +2676,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 245.03041699999812,
+    "ms": 152.80212500000198,
     "cost": 0.000049308
    },
    "regex": {
@@ -2695,10 +2698,10 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1918.4741670000003,
-    "cost": 0.00037515,
-    "inTok": 682,
-    "outTok": 191
+    "ms": 1590.7292080000007,
+    "cost": 0.00041539999999999996,
+    "inTok": 902,
+    "outTok": 188
    },
    "jev": {
     "probs": {
@@ -2708,16 +2711,18 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 154.86437499999738,
+    "ms": 355.9937080000018,
     "cost": 0.000047418000000000006,
     "inTok": 1129,
     "outTok": 53
    },
    "control": {
-    "decision": false,
-    "methods": [],
-    "pass": true,
-    "ms": 1643.7960410000014,
+    "decision": true,
+    "methods": [
+     "gift_card"
+    ],
+    "pass": false,
+    "ms": 825.4740420000016,
     "cost": 0.0001215
    },
    "jevOnly": {
@@ -2728,7 +2733,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 154.86437499999738,
+    "ms": 355.9937080000018,
     "cost": 0.000047418000000000006
    },
    "regex": {
@@ -2747,15 +2752,17 @@
     "rawMethods": [
      "card",
      "check",
-     "other"
+     "wire"
     ],
-    "decision": false,
-    "methods": [],
-    "pass": true,
-    "ms": 2822.410499999998,
-    "cost": 0.00040170000000000006,
-    "inTok": 696,
-    "outTok": 210
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": false,
+    "ms": 2134.383624999995,
+    "cost": 0.00044320000000000004,
+    "inTok": 916,
+    "outTok": 208
    },
    "jev": {
     "probs": {
@@ -2765,7 +2772,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 199.72816700000112,
+    "ms": 163.20987500000047,
     "cost": 0.000048006,
     "inTok": 1143,
     "outTok": 53
@@ -2774,7 +2781,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1174.580167,
+    "ms": 1197.2311249999984,
     "cost": 0.0001247
    },
    "jevOnly": {
@@ -2785,7 +2792,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 199.72816700000112,
+    "ms": 163.20987500000047,
     "cost": 0.000048006
    },
    "regex": {
@@ -2809,20 +2816,20 @@
      "gift_card"
     ],
     "pass": true,
-    "ms": 2183.3603339999972,
-    "cost": 0.00044935,
-    "inTok": 703,
-    "outTok": 247
+    "ms": 2097.709667000003,
+    "cost": 0.00043835,
+    "inTok": 923,
+    "outTok": 203
    },
    "jev": {
     "probs": {
      "gift_card": 0.99,
      "crypto": 0.02,
-     "wire": 0.05
+     "wire": 0.04
     },
     "outcome": "yes",
     "model": "jev-1.13.0",
-    "ms": 197.74895800000377,
+    "ms": 166.99662499999977,
     "cost": 0.000048216,
     "inTok": 1148,
     "outTok": 53
@@ -2833,7 +2840,7 @@
      "gift_card"
     ],
     "pass": true,
-    "ms": 936.5944999999992,
+    "ms": 1081.043292000002,
     "cost": 0.0001255
    },
    "jevOnly": {
@@ -2844,7 +2851,7 @@
     "decision": true,
     "source": "jev",
     "pass": true,
-    "ms": 197.74895800000377,
+    "ms": 166.99662499999977,
     "cost": 0.000048216
    },
    "regex": {
@@ -2860,18 +2867,14 @@
    "trap": "Bitcoin and a wallet are mentioned, but it is a gift to the reader and nothing is asked in return.",
    "nearMiss": true,
    "llm": {
-    "rawMethods": [
-     "crypto"
-    ],
-    "decision": true,
-    "methods": [
-     "crypto"
-    ],
-    "pass": false,
-    "ms": 1749.3253330000007,
-    "cost": 0.00034070000000000004,
-    "inTok": 691,
-    "outTok": 162
+    "rawMethods": [],
+    "decision": false,
+    "methods": [],
+    "pass": true,
+    "ms": 2070.1195829999997,
+    "cost": 0.00036595000000000003,
+    "inTok": 911,
+    "outTok": 147
    },
    "jev": {
     "probs": {
@@ -2881,7 +2884,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 182.14308300000266,
+    "ms": 153.86012499999924,
     "cost": 0.00004779600000000001,
     "inTok": 1138,
     "outTok": 53
@@ -2890,7 +2893,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1051.2167499999996,
+    "ms": 1050.2404999999999,
     "cost": 0.0001239
    },
    "jevOnly": {
@@ -2901,7 +2904,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 182.14308300000266,
+    "ms": 153.86012499999924,
     "cost": 0.00004779600000000001
    },
    "regex": {
@@ -2917,14 +2920,18 @@
    "trap": "Mentions a past Venmo payment the reader made, but asks for nothing more.",
    "nearMiss": true,
    "llm": {
-    "rawMethods": [],
-    "decision": false,
-    "methods": [],
-    "pass": true,
-    "ms": 1374.7423750000016,
-    "cost": 0.00030470000000000003,
-    "inTok": 661,
-    "outTok": 138
+    "rawMethods": [
+     "wire"
+    ],
+    "decision": true,
+    "methods": [
+     "wire"
+    ],
+    "pass": false,
+    "ms": 1543.7158750000017,
+    "cost": 0.00033995000000000005,
+    "inTok": 881,
+    "outTok": 131
    },
    "jev": {
     "probs": {
@@ -2934,7 +2941,7 @@
     },
     "outcome": "no",
     "model": "jev-1.13.0",
-    "ms": 533.664291000001,
+    "ms": 253.13745799999742,
     "cost": 0.000046242,
     "inTok": 1101,
     "outTok": 53
@@ -2943,7 +2950,7 @@
     "decision": false,
     "methods": [],
     "pass": true,
-    "ms": 1462.8205000000016,
+    "ms": 860.5329159999965,
     "cost": 0.0001175
    },
    "jevOnly": {
@@ -2954,7 +2961,7 @@
     "decision": false,
     "source": "jev",
     "pass": true,
-    "ms": 533.664291000001,
+    "ms": 253.13745799999742,
     "cost": 0.000046242
    },
    "regex": {

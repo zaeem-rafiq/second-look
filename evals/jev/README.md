@@ -42,6 +42,21 @@
 | Regex or LLM (today) | 28/50 | 20 | 2 |
 | Regex or Jev cascade (flag on) | 30/50 | 20 | 0 |
 
+## Update: definitions added to the production schema (run 4, 2026-09-17)
+
+`ExtractionSchema.paymentMethods` now carries the same method definitions and mention exclusions (`lib/paymentDefinitions.ts`, shared with the Jev questions). The "Existing LLM" row now uses that prompt.
+
+| Path | Accuracy | False yes | False no | p50 ms | Cost per case |
+|---|---|---|---|---|---|
+| Production prompt before the change (run 3) | 36/50 | 7 | 7 | 1954 | $0.000370 |
+| Production prompt with definitions (run 4) | 39/50 | 11 | 0 | 2018 | $0.000414 |
+| Jev cascade at 0.8 (run 4) | 49/50 | 1 | 0 | 179 | $0.000057 |
+| Jev alone at 0.5 (run 4) | 50/50 | 0 | 0 | 175 | $0.000049 |
+
+**The definitions stopped the misses and added false alarms.** The production model no longer misses a payment request, but it now flags more receipts, "you received" notices and warnings. At the verdict level (regex or LLM) that moves from 28/50 (20 false yes, 2 false no) to 30/50 (20 false yes, 0 false no), because the regex already flags every one of those mentions.
+
+**The cascade's one miss came from escalation.** The escalated case was the neighbor offering to pay by Zelle, and the updated LLM now says yes to it.
+
 ## Reading the results honestly
 
 - **The production prompt's definition is the main gap.** The existing extraction schema never says that Western Union, MoneyGram, Zelle, Venmo and Cash App count as `wire`. The model files them under `other` or `card`. It also never excludes mentions, warnings or gifts. Given the definitions, the same model rises from 36/50 to 47/50.
