@@ -5,12 +5,13 @@ import { afterEach, expect, test, vi } from "vitest";
 import rateLimiterTest from "@convex-dev/rate-limiter/test";
 import workflowTest from "@convex-dev/workflow/test";
 import type { WorkflowId } from "@convex-dev/workflow";
-import { internal } from "./_generated/api";
+import { components, internal } from "./_generated/api";
 import { workflow } from "./pipeline";
 import schema from "./schema";
 import { signSvix } from "../lib/svix";
 
 const modules = import.meta.glob("./**/*.ts");
+const originalFetch = globalThis.fetch;
 const secret = `whsec_${btoa("synthetic-webhook-secret")}`;
 const message = {
   message_id: "<synthetic-forward@example.test>", thread_id: "synthetic-thread",
@@ -23,7 +24,7 @@ const ingestArgs = {
   inboxId: message.inbox_id, from: message.from, subject: message.subject, hasBody: true,
 };
 
-afterEach(() => { vi.useRealTimers(); vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
+afterEach(() => { vi.useRealTimers(); vi.unstubAllEnvs(); globalThis.fetch = originalFetch; });
 
 async function setup(routed = true) {
   vi.useFakeTimers();
@@ -31,11 +32,11 @@ async function setup(routed = true) {
   vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
   vi.stubEnv("AGENTMAIL_WEBHOOK_SECRET", secret);
   vi.stubEnv("AGENTMAIL_INBOX_ID", message.inbox_id);
-  const send = vi.fn(async (url: string, init?: RequestInit) => {
-    if (!url.endsWith("/messages/send") || init?.method !== "POST") throw new Error("Unexpected provider request");
+  const send = vi.fn<typeof fetch>(async (url, init) => {
+    if (!String(url).endsWith("/messages/send") || init?.method !== "POST") throw new Error("Unexpected provider request");
     return new Response(JSON.stringify({ message_id: "captured-reply", thread_id: "captured-thread" }));
   });
-  vi.stubGlobal("fetch", send);
+  globalThis.fetch = send;
   const t = convexTest(schema, modules);
   rateLimiterTest.register(t);
   workflowTest.register(t);
@@ -53,6 +54,7 @@ async function setup(routed = true) {
     files: await ctx.db.system.query("_storage").collect(),
     inbound: await ctx.db.query("inbound").collect(),
     cases: await ctx.db.query("cases").collect(),
+    workflows: (await ctx.runQuery(components.workflow.workflow.list, { order: "asc", paginationOpts: { numItems: 100, cursor: null } })).page,
   }));
   return { t, send, deliver, state };
 }
@@ -82,6 +84,7 @@ test.each([true, false])("signed %s-routed replays retain only the original raw 
   expect(replayed.files).toHaveLength(1);
   expect(replayed.inbound).toMatchObject([{ status: routed ? "routed" : "unrouted", rawStorageId: replayed.files[0]._id }]);
   expect(replayed.cases).toHaveLength(routed ? 1 : 0);
+  expect(replayed.workflows).toHaveLength(routed ? 1 : 0);
   if (routed) expect(replayed.cases[0]).toMatchObject({ rawStorageId: replayed.files[0]._id, replyMessageId: "captured-reply", status: "replied" });
   expect(send).toHaveBeenCalledTimes(routed ? 1 : 0);
   expect(await t.run(async (ctx) => (await ctx.storage.get(replayed.files[0]._id))?.text())).toBe(body);
@@ -98,6 +101,7 @@ test.each([true, false])("concurrent %s-routed ingests retain one raw message an
   expect(retained.inbound).toHaveLength(1);
   expect(retained.inbound[0].rawStorageId).toBe(retained.files[0]._id);
   expect(retained.cases).toHaveLength(routed ? 1 : 0);
+  expect(retained.workflows).toHaveLength(routed ? 1 : 0);
   if (routed) expect(retained.cases[0]).toMatchObject({ rawStorageId: retained.files[0]._id, status: "replied", replyMessageId: "captured-reply" });
   expect(send).toHaveBeenCalledTimes(routed ? 1 : 0);
 });
