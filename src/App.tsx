@@ -191,6 +191,7 @@ function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
         </ol>
       </div>
 
+      {c.sourceReviewRequired && <p className="error" role="status">The source used for this case needs review. Its earlier conclusion and reply should not be relied on.</p>}
       {c.summary && <p className="summary">{c.summary}</p>}
       {failed && c.error && <p className="error">{c.error}</p>}
 
@@ -219,7 +220,7 @@ function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
                     </span>
                   ) : e.check === "payment_method" ? (
                     <span className="ev-text">
-                      {e.severity === "soft" ? "mentions " : "asks for payment by "}<span className="claim">{paymentWords(e.claimValue)}</span>{e.severity === "soft" ? "; a payment request could not be confirmed" : ""}
+                      {e.claimValue === "prize fee" ? "asks for a fee to receive a prize" : <>{e.severity === "soft" ? "mentions " : "asks for payment by "}<span className="claim">{paymentWords(e.claimValue)}</span>{e.severity === "soft" ? "; more information is needed" : ""}</>}
                     </span>
                   ) : (
                     <span className="ev-text">
@@ -255,7 +256,7 @@ function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
 
       {c.replyText && c.replyStatus && (
         <div className="reply" role="status">
-          <p className="eyebrow">{c.replyStatus === "sent" ? `Reply sent ${fmtDate(c.replySentAt)}` : c.replyStatus === "sending" ? "Sending reply…" : c.replyStatus === "failed" ? "Reply failed — draft saved" : "Unsent reply draft"}</p>
+          <p className="eyebrow">{c.sourceReviewRequired && c.replyStatus !== "sent" ? "Draft held — source review required" : c.replyStatus === "sent" ? `Reply sent ${fmtDate(c.replySentAt)}` : c.replyStatus === "sending" ? "Sending reply…" : c.replyStatus === "failed" ? "Reply failed — draft saved" : "Unsent reply draft"}</p>
           {c.replyError && <p className="muted small">{c.replyError}</p>}
           {c.replyStatus === "sent" && <p className="muted small">Accepted by the email provider. Delivery has not been confirmed.</p>}
           <p>{c.replyText}</p>

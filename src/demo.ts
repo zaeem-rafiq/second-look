@@ -12,7 +12,7 @@ export const demoBoard: Board = {
     status: "checking", verdict: "mismatch", summary: "This fictional message asks for payment using a gift card. Pause and check with your family before taking action.",
     subject: "Sample: urgent payment request", forwardFormat: "gmail",
     originalSender: { name: "Example Services", address: "billing@example.invalid" },
-    orgName: null, orgCrawledAt: null, deadlineAt: null, receivedAt: Date.UTC(2026, 8, 20, 14),
+    sourceReviewRequired: false, orgName: null, orgCrawledAt: null, deadlineAt: null, receivedAt: Date.UTC(2026, 8, 20, 14),
     replySentAt: null, replyText: null, replyStatus: null, replyError: null, handledBy: null, handledAt: null, notes: [], error: null, extracted: null,
     evidence: [{ check: "payment_method", applicable: true, matched: false, severity: "hard", claimValue: "gift_card", officialValue: "", sourceUrl: "", quote: "" }],
   }],
