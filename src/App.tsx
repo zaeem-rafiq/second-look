@@ -40,7 +40,7 @@ function verdictLabel(v: Case["verdict"]): string {
 }
 
 const CHECK_LABELS: Record<string, string> = {
-  sender_domain: "Sender address",
+  sender_domain: "Quoted sender address",
   link_domains: "Links",
   phone: "Phone number",
   policy_contradiction: "What they say vs. official policy",
@@ -121,8 +121,8 @@ function BoardView({ board, readOnly = false }: { board: Board; readOnly?: boole
           <p className="eyebrow">Second Look</p>
           <h1>{board.family.name}</h1>
           <p className="muted">
-            {board.parents.map((p) => p.name).join(", ") || "No parent yet"} forwards anything confusing to{" "}
-            <code>{board.helperAddress ?? "the helper inbox"}</code>. Every forward shows up here, live.
+            {readOnly ? "This fixed example shows how a family can review a message." : <>{board.parents.map((p) => p.name).join(", ") || "No parent yet"} forwards anything confusing to{" "}
+            <code>{board.helperAddress ?? "the helper inbox"}</code>. Every forward shows up here, live.</>}
           </p>
         </div>
         <div className="legend">
@@ -173,7 +173,7 @@ function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
           <div className={`chip verdict-${c.verdict ?? "pending"}`}>{failed ? "Something went wrong" : verdictLabel(c.verdict)}</div>
           <h2 className="subject">{c.subject || "(no subject)"}</h2>
           <p className="muted small">
-            From {c.originalSender.name ? `${c.originalSender.name} · ` : ""}
+            Quoted sender {c.originalSender.name ? `${c.originalSender.name} · ` : ""}
             <span className="mono">{c.originalSender.address ?? "unknown sender"}</span> · forwarded {fmtDate(c.receivedAt)}
             {c.forwardFormat !== "unknown" ? ` via ${c.forwardFormat === "apple" ? "Apple Mail" : c.forwardFormat === "gmail" ? "Gmail" : "Outlook"}` : ""}
           </p>
@@ -219,7 +219,7 @@ function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
                     </span>
                   ) : e.check === "payment_method" ? (
                     <span className="ev-text">
-                      asks for payment by <span className="claim">{paymentWords(e.claimValue)}</span>
+                      {e.severity === "soft" ? "mentions " : "asks for payment by "}<span className="claim">{paymentWords(e.claimValue)}</span>{e.severity === "soft" ? "; a payment request could not be confirmed" : ""}
                     </span>
                   ) : (
                     <span className="ev-text">

@@ -83,7 +83,7 @@ export function explanationReasons(verdict: Verdict, orgName: string | null, evi
         break;
       case "policy_contradiction": {
         const what = e.claimValue.replace(/^email\s+/i, "").replace(/\+?\d[\d\s().-]{6,}\d/g, "a number").trim();
-        r = what ? `it ${what}, which ${org} says it only does in limited situations` : null;
+        r = what ? `it ${what}, which does not match ${org}'s published policy` : null;
         break;
       }
       case "payment_method":

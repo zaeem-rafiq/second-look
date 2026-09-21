@@ -231,7 +231,7 @@ describe("explanation grounding", () => {
       "the quoted sender address does not match Medicare's official domain",
       "the links go to a website that is not Medicare's",
       "the phone number in it is not one Medicare lists",
-      "it asks for personal or account information, which Medicare says it only does in limited situations",
+      "it asks for personal or account information, which does not match Medicare's published policy",
     ]);
     expect(reasons.join(" ")).not.toMatch(/\d{3}|\.com/);
   });
