@@ -1,11 +1,45 @@
 import { describe, expect, it } from "vitest";
 import { sourceDeadline } from "../lib/deadline";
 import { deterministicExtract, mergeExtraction, parseForwardedEmail, type LlmExtraction } from "../lib/extract";
+import { FIXTURES } from "../evals/fixtures/index";
 
 describe("source-owned notice deadlines", () => {
+  it.each(["gmail", "outlook", "apple"])("extracts the deadline from the unchanged Con Edison %s fixture", (client) => {
+    const fixture = FIXTURES.find((entry) => entry.id === `coned-bill-${client}`)!;
+    const parsed = parseForwardedEmail(fixture.text, fixture.html);
+    expect(parsed.originalBody).toContain("Amount due: $84.20\nDue date: October 3, 2026");
+    expect(deterministicExtract(parsed, fixture.text, fixture.html, [])).toMatchObject({
+      deadline: "2026-10-03", deadlineAmbiguous: false,
+    });
+  });
+
+  it.each(["Amount due: $84.20", "Amount due: $84", "  AMOUNT DUE: $1,284.20\r"])("distinguishes a standalone monetary field from a date: %s", (amount) => {
+    expect(sourceDeadline(amount)).toEqual({ deadline: null, deadlineAmbiguous: false });
+    expect(sourceDeadline(`${amount}\nDue date: October 3, 2026`)).toEqual({ deadline: "2026-10-03", deadlineAmbiguous: false });
+    expect(sourceDeadline(`Due date: October 3, 2026\n${amount}`)).toEqual({ deadline: "2026-10-03", deadlineAmbiguous: false });
+  });
+
+  it.each([
+    "If you renew:\nAmount due: $84.20\nDue date: October 3, 2026",
+    "Estimated:\nAmount due: $84.20\nDue date: October 3, 2026",
+    "Due date: October 3, 2026\nAmount due: $84.20\nif you renew",
+    "Due date: October 3, 2026\nAmount due: $84.20\nor October 4, 2026",
+    "Amount due: $84.20\nDue date: October 3, 2026\nDeadline: October 4, 2026",
+    "Amount due: $84.20\nDue date: October 3",
+    "Amount due: $84.20\nDue date: 10/03/2026",
+    "Amount due: $84.20\nDue date: tomorrow",
+    "Amount due: October 3, 2026 or October 4, 2026",
+    "Amount due: $84.20 if you renew\nDue date: October 3, 2026",
+    "Amount due: $84.20 by October 4, 2026\nDue date: October 3, 2026",
+  ])("does not discard qualifiers or competing dates around monetary fields: %s", (body) => {
+    expect(sourceDeadline(body)).toEqual({ deadline: null, deadlineAmbiguous: true });
+  });
+
   it.each([
     "Payment due: 2026-10-03.",
     "Your payment is due on October 3, 2026.",
+    "Amount due on October 3, 2026.",
+    "Amount due: October 3, 2026.",
     "The deadline is 3 October 2026.",
     "Please pay by 2026-10-03 to avoid late fees.",
     "Renew-by: OCTOBER 3, 2026.",

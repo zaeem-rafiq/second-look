@@ -29,6 +29,9 @@ export function sourceDeadline(body: string): { deadline: string | null; deadlin
   const dates = new Set<string>();
   let mentioned = false;
   const text = body.replace(/^(?:From|Date|Sent|Subject|To|Cc|Reply-To):[^\r\n]*/gim, "")
+    // A standalone monetary field is not a deadline. Remove the whole field so its
+    // decimal point cannot split a condition from the due date on the next line.
+    .replace(/^[ \t]*Amount due:[ \t]*\$(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d{2})?[ \t]*\r?$/gim, "")
     // Account navigation after a complete due date is a separate instruction, not a date alternative.
     .replace(new RegExp(`(${duePattern}\\s*(?:(?:is|on|by|of)\\b\\s*)*[:\\-–]?\\s*${datePattern})[ \\t]*\\r?\\n(?=[ \\t]*(?:Use your (?:usual|regular)\\b|(?:Open|Review) your\\b|Visit (?:your|the official)\\b))`, "gi"), "$1. ")
     .replace(/[\r\n]+/g, " ");
