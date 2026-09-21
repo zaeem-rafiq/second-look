@@ -91,11 +91,12 @@ export function violatedTags(extracted: Extracted): Set<PolicyTag> {
   const pressured = extracted.urgencyPhrases.length > 0;
   if (extracted.threatensPenalty) tags.add("never_threatens");
   if (extracted.claimsSuspension) tags.add("never_suspends");
-  if (extracted.requestsPersonalInfo) tags.add("never_asks_personal_info");
-  if (extracted.paymentMethods.some((m) => m === "gift_card" || m === "crypto" || m === "wire")) {
+  if (extracted.requestsPersonalInfo && extracted.personalInfoRequestConfirmed !== false) tags.add("never_asks_personal_info");
+  if (extracted.paymentRequestConfirmed !== false && extracted.paymentMethods.some((m) => m === "gift_card" || m === "crypto" || m === "wire")) {
     tags.add("never_asks_gift_card");
   }
-  if (extracted.actionType === "pay" || extracted.actionType === "reply_with_info") {
+  if ((extracted.actionType === "pay" && extracted.paymentRequestConfirmed !== false) ||
+      (extracted.actionType === "reply_with_info" && extracted.personalInfoRequestConfirmed !== false)) {
     tags.add("never_asks_payment_by_phone_or_email");
   }
   // never_calls_uninvited is intentionally not derived: an email asking the reader to call a number
@@ -126,6 +127,13 @@ export function policyContradiction(extracted: Extracted, org: OfficialOrg): Che
       officialValue: org.name,
       sourceUrl: pq.sourceUrl,
       quote: pq.quote,
+    });
+  }
+  if (extracted.requestsPersonalInfo && extracted.personalInfoRequestConfirmed === false) {
+    rows.push({
+      check: "policy_contradiction", applicable: true, matched: false, severity: "soft",
+      claimValue: "personal information is mentioned; a request could not be confirmed",
+      officialValue: "", sourceUrl: "", quote: "",
     });
   }
   if (rows.length === 0) {
@@ -177,7 +185,7 @@ export function urgencyPressure(extracted: Extracted): CheckResult {
   };
 }
 
-/** Hard: gift cards, crypto or wire as the payment method; cites the org quote or the fallback (FTC). */
+/** Confirmed payment requests are hard failures; unresolved fallback mentions only withhold a positive verdict. */
 export function paymentByGiftCardOrCrypto(
   extracted: Extracted,
   org: OfficialOrg | null,
@@ -185,15 +193,16 @@ export function paymentByGiftCardOrCrypto(
 ): CheckResult {
   const flagged = extracted.paymentMethods.filter((m) => m === "gift_card" || m === "crypto" || m === "wire");
   if (flagged.length === 0) return notApplicable("payment_method", "hard");
-  const source = [org, fallback]
+  const confirmed = extracted.paymentRequestConfirmed !== false;
+  const source = confirmed ? [org, fallback]
     .filter((o): o is OfficialOrg => o !== null)
     .flatMap((o) => o.policyQuotes)
-    .find((q) => q.tags.includes("never_asks_gift_card"));
+    .find((q) => q.tags.includes("never_asks_gift_card")) : undefined;
   return {
     check: "payment_method",
     applicable: true,
     matched: false,
-    severity: "hard",
+    severity: confirmed ? "hard" : "soft",
     claimValue: flagged.join(", "),
     officialValue: source ? "no legitimate organization asks for this" : "",
     sourceUrl: source?.sourceUrl ?? "",

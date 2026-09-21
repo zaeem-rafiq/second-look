@@ -26,7 +26,11 @@ export type Extracted = {
   /** ISO 8601 date (YYYY-MM-DD) when a deadline is stated, else null. */
   deadline: string | null;
   paymentMethods: PaymentMethod[];
+  /** false means fallback mentions only; absent preserves existing stored extraction behavior. */
+  paymentRequestConfirmed?: boolean;
   requestsPersonalInfo: boolean;
+  /** false retains an ambiguous field mention as caution, not a proven policy violation. */
+  personalInfoRequestConfirmed?: boolean;
   threatensPenalty: boolean;
   claimsSuspension: boolean;
   summary: string;

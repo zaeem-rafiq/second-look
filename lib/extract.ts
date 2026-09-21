@@ -61,24 +61,33 @@ export function heuristicUrgency(text: string): string[] {
   return out;
 }
 
-// ponytail: clause-level fallback, not semantic understanding; the configured model handles ambiguous language.
-function affirmativeClauses(text: string): string[] {
-  return text.split(/[.!?;\n]+|,?\s+but\s+/i).filter((clause) =>
+// ponytail: this can confirm only simple requests. Unclear mentions survive as soft caution.
+function requestClauses(text: string): string[] {
+  return text.replace(/\s+/g, " ").split(/[!?;]|\.(?:\s|$)|\s+(?:and|but)\s+/i).filter((clause) =>
     !/\b(?:do(?:es)? not|don['’]t|doesn['’]t|never|not accepted|no payment)\b/i.test(clause));
 }
 
+const PAYMENT_METHOD_PATTERNS: [PaymentMethod, RegExp][] = [
+  ["gift_card", GIFT_CARD_RE], ["crypto", CRYPTO_RE], ["wire", WIRE_RE],
+];
+const PAYMENT_REQUEST_RE = /(?:^|[:,])\s*(?:please\s+)?(?:pay|send|buy|purchase|transfer|remit|renew|settle|donate)\b(?!\s+of\b)|\bpayment\s+(?:(?:is|must be)\s+)?(?:required|due|in|by|using)\b/i;
+
+/** Broad mentions are retained even when a payment request cannot be confirmed. */
 export function heuristicPaymentMethods(text: string): PaymentMethod[] {
-  const requests = affirmativeClauses(text).filter((clause) =>
-    /\b(?:pay|send|buy|purchase|transfer|remit|renew|settle|donate)\b/i.test(clause));
-  const out: PaymentMethod[] = [];
-  if (requests.some((clause) => GIFT_CARD_RE.test(clause))) out.push("gift_card");
-  if (requests.some((clause) => CRYPTO_RE.test(clause))) out.push("crypto");
-  if (requests.some((clause) => WIRE_RE.test(clause))) out.push("wire");
-  return out;
+  const normalized = text.replace(/\s+/g, " ");
+  return PAYMENT_METHOD_PATTERNS.filter(([, pattern]) => pattern.test(normalized)).map(([method]) => method);
+}
+
+function paymentRequestConfirmed(text: string): boolean {
+  const normalized = text.replace(/\s+/g, " ");
+  const mentioned = PAYMENT_METHOD_PATTERNS.filter(([, pattern]) => pattern.test(normalized));
+  const clauses = requestClauses(text);
+  return mentioned.length > 0 && mentioned.every(([, pattern]) =>
+    clauses.some((clause) => pattern.test(clause) && PAYMENT_REQUEST_RE.test(clause)));
 }
 
 export function heuristicPersonalInfoRequest(text: string): boolean {
-  return affirmativeClauses(text).some((clause) =>
+  return requestClauses(text).some((clause) =>
     /\b(?:provide|confirm|verify|enter|reply|respond|send|share|submit)\b/i.test(clause) && PERSONAL_INFO_RE.test(clause));
 }
 
@@ -123,7 +132,8 @@ export function deterministicExtract(
   const bodyText = parsed.originalBody || text || htmlToText(html);
   const urls = extractUrls(bodyText, html);
   const phones = extractPhones(bodyText + "\n" + htmlToText(html));
-  const searchable = `${parsed.originalSubject ?? ""}\n${bodyText}`;
+  const searchable = `${parsed.originalSubject ?? ""}\n${bodyText}`.replace(/\s+/g, " ");
+  const requestText = [parsed.originalSubject, bodyText].filter(Boolean).join(". ");
   return {
     claimedOrganization: heuristicClaimedOrganization(
       [parsed.originalFrom.name, parsed.originalFrom.address, parsed.originalSubject, bodyText],
@@ -139,7 +149,9 @@ export function deterministicExtract(
     dates: [],
     deadline: null,
     paymentMethods: heuristicPaymentMethods(searchable),
-    requestsPersonalInfo: heuristicPersonalInfoRequest(searchable),
+    paymentRequestConfirmed: paymentRequestConfirmed(requestText),
+    requestsPersonalInfo: PERSONAL_INFO_RE.test(searchable),
+    personalInfoRequestConfirmed: heuristicPersonalInfoRequest(requestText),
     threatensPenalty: THREAT_RE.test(searchable),
     claimsSuspension: SUSPENSION_RE.test(searchable),
     summary: parsed.originalSubject ? `Message with subject "${parsed.originalSubject}".` : "Forwarded message.",
@@ -168,7 +180,7 @@ export function mergeExtraction(det: Extracted, llm: LlmExtraction | null, norma
     const u = raw.replace(/[*_`]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
     if (u && !urgency.includes(u)) urgency.push(u);
   }
-  // The configured model supplies payment semantics; clause checks are only a fallback when unavailable.
+  // A model answer resolves payment semantics; fallback mentions alone never confirm a request.
   const payments = [...new Set(llm.paymentMethods)];
   return {
     claimedOrganization: det.claimedOrganization ?? llm.claimedOrganization,
@@ -185,7 +197,9 @@ export function mergeExtraction(det: Extracted, llm: LlmExtraction | null, norma
     dates: llm.dates,
     deadline: llm.deadline,
     paymentMethods: payments,
+    paymentRequestConfirmed: payments.length > 0 || llm.actionType === "pay",
     requestsPersonalInfo: det.requestsPersonalInfo || llm.requestsPersonalInfo,
+    personalInfoRequestConfirmed: llm.requestsPersonalInfo || (det.requestsPersonalInfo && det.personalInfoRequestConfirmed !== false),
     threatensPenalty: det.threatensPenalty || llm.threatensPenalty,
     claimsSuspension: det.claimsSuspension || llm.claimsSuspension,
     summary: llm.summary || det.summary,

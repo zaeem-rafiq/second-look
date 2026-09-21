@@ -302,8 +302,9 @@ To: <mom.demo@example.com>
   it("fallback does not turn a receipt or excluded methods into a payment request", () => {
     const parsed = parseForwardedEmail(receipt, "");
     const det = deterministicExtract(parsed, receipt, "", orgs);
-    expect(det.paymentMethods).toEqual([]);
-    expect(mergeExtraction(det, null, normalizePhone).paymentMethods).toEqual([]);
+    expect(det.paymentMethods).toEqual(["gift_card", "crypto", "wire"]);
+    expect(det.paymentRequestConfirmed).toBe(false);
+    expect(mergeExtraction(det, null, normalizePhone).paymentRequestConfirmed).toBe(false);
   });
   it("an AI 'no' removes the keyword check's gift card, crypto and wire", () => {
     const parsed = parseForwardedEmail(receipt, "");
@@ -336,7 +337,8 @@ describe("forwarded sender evidence limits", () => {
 describe("request-aware deterministic fallback", () => {
   it("distinguishes affirmative requests from notices and payment warnings", () => {
     for (const text of ["You received a gift card.", "We never accept Bitcoin or gift cards.", "Do not send gift cards.", "Your Social Security COLA notice is ready."]) {
-      expect(heuristicPaymentMethods(text), text).toEqual([]);
+      const parsed = parseForwardedEmail(text, "");
+      expect(deterministicExtract(parsed, text, "", orgs).paymentRequestConfirmed, text).toBe(false);
       expect(heuristicPersonalInfoRequest(text), text).toBe(false);
     }
     expect(heuristicPaymentMethods("Buy gift cards and send us the codes.")).toEqual(["gift_card"]);
