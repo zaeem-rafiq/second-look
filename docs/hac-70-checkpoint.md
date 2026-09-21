@@ -2,7 +2,7 @@
 
 Objective: a verified adult-child account creates a private family, registers a parent's addresses with mailbox consent, obtains helper instructions, and invites a verified sibling. The parent needs no account.
 
-Base: `ab4578e404d40ba04dce1abe0d36a7c7ddf1930a`, verified integrated HAC-67/68 implementation. Branch `codex/hac-70-family-setup`, worktree `/private/tmp/agh-hac70`. Other checkouts and evaluation work are preserved. No deployment, publication, actual email sends, or cloud configuration is authorized.
+Base: `ab4578e404d40ba04dce1abe0d36a7c7ddf1930a`, verified integrated HAC-67/68 implementation. Branch `codex/hac-70-family-setup`, worktree `/private/tmp/agh-hac70`. Other checkouts and evaluation work are preserved. On 2026-09-21 the owner explicitly approved deployment to the existing Second Look dev environment, email-provider configuration, and synthetic test emails. Repository publication and hackathon submission remain outside scope.
 
 Impact map: Password provider signup/verification → stable Convex users identity → family creator/admin membership → parent setup → privately delivered consent token → atomic parents/parentEmails routing → existing inbound workflow/board. Administrator invitation → privately delivered token + verified account email → member membership → existing board/note/handled subscriptions. Family-entered institutions remain on the parent document, separate from the official registry. Public synthetic demo and reply states remain unchanged.
 
@@ -12,7 +12,7 @@ Sequence: baseline → backend/auth/UI implementation → focused tests → loca
 
 Baseline: `npm test` exit 0 (244 tests, 23 files), `npm run typecheck` exit 0, `npm run build` exit 0. Log `/private/tmp/agh-hac70-baseline.txt`. Fresh loopback Convex 3220/3221 has isolated data and local auth keys. Health and auth discovery return HTTP 200.
 
-Status: implemented and verified locally; HAC-70 remains In Progress pending real setup-email integration. No cloud deployment or actual email send occurred. Local capture establishes only local account/consent/invitation acceptance. HAC-69 owns evaluation labels and results; HAC-70 does not alter them.
+Status: acceptance criteria complete; implementation is deployed and verified on the approved dev environment, including real AgentMail delivery and the hosted setup-to-board flow recorded below. HAC-69 owns evaluation labels and results; HAC-70 does not alter them.
 
 ## Stable contracts for HAC-71/HAC-72
 
@@ -26,11 +26,11 @@ Tokens contain 256 random bits and only SHA-256 hashes are persisted in setupLin
 
 Family institutions stay exclusively in `parents.knownInstitutions` as unverified context; neither arbitrary websites nor domains enter `officialOrgs`. HAC-71 can use listMine and existing board contracts; HAC-72 must resolve current membership and confirmed parent addresses rather than treating pending requests or entered institution domains as trusted.
 
-## Delivery configuration and remaining authorization
+## Delivery configuration and recovery
 
 Reuse the existing Convex Auth Password provider's verification/reset support ([official configuration](https://labs.convex.dev/auth/config/passwords)). `SITE_URL` is the configured application origin; caller input cannot redirect tokens. `SETUP_EMAIL_MODE=agentmail` plus approved `AGENTMAIL_INBOX_ID`/`AGENTMAIL_API_KEY` enables real setup emails. Missing configuration fails closed. `SETUP_EMAIL_MODE=local` plus `SETUP_EMAIL_LOCAL_URL` captures only when both backend and sink are loopback HTTP addresses; redirects are refused. The local capture file is restricted to mode 0600 and is not committed.
 
-To close the integration gap requires authorization to deploy this branch to a selected dev deployment, configure its hosted origin/setup-email mode using approved inbox credentials, and send signup/verification, parent-consent and sibling-invitation emails to owner-designated test inboxes. Then verify receipt, actual hosted links and the shared board. No account should be marked verified or routing enabled manually to bypass this check. Recovery is to disable setup-email mode and revert the task commit; new confirmed families/members/routes would need preservation rather than destructive rollback.
+The owner approved deployment/configuration and test sends after local verification. The existing AgentMail key was verified with read-only API calls; three dedicated synthetic inboxes were created within the existing account without a plan change. Accounts and parent routes completed the public verification/consent flow; no verification or membership bypass was used. A protected pre-deployment database/file snapshot is retained at `/private/tmp/agh-hac70-runtime/pre-hac70-cloud.zip`. Recovery is to disable setup-email mode and roll forward a correction; preserve newly confirmed families/members/routes. Reverting to the original pre-auth cloud code would restore unsafe access and is not an acceptable routine rollback.
 
 ## Observed verification
 
@@ -46,3 +46,28 @@ Alex added a note; Sam saw server-derived Alex attribution without refresh. Sam 
 Native password recovery was separately exercised through the public loopback API without mocks: one captured reset message, code redemption, new-password sign-in, old-password rejection, reset-code reuse rejection, continued member access and admin/cross-family denial all passed. `auth-recovery-evidence.json` records 12 successful assertions without codes, passwords or session tokens.
 
 Desktop and a temporary 390-pixel iframe viewport were visually inspected; the narrow document width was 375 pixels after its scrollbar and scrollWidth matched (no horizontal overflow). Parent email keyboard Tab/Enter validation blocked an invalid address and kept visible focus. Setup, empty board, loading, consent, pending/failed/captured/accepted/expired states and board were exercised. Temporary responsive page and internal routing/expiry fixture helper were removed; the helper was also removed from generated API and local backend. Runtime evidence includes `api-evidence.json`, `api-evidence-rerun.json`, `final-api-snapshot.json` and `probe-removal.json`; none contains credentials or bearer tokens. Screenshots were inspected through the browser tool; no exported screenshot artifact is claimed.
+
+## Approved dev release and real-mail verification — 2026-09-21
+
+Application: https://friendly-retriever-712.convex.site. Backend: `https://friendly-retriever-712.convex.cloud`; classification **dev**, team `zaeem-rmzk`, project `second-look`. Implementation commit `0cbd85a5a4aecaaba8e38f34dfcb676a6478b263` is deployed. No production deployment, repository publication or submission is claimed.
+
+AgentMail authenticated read-only inbox and webhook checks returned HTTP 200. Existing helper `second-look-helper@agentmail.to` and helper-only `message.received` webhook were preserved. Created `hac70-admin@agentmail.to`, `hac70-parent@agentmail.to` and `hac70-sibling@agentmail.to` as dedicated synthetic test inboxes within the existing account; all three creates returned HTTP 200, without any plan or billing change. Four setup emails were actually received: admin verification, parent consent, sibling invitation and sibling verification. Private codes/links are excluded from evidence.
+
+Deployment commands from the task worktree:
+
+- `node node_modules/convex/bin/main.js env set --from-file /private/tmp/agh-hac70-runtime/cloud-auth.env --env-file /Users/zaeemkhan/Documents/agh/.env.local --deployment-name friendly-retriever-712`: exit 0, four new variables (`JWT_PRIVATE_KEY`, `JWKS`, `SITE_URL`, `SETUP_EMAIL_MODE`). Auth keys were freshly generated for this dev target; existing provider credentials were preserved; no conflicting values overwritten.
+- `node node_modules/convex/bin/main.js dev --once --env-file /Users/zaeemkhan/Documents/agh/.env.local --tail-logs disable`: exit 0, correct dev target announced, additive auth/family/setup-link indexes installed.
+- `VITE_CONVEX_URL=https://friendly-retriever-712.convex.cloud VITE_CONVEX_SITE_URL=https://friendly-retriever-712.convex.site npm run build`: exit 0, 95 modules. Bundle check confirmed the exact dev backend URL and no loopback backend/private-key/admin-key marker.
+- `CONVEX_DEPLOYMENT=dev:friendly-retriever-712 node node_modules/@convex-dev/static-hosting/dist/cli/index.js upload --dev --component staticHosting`: exit 0, three assets, deployment ID `66552b98-43d9-439f-959d-40a7a5a3e490`. Homepage changed from HTTP 503 to 200. `/health`, auth discovery and JWKS all returned HTTP 200.
+
+Hosted browser: fresh Alex account → real inbox code → verified sign-in → HAC70 Verification Family → Morgan parent and Example Family Bank context → real parent-consent email → signed-out consent page → explicit confirmation and visible forwarding instructions. Parent had no account. Real invitation → fresh Sam account and received verification code → matching-identity acceptance → member board. No internal provisioning or verification bypass was used.
+
+A single synthetic Medicare forward from the newly confirmed parent traversed the real AgentMail webhook and produced case `j573506x768jmmkvwfgv9gyh1d8ev0tm` in family `family-m972e5g9zbt47vwf5zccm93d6d8evdym`. Browser showed processing, mismatch evidence and truthful provider-acceptance wording; the independent subscription recorded the unsent/sending/sent progression. A separate inbox read confirmed the helper reply actually arrived at 13:08:43Z on the original test thread. The reply contained no quoted original, suspicious phone number or suspicious domain.
+
+Two independent authenticated sessions verified live collaboration: Sam's hosted browser added a note and marked handled; Alex's separate native-auth WebSocket subscription observed both without refresh. Alex added a note through the public API; Sam's still-open browser displayed it without refresh. The admin subscription recorded 12 reactive states. Public API checks confirmed the sibling's member role, denied sibling administration, denied anonymous board access, and denied both test users access to the pre-existing other family. Repeating the same family-create request returned the original family and unchanged family count.
+
+No hosted browser warnings/errors were observed. Exported full-page board screenshot was inspected: `/private/tmp/agh-hac70-runtime/cloud-family-board.png`. Local desktop/mobile, keyboard, validation, expired/reused/invalid links, ownership conflicts and delivery-failure verification remain documented above; those local checks are not relabeled as hosted runs.
+
+Secret-free release artifacts are `cloud-browser-evidence.json`, `cloud-live-board-evidence.json`, `cloud-membership-evidence.json`, `cloud-parent-reply-evidence.json` and `cloud-mail-preparation-evidence.json` under `/private/tmp/agh-hac70-runtime/`. The WebSocket observer closed after its bounded four-minute run. Synthetic cloud records remain available for evidence; they contain no real family's mail.
+
+Independent release verification: `/private/tmp/agh-hac70-runtime/cloud-deployment-evidence.json` records HTTP 200 for homepage/health/discovery/JWKS, matching issuer, no private JWKS members, and byte-for-byte SHA-256 equality between published HTML/JS/CSS and local `dist`. The deployment manifest ID matches the upload result. An in-memory scan of the published assets found none of six configured provider/auth secret values; no values were logged or persisted. Original/integrated branch, HEAD and status names remained unchanged during the independent check; this is not a historical byte-level comparison.
