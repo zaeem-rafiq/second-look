@@ -92,11 +92,12 @@ test("an untracked historical draft requires reconciliation even after credentia
   const original = await t.run(async (ctx) => {
     const c = await ctx.db.get("cases", caseId);
     await ctx.db.patch("cases", caseId, { replyStatus: undefined, replyError: undefined });
-    await ctx.db.insert("members", { familyId: c!.familyId, userId: "test|reviewer", role: "member" });
-    return c!;
+    const reviewerId = await ctx.db.insert("users", { name: "Synthetic reviewer" });
+    await ctx.db.insert("members", { familyId: c!.familyId, userId: reviewerId, role: "member" });
+    return { ...c!, reviewerId };
   });
   vi.setSystemTime(original._creationTime + 48 * 60 * 60 * 1000);
-  const reviewer = t.withIdentity({ tokenIdentifier: "test|reviewer", subject: "reviewer", issuer: "https://test.invalid", name: "Synthetic reviewer" });
+  const reviewer = t.withIdentity({ tokenIdentifier: "test|reviewer", subject: `${original.reviewerId}|session`, issuer: "https://test.invalid", name: "Synthetic reviewer" });
   const untouchedBoard = await reviewer.query(api.cases.listBoard, { familySlug: "test" });
   expect(untouchedBoard?.cases[0]).toMatchObject({ replyStatus: "failed", replySentAt: null, replyText: original.replyDraft });
   expect(untouchedBoard?.cases[0].replyError).toContain("previous send outcome is unknown");
