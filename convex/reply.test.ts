@@ -46,6 +46,7 @@ test("missing credentials preserve an unsent draft; configuration recovery sends
   expect(draft?.replySentAt).toBeUndefined();
   expect(draft?.status).not.toBe("replied");
   expect(draft?.replyStatus).toBe("unsent");
+  expect(draft?.replyFirstAttemptAt).toBeUndefined();
   expect(fetch).not.toHaveBeenCalled();
 
   vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
@@ -102,6 +103,11 @@ test("ambiguous acceptance retries the exact draft and idempotency key", async (
   expect(failed?.replyStatus).toBe("failed");
   expect(failed?.replySentAt).toBeUndefined();
   expect(failed?.replyMessageId).toBeUndefined();
+  vi.stubEnv("AGENTMAIL_API_KEY", "");
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  expect((await t.run((ctx) => ctx.db.get("cases", caseId)))?.replyStatus).toBe("failed");
+  expect(fetch).toHaveBeenCalledTimes(1);
+  vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
   await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
   await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
   expect(accepted.size).toBe(1);
@@ -118,6 +124,10 @@ test("concurrent workers share one send and stale failures cannot downgrade acce
   await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
   const sending = await t.run((ctx) => ctx.db.get("cases", caseId));
   expect(sending?.replyStatus).toBe("sending");
+  vi.stubEnv("AGENTMAIL_API_KEY", "");
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  expect((await t.run((ctx) => ctx.db.get("cases", caseId)))?.replyStatus).toBe("sending");
+  vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
   await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
   expect(fetch).toHaveBeenCalledTimes(1);
   accept(new Response(JSON.stringify({ message_id: "accepted-id", thread_id: "thread" })));
@@ -126,6 +136,22 @@ test("concurrent workers share one send and stale failures cannot downgrade acce
   await t.mutation(internal.pipeline.onComplete, { workflowId: "synthetic-workflow" as WorkflowId, result: { kind: "failed", error: "late workflow failure" }, context: { caseId } });
   expect((await t.run((ctx) => ctx.db.get("cases", caseId)))?.replyStatus).toBe("sent");
   expect((await t.run((ctx) => ctx.db.get("cases", caseId)))?.status).toBe("replied");
+});
+
+test("an ambiguous send cannot retry beyond the provider's idempotency retention", async () => {
+  vi.useFakeTimers();
+  const { t, caseId, fetch } = await setup();
+  vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
+  fetch.mockRejectedValue(new Error("synthetic response lost after acceptance"));
+  await expect(t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" })).rejects.toThrow();
+  const first = await t.run((ctx) => ctx.db.get("cases", caseId));
+  vi.setSystemTime(first!.replyFirstAttemptAt! + 23 * 60 * 60 * 1000);
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  expect(fetch).toHaveBeenCalledTimes(1);
+  const stopped = await t.run((ctx) => ctx.db.get("cases", caseId));
+  expect(stopped?.replyStatus).toBe("failed");
+  expect(stopped?.replyError).toContain("retry window has expired");
+  expect(stopped?.replySentAt).toBeUndefined();
 });
 
 test("an interrupted worker expires to failed and a later attempt can send", async () => {

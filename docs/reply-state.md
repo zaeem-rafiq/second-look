@@ -11,9 +11,9 @@ Missing credentials finish the workflow with an unsent draft. Correcting configu
 
 Historical `dry-run:not-sent` rows are displayed as unsent immediately. Retrying clears their fake provider ID and timestamp while retaining their original draft. No bulk data mutation is required.
 
-Retries use the first saved draft and `reply-<caseId>` key. If AgentMail explicitly rejects threading headers with 400/422, the unthreaded choice is stored **before** sending under `reply-plain-<caseId>`; subsequent retries keep that choice. A concurrent worker cannot claim an active send. Late failure/lease callbacks cannot overwrite recorded acceptance.
+Retries use the first saved draft and `reply-<caseId>` key. If AgentMail explicitly rejects threading headers with 400/422, the unthreaded choice is stored **before** sending under `reply-plain-<caseId>`; subsequent retries keep that choice. A concurrent worker cannot claim an active send. Late failure/lease callbacks cannot overwrite recorded acceptance. Unconfirmed sends stop retrying 23 hours after the first attempt, leaving an hour of margin before provider keys expire; an operator must reconcile provider acceptance before any further send.
 
-The regression replaces `fetch` entirely and removes provider credentials. It proves the application contract and a synthetic provider's idempotency behavior, **not** AgentMail's production deduplication. The [AgentMail send API reference](https://docs.agentmail.to/api-reference/inboxes/messages/send) documents acceptance IDs but does not specify an `Idempotency-Key` guarantee; duplicates after ambiguous provider acceptance remain dependent on that unverified provider behavior. No delivered claim is shown without independent delivery evidence.
+The regression replaces `fetch` entirely and removes provider credentials. It proves the application contract and a synthetic provider's idempotency behavior; no live email was sent. [AgentMail documents idempotent sends](https://docs.agentmail.to/idempotency): the same key returns the original message/thread IDs without another email; changed content, inbox, or endpoint returns 409; keys expire 24 hours after completion. Production behavior was not live-tested here. No delivered claim is shown without independent delivery evidence.
 
 Run the focused regression:
 

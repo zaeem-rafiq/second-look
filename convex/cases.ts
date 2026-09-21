@@ -79,11 +79,22 @@ export const beginReply = internalMutation({
     if (!c.replyDraft) throw new Error("reply draft missing");
     // Both requests use the same provider idempotency key if recovery follows an ambiguous timeout.
     if (c.replyAttemptId && (c.replyAttemptAt ?? 0) > Date.now() - 60_000) return null;
+    // AgentMail forgets send keys after 24 hours. Leave an hour of margin; never risk a second email.
+    if (c.replyFirstAttemptAt !== undefined && Date.now() - c.replyFirstAttemptAt >= 23 * 60 * 60 * 1000) {
+      await ctx.db.patch("cases", args.caseId, {
+        replyStatus: "failed", replyError: "The retry window has expired. Provider acceptance must be checked before another attempt.",
+        replyAttemptId: undefined, replyAttemptAt: undefined,
+      });
+      return null;
+    }
     await ctx.db.patch("cases", args.caseId, {
-      replyStatus: args.configured ? "sending" : "unsent",
-      replyError: args.configured ? undefined : "Email sending is not configured. This draft has not been sent.",
+      replyStatus: args.configured ? "sending" : c.replyFirstAttemptAt !== undefined ? "failed" : "unsent",
+      replyError: args.configured ? undefined : c.replyFirstAttemptAt !== undefined
+        ? "Email sending is not configured. Acceptance of the previous attempt remains unconfirmed."
+        : "Email sending is not configured. This draft has not been sent.",
       replyAttemptId: args.configured ? args.attemptId : undefined,
       replyAttemptAt: args.configured ? Date.now() : undefined,
+      ...(args.configured ? { replyFirstAttemptAt: c.replyFirstAttemptAt ?? Date.now() } : {}),
       status: "replying", error: undefined,
     });
     if (args.configured) {

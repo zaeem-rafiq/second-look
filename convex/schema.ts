@@ -171,6 +171,8 @@ export default defineSchema({
     /** A short lease prevents concurrent workers from sending the same draft. */
     replyAttemptId: v.optional(v.string()),
     replyAttemptAt: v.optional(v.number()),
+    /** Bound retries to AgentMail's 24-hour idempotency retention window. */
+    replyFirstAttemptAt: v.optional(v.number()),
     /** Persist the fallback so retries never switch back to a different idempotency key. */
     replyWithoutThreading: v.optional(v.boolean()),
     agentmailThreadId: v.string(),
