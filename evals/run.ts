@@ -13,8 +13,9 @@ import { findOrg, pickOfficialCandidate } from "../lib/registry";
 import { runChecks } from "../lib/checks";
 import { decideVerdict } from "../lib/verdict";
 import { SEED_ORGS, FALLBACK_ORG_KEY } from "../lib/registrySeed";
-import { normalizeQuoteText } from "../lib/quotes";
-import { composeReply, explanationReasons, formatPhoneForHumans, templateReply, validateReply } from "../lib/replyTemplates";
+import { verifyEvidence } from "./evidence";
+import { executionChecks } from "./runGuards";
+import { acceptableExplanation, composeReply, explanationReasons, formatPhoneForHumans, templateReply, validateReply } from "../lib/replyTemplates";
 import { EXPLANATION_SYSTEM_PROMPT, Explanation, explanationUserInput } from "../lib/replyPrompt";
 import { urlDomain } from "../lib/domains";
 import { paymentGateMode, gateEmailFromParsed } from "../lib/paymentGate";
@@ -32,7 +33,13 @@ const startedAt = new Date().toISOString();
 const selected = FIXTURES.filter((f) => split === "all" || f.split === split);
 const fallback = SEED_ORGS.find((o) => o.key === FALLBACK_ORG_KEY) ?? null;
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
-const datasetHash = hash(JSON.stringify(SCENARIOS) + FIXTURES.map((f) => readFileSync(`evals/fixtures/${f.id}.eml`, "utf8")).join(""));
+const sourceFiles = [...readdirSync("lib").filter((f) => f.endsWith(".ts")).map((f) => `lib/${f}`), "convex/extract.ts", "convex/cases.ts", "convex/schema.ts", "convex/pipeline.ts", "convex/model/registry.ts", "convex/registry.ts", "convex/reply.ts", "convex/clients/openai.ts", "convex/clients/firecrawl.ts", "evals/fixtures/index.ts", "evals/label-review-input.json", "evals/expected-labels.json", "evals/independent-label-review.json", "evals/evidence.ts", "evals/runGuards.ts", "evals/run.ts", "package.json", "package-lock.json"].sort();
+const sourceFingerprint = () => ({ commit: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), sourceHash: hash(sourceFiles.map((p) => p + readFileSync(p, "utf8")).join("")) });
+const startSource = sourceFingerprint();
+const fixtureInputs = new Map(FIXTURES.map((f) => [f.id, readFileSync(`evals/fixtures/${f.id}.eml`, "utf8")]));
+const datasetHash = hash(JSON.stringify(SCENARIOS) + FIXTURES.map((f) => fixtureInputs.get(f.id)!).join(""));
+const startFingerprint = { ...startSource, datasetHash };
+const output = process.env.EVAL_OUTPUT ?? `evals/results/${useLlm ? "model" : "code-only"}${online ? "-online" : ""}-${split}.json`;
 const frozenLabels: Array<{ id: string; expected: string }> = JSON.parse(readFileSync("evals/expected-labels.json", "utf8"));
 const labelReview: { reviewInputSha256: string; rows: Array<{ id: string; expected: string }> } = JSON.parse(readFileSync("evals/independent-label-review.json", "utf8"));
 const reviewInput = SCENARIOS.map(({ id, category, original, truth, split }) => ({ id, category, original, truth, split }));
@@ -87,19 +94,15 @@ async function fetchPage(url: string) {
 }
 
 async function evidenceVerified(rows: CheckResult[]) {
-  const cited = rows.filter((r) => r.applicable && !r.matched && r.severity === "hard" && r.quote && r.sourceUrl);
-  const citations = [];
-  for (const r of cited) {
-    const page = online ? await fetchPage(r.sourceUrl) : null;
-    citations.push({ sourceUrl: r.sourceUrl, quote: r.quote, verified: page ? page.text !== null && normalizeQuoteText(page.text).includes(normalizeQuoteText(r.quote)) : null });
-  }
-  return { ok: online ? citations.some((c) => c.verified) : cited.length > 0, citations };
+  return verifyEvidence(rows, online, fetchPage);
 }
 
 async function main() {
+  mkdirSync(dirname(output), { recursive: true });
+  writeFileSync(output, JSON.stringify({ startedAt, ...startFingerprint, status: "running", passed: false, publicationReady: false }, null, 2) + "\n");
   const results: Array<{ id: string; scenarioId: string; category: string; split: string; expected: Verdict; got: Verdict; org: string | null; senderOk: boolean; urlsOk: boolean; phonesOk: boolean; evidence: Awaited<ReturnType<typeof evidenceVerified>> | null; replyOk: boolean; boundedReply: boolean; reply: string; notes: string[]; extracted: ReturnType<typeof mergeExtraction>; checks: CheckResult[] }> = [];
   for (const fx of selected) {
-    const mail = await PostalMime.parse(readFileSync(`evals/fixtures/${fx.id}.eml`, "utf8"));
+    const mail = await PostalMime.parse(fixtureInputs.get(fx.id)!);
     const text = mail.text ?? "", html = mail.html ?? "";
     const parsed = parseForwardedEmail(text, html);
     const det = deterministicExtract(parsed, text, html, SEED_ORGS);
@@ -108,7 +111,7 @@ async function main() {
     if (useLlm) {
       try {
         const response = await openaiClient().responses.parse({ model: EXTRACT_MODEL, reasoning: { effort: "none" }, input: [{ role: "system", content: EXTRACTION_SYSTEM_PROMPT }, { role: "user", content: buildModelInput(parsed, text, html) }], text: { format: zodTextFormat(ExtractionSchema, "email_extraction") } });
-        llm = response.status === "incomplete" ? null : response.output_parsed ?? null;
+        llm = response.status === "completed" ? response.output_parsed ?? null : null;
         if (llm) modelCounts.extractionAccepted++; else modelCounts.extractionFailed++;
       } catch { modelCounts.extractionFailed++; notes.push("extraction model failed; deterministic fallback observed"); }
     }
@@ -141,8 +144,10 @@ async function main() {
         const response = await openaiClient().responses.parse({ model: REPLY_MODEL, reasoning: { effort: "low" }, input: [{ role: "system", content: EXPLANATION_SYSTEM_PROMPT }, { role: "user", content: explanationUserInput(got, facts.orgName, reasons) }], text: { format: zodTextFormat(Explanation, "reply_explanation") } });
         if (response.status === "completed" && response.output_parsed?.explanation) modelCounts.replyCompleted++;
         else modelCounts.replyIncomplete++;
-        const candidate = composeReply(facts, response.output_parsed?.explanation ?? null, { reasons, orgName: facts.orgName, knownOrgNames: SEED_ORGS.flatMap((o) => [o.name, ...o.aliases]) });
-        if (candidate !== reply) modelCounts.replyAccepted++; else modelCounts.replyRejected++;
+        const guard = { reasons, orgName: facts.orgName, knownOrgNames: SEED_ORGS.flatMap((o) => [o.name, ...o.aliases]) };
+        const explanation = response.output_parsed?.explanation ?? null;
+        const candidate = composeReply(facts, explanation, guard);
+        if (acceptableExplanation(explanation, guard) !== null) modelCounts.replyAccepted++; else modelCounts.replyRejected++;
         reply = candidate;
       } catch { modelCounts.replyFailed++; notes.push("reply model failed; template fallback observed"); }
     }
@@ -168,19 +173,22 @@ async function main() {
   };
   const counts = Object.fromEntries(["scam", "legit", "unverifiable"].map((c) => [c, count(results.filter((r) => r.category === c))]));
   const datasetComplete = FIXTURES.length === 90 && SCENARIOS.length === 30 && ["scam", "legit", "unverifiable"].every((c, i) => SCENARIOS.filter((s) => s.category === c).length === [12, 12, 6][i]) && new Set(FIXTURES.map((f) => f.id)).size === 90 && SCENARIOS.every((s) => new Set(FIXTURES.filter((f) => f.scenarioId === s.id).map((f) => f.format)).size === 3) && readdirSync("evals/fixtures").filter((f) => f.endsWith(".eml")).length === 90;
-  const passed = datasetComplete && labelsReviewed && Object.entries(failures).every(([k, v]) => k === "precision" ? v.scenarios <= 1 : v.fixtures === 0);
-  const sourceFiles = [...readdirSync("lib").filter((f) => f.endsWith(".ts")).map((f) => `lib/${f}`), "convex/extract.ts", "convex/cases.ts", "convex/schema.ts", "convex/pipeline.ts", "convex/model/registry.ts", "convex/registry.ts", "convex/reply.ts", "convex/clients/openai.ts", "convex/clients/firecrawl.ts", "evals/run.ts"].sort();
+  const endFingerprint = { ...sourceFingerprint(), datasetHash: hash(JSON.stringify(SCENARIOS) + FIXTURES.map((f) => readFileSync(`evals/fixtures/${f.id}.eml`, "utf8")).join("")) };
+  const execution = executionChecks(startFingerprint, endFingerprint, useLlm, selected.length, modelCounts, gateMode, paymentGateDecisions.length);
+  const passed = datasetComplete && labelsReviewed && Object.values(execution).every(Boolean) && Object.entries(failures).every(([k, v]) => k === "precision" ? v.scenarios <= 1 : v.fixtures === 0);
   const report = {
-    startedAt, finishedAt: new Date().toISOString(), commit: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), datasetHash, sourceHash: hash(sourceFiles.map((p) => p + readFileSync(p, "utf8")).join("")), sourceFiles,
+    startedAt, finishedAt: new Date().toISOString(), status: "completed", ...startFingerprint, endFingerprint, sourceFiles, execution,
     command: process.env.EVAL_COMMAND ?? "node --import tsx evals/run.ts", config: { split, online, extractionModel: useLlm ? EXTRACT_MODEL : null, replyModel: useLlm ? REPLY_MODEL : null, paymentGateMode: gateMode, paymentGateCutoff: parseCutoff(process.env.PAYMENT_GATE_CUTOFF), openaiConfigured: useLlm, firecrawlConfigured: firecrawlConfigured(), typesafeConfigured: !!process.env.TYPESAFE_API_KEY, registry: "local SEED_ORGS, optional read-only unknown-org search; not deployed registry" },
     datasetComplete, labelsReviewed, counts, heldOut: count(results.filter((r) => r.split === "challenge")), modelCounts, paymentGateDecisions, resolutionAttempts, failures, passed,
-    publicationReady: passed && split === "all" && online && useLlm && modelCounts.extractionAccepted === selected.length && modelCounts.replyCompleted === selected.length && modelCounts.replyFailed === 0 && (gateMode === "off" || paymentGateDecisions.length === selected.length),
-    limitations: ["Synthetic labels measure this contract, not real-world sender authentication or safety.", "Precision counts distinct scenarios with any mislabeled format: at most 1 of 12; all 90 expected labels remain mandatory.", "Code-only evidence checks citation presence; live quote verification requires EVAL_ONLINE=1.", "No Convex deployment, registry mutation, webhook, email send or delivery was exercised. Production rate-limit and database persistence behavior of unknown-org resolution are not exercised by this read-only replay.", "The 6-scenario/18-format challenge set was separated from prompt development, but exposed to the independent label reviewer. Failures prompted evidence and source corrections; subsequent challenge runs are regression evidence, not unbiased holdout estimates. No labels changed.", "Injected production-action source/model failures are covered by tests/evalFailurePaths.test.ts; not represented as live provider outages.", "Independent label review and subjective reply readability review are recorded separately; publicationReady is only the executable gate."],
+    publicationReady: passed && split === "all" && online && useLlm,
+    limitations: ["Synthetic labels measure this contract, not real-world sender authentication or safety.", "Precision counts distinct scenarios with any mislabeled format: at most 1 of 12; all 90 expected labels remain mandatory.", "Code-only evidence checks citation presence; live quote verification requires EVAL_ONLINE=1. Every citation supporting a hard mismatch must match its fetched source text; text presence does not prove policy applicability.", "No Convex deployment, registry mutation, webhook, email send or delivery was exercised. Production rate-limit and database persistence behavior of unknown-org resolution are not exercised by this read-only replay.", "The 6-scenario/18-format challenge set was separated from prompt development, but exposed to the independent label reviewer. Failures prompted evidence and source corrections; subsequent challenge runs are regression evidence, not unbiased holdout estimates. No labels changed.", "Injected production-action source/model failures are covered by tests/evalFailurePaths.test.ts; not represented as live provider outages.", "Independent label review and subjective reply readability review are recorded separately; publicationReady is only the executable gate."],
     sources: [...pageCache].map(([url, p]) => ({ url, status: p.status, textHash: p.hash, error: p.error })), results,
   };
-  const output = process.env.EVAL_OUTPUT ?? `evals/results/${useLlm ? "model" : "code-only"}${online ? "-online" : ""}-${split}.json`;
   mkdirSync(dirname(output), { recursive: true }); writeFileSync(output, JSON.stringify(report, null, 2) + "\n");
   console.log(JSON.stringify({ datasetHash, failures, passed, publicationReady: report.publicationReady, output }, null, 2));
   process.exitCode = passed ? 0 : 1;
 }
-main().catch(() => { console.error("Evaluation failed before completion; no passing report produced."); process.exitCode = 2; });
+main().catch(() => {
+  writeFileSync(output, JSON.stringify({ startedAt, ...startFingerprint, status: "failed", passed: false, publicationReady: false }, null, 2) + "\n");
+  console.error("Evaluation failed before completion; no passing report produced."); process.exitCode = 2;
+});
