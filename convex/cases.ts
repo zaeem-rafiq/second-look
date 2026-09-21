@@ -3,9 +3,17 @@ import { internalMutation, internalQuery, mutation, query } from "./_generated/s
 import { caseStatus, extracted as extractedValidator } from "./schema";
 import { familyMember, requireCaseMember } from "./model/auth";
 import { internal } from "./_generated/api";
+import type { Doc } from "./_generated/dataModel";
 
 function hasSentReply(c: { replyMessageId?: string }): boolean {
   return !!c.replyMessageId && c.replyMessageId !== "dry-run:not-sent";
+}
+
+const UNTRACKED_REPLY_ERROR = "The previous send outcome is unknown. Provider acceptance must be checked before another attempt.";
+
+function hasUntrackedReply(c: Doc<"cases">): boolean {
+  return !!(c.replyDraft || c.replyText) && !hasSentReply(c) && c.replyMessageId !== "dry-run:not-sent"
+    && c.replyFirstAttemptAt === undefined && c.replyStatus !== "unsent";
 }
 
 export const setStatus = internalMutation({
@@ -63,7 +71,8 @@ export const setReplyDraft = internalMutation({
       ...(c.replyMessageId === "dry-run:not-sent" ? {
         replyMessageId: undefined, replyThreadId: undefined, replySentAt: undefined, replyText: undefined, status: "replying" as const,
       } : {}),
-      replyStatus: c.replyMessageId === "dry-run:not-sent" ? "unsent" : c.replyStatus ?? "unsent",
+      replyStatus: hasUntrackedReply(c) ? "failed" : c.replyMessageId === "dry-run:not-sent" ? "unsent" : c.replyStatus ?? "unsent",
+      ...(hasUntrackedReply(c) ? { replyError: UNTRACKED_REPLY_ERROR } : {}),
     });
     return replyDraft;
   },
@@ -77,6 +86,14 @@ export const beginReply = internalMutation({
     if (!c) throw new Error("case not found");
     if (hasSentReply(c)) return null;
     if (!c.replyDraft) throw new Error("reply draft missing");
+    // A pre-state-machine draft could already have been accepted before idempotency keys expired.
+    if (hasUntrackedReply(c)) {
+      await ctx.db.patch("cases", args.caseId, {
+        replyStatus: "failed", replyError: UNTRACKED_REPLY_ERROR,
+        replyAttemptId: undefined, replyAttemptAt: undefined,
+      });
+      return null;
+    }
     // Both requests use the same provider idempotency key if recovery follows an ambiguous timeout.
     if (c.replyAttemptId && (c.replyAttemptAt ?? 0) > Date.now() - 60_000) return null;
     // AgentMail forgets send keys after 24 hours. Leave an hour of margin; never risk a second email.
@@ -211,8 +228,8 @@ export const listBoard = query({
         receivedAt: c.receivedAt,
         replySentAt: hasSentReply(c) ? c.replySentAt ?? null : null,
         replyText: c.replyDraft ?? c.replyText ?? null,
-        replyStatus: hasSentReply(c) ? "sent" as const : c.replyMessageId === "dry-run:not-sent" ? "unsent" as const : c.replyStatus ?? (c.replyDraft || c.replyText ? "unsent" as const : null),
-        replyError: c.replyError ?? null,
+        replyStatus: hasSentReply(c) ? "sent" as const : hasUntrackedReply(c) ? "failed" as const : c.replyMessageId === "dry-run:not-sent" ? "unsent" as const : c.replyStatus ?? (c.replyDraft || c.replyText ? "unsent" as const : null),
+        replyError: hasUntrackedReply(c) ? UNTRACKED_REPLY_ERROR : c.replyError ?? null,
         handledBy: c.handledBy ?? null,
         handledAt: c.handledAt ?? null,
         notes: c.notes,

@@ -2,7 +2,7 @@
 /// <reference types="vite/client" />
 import { convexTest } from "convex-test";
 import { afterEach, expect, test, vi } from "vitest";
-import { internal } from "./_generated/api";
+import { api, internal } from "./_generated/api";
 import schema from "./schema";
 import type { WorkflowId } from "@convex-dev/workflow";
 
@@ -66,12 +66,14 @@ test("missing credentials preserve an unsent draft; configuration recovery sends
 });
 
 test("historical dry-run sentinels become sendable drafts and keep their text", async () => {
+  vi.useFakeTimers();
   const { t, caseId, fetch } = await setup();
   await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
   const draft = await t.run((ctx) => ctx.db.get("cases", caseId));
   await t.run((ctx) => ctx.db.patch("cases", caseId, {
     replyMessageId: "dry-run:not-sent", replySentAt: 123, status: "replied", replyStatus: "sent", replyText: draft!.replyDraft,
   }));
+  vi.setSystemTime(Date.now() + 48 * 60 * 60 * 1000);
   await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
   const repaired = await t.run((ctx) => ctx.db.get("cases", caseId));
   expect(repaired).toMatchObject({ replyStatus: "unsent", status: "replying", replyDraft: draft!.replyDraft });
@@ -81,6 +83,34 @@ test("historical dry-run sentinels become sendable drafts and keep their text", 
   fetch.mockResolvedValue(new Response(JSON.stringify({ message_id: "real-id", thread_id: "real-thread" })));
   await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
   expect((await t.run((ctx) => ctx.db.get("cases", caseId)))?.replyMessageId).toBe("real-id");
+});
+
+test("an untracked historical draft requires reconciliation even after credentials are configured", async () => {
+  vi.useFakeTimers();
+  const { t, caseId, fetch } = await setup();
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const original = await t.run(async (ctx) => {
+    const c = await ctx.db.get("cases", caseId);
+    await ctx.db.patch("cases", caseId, { replyStatus: undefined, replyError: undefined });
+    await ctx.db.insert("members", { familyId: c!.familyId, userId: "test|reviewer", role: "member" });
+    return c!;
+  });
+  vi.setSystemTime(original._creationTime + 48 * 60 * 60 * 1000);
+  const reviewer = t.withIdentity({ tokenIdentifier: "test|reviewer", subject: "reviewer", issuer: "https://test.invalid", name: "Synthetic reviewer" });
+  const untouchedBoard = await reviewer.query(api.cases.listBoard, { familySlug: "test" });
+  expect(untouchedBoard?.cases[0]).toMatchObject({ replyStatus: "failed", replySentAt: null, replyText: original.replyDraft });
+  expect(untouchedBoard?.cases[0].replyError).toContain("previous send outcome is unknown");
+
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  expect(fetch).not.toHaveBeenCalled();
+  const stopped = await t.run((ctx) => ctx.db.get("cases", caseId));
+  expect(stopped?.replyStatus).toBe("failed");
+  expect(stopped?.replyDraft).toBe(original.replyDraft);
+  expect(stopped?.replyFirstAttemptAt).toBeUndefined();
+  expect(stopped?.replyMessageId).toBeUndefined();
+  expect(stopped?.replySentAt).toBeUndefined();
 });
 
 test("ambiguous acceptance retries the exact draft and idempotency key", async () => {
@@ -203,7 +233,7 @@ test.each(["provider failure", "missing provider ID", "invalid recipient", "inva
     const c = await ctx.db.get("cases", caseId);
     await ctx.db.patch("parents", c!.parentId, { emails: ["different@example.test"] });
   });
-  if (failure === "invalid saved reply") await t.run((ctx) => ctx.db.patch("cases", caseId, { replyDraft: "This is safe. Call 555-123-4567 now." }));
+  if (failure === "invalid saved reply") await t.run((ctx) => ctx.db.patch("cases", caseId, { replyStatus: "unsent", replyDraft: "This is safe. Call 555-123-4567 now." }));
   await expect(t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" })).rejects.toThrow("confirmed acceptance");
   const failed = await t.run((ctx) => ctx.db.get("cases", caseId));
   expect(failed?.replyDraft).toBeTruthy();
