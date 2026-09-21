@@ -34,7 +34,7 @@ export const sendReply = internalAction({
       verdict: c.verdict,
       orgName: org?.name ?? null,
       officialPhone: org?.phones[0] ? formatPhoneForHumans(org.phones[0]) : null,
-      deadlineText: humanDate(c.extracted?.deadline ?? null),
+      deadlineText: c.extracted?.deadlineAmbiguous === false ? humanDate(c.extracted.deadline) : null,
       amountText: c.extracted?.moneyAmounts[0] ?? null,
       helperSignature: `— ${family?.name ?? "Your family"}'s helper (Second Look)`,
     };
@@ -65,13 +65,17 @@ export const sendReply = internalAction({
         }
       }
     }
-    text = await ctx.runMutation(internal.cases.setReplyDraft, { caseId: args.caseId, replyDraft: text });
+    text = await ctx.runMutation(internal.cases.setReplyDraft, {
+      caseId: args.caseId, replyDraft: text,
+      sourceDeadline: c.extracted?.deadline ?? null, sourceDeadlineAmbiguous: c.extracted?.deadlineAmbiguous,
+    });
 
     const attemptId = crypto.randomUUID();
     const claimed = await ctx.runMutation(internal.cases.beginReply, {
       caseId: args.caseId, attemptId, configured: !!process.env.AGENTMAIL_API_KEY?.trim(),
     });
     if (!claimed) return null; // Unsent without credentials, already accepted, or another worker owns the send.
+    text = claimed.replyDraft;
 
     try {
       const check = validateReply(text, facts);

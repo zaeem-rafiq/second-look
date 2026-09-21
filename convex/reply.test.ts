@@ -5,6 +5,8 @@ import { afterEach, expect, test, vi } from "vitest";
 import { api, internal } from "./_generated/api";
 import schema from "./schema";
 import type { WorkflowId } from "@convex-dev/workflow";
+import type { Extracted } from "../lib/types";
+import { SEED_ORGS } from "../lib/registrySeed";
 
 const modules = import.meta.glob("./**/*.ts");
 
@@ -36,6 +38,134 @@ async function setup() {
   });
   return { t, caseId, fetch };
 }
+
+async function datedSetup() {
+  const fixture = await setup();
+  const extracted: Extracted = {
+    claimedOrganization: "Chase", originalSender: { name: "Chase", address: "statements@chase.com" }, urls: ["https://chase.com"], phones: [],
+    actionRequested: "Review statement", actionType: "other", urgencyPhrases: [], moneyAmounts: [], dates: ["2026-10-03"], deadline: "2026-10-03", deadlineAmbiguous: false,
+    paymentMethods: [], requestsPersonalInfo: false, threatensPenalty: false, claimsSuspension: false, summary: "A statement is available.",
+  };
+  const reviewerId = await fixture.t.run(async (ctx) => {
+    const seed = SEED_ORGS.find((org) => org.name === "Chase")!;
+    const orgId = await ctx.db.insert("officialOrgs", { ...seed, key: "chase", seededBy: "seed", lastCrawledAt: 1 });
+    const c = await ctx.db.get("cases", fixture.caseId);
+    await ctx.db.patch("cases", fixture.caseId, { orgId, orgName: "Chase", extracted, verdict: "matches_official" });
+    const reviewerId = await ctx.db.insert("users", { name: "Reviewer" });
+    await ctx.db.insert("members", { familyId: c!.familyId, userId: reviewerId, role: "member" });
+    return reviewerId;
+  });
+  return { ...fixture, extracted, reviewer: fixture.t.withIdentity({ subject: `${reviewerId}|session`, issuer: "https://local.test" }) };
+}
+
+test("deadline changes recompose an unattempted draft and unchanged extraction preserves its bytes", async () => {
+  const { t, caseId, extracted, fetch } = await datedSetup();
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const first = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  expect(first.replyDraft).toContain("October 3");
+  await t.mutation(internal.cases.setExtracted, { caseId, extracted, forwardFormat: "gmail" });
+  const unchanged = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  expect(unchanged.replyDraft).toBe(first.replyDraft); expect(unchanged.replyError).toBe(first.replyError);
+  await t.mutation(internal.cases.setExtracted, { caseId, extracted: { ...extracted, deadline: "2026-10-05" }, forwardFormat: "gmail" });
+  const cleared = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  expect(cleared.replyDraft).toBeUndefined(); expect(cleared.replyText).toBeUndefined(); expect(cleared.replyError).toBeUndefined();
+  await t.mutation(internal.pipeline.checkAndDecide, { caseId });
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const next = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  expect(next.replyDraft).toContain("October 5"); expect(next.replyDraft).not.toContain("October 3");
+  expect(next.replyStatus).toBe("unsent"); expect(next.replyFirstAttemptAt).toBeUndefined(); expect(fetch).not.toHaveBeenCalled();
+});
+
+test.each(["removed", "ambiguous", "legacy"] as const)("a %s source deadline cannot survive in a newly composed reply", async (change) => {
+  const { t, caseId, extracted } = await datedSetup();
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const next = { ...extracted, ...(change === "removed" ? { deadline: null } : { deadlineAmbiguous: change === "ambiguous" ? true : undefined }) };
+  await t.mutation(internal.cases.setExtracted, { caseId, extracted: next, forwardFormat: "gmail" });
+  await t.mutation(internal.pipeline.checkAndDecide, { caseId });
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  expect((await t.run((ctx) => ctx.db.get("cases", caseId)))?.replyDraft).not.toContain("October 3");
+});
+
+test("a deadline change holds attempted bytes and exposes an outdated-date notice instead of retrying", async () => {
+  const { t, caseId, extracted, reviewer, fetch } = await datedSetup();
+  vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
+  fetch.mockRejectedValue(new Error("response lost"));
+  await expect(t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" })).rejects.toThrow("confirmed acceptance");
+  const before = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  await t.mutation(internal.cases.setExtracted, { caseId, extracted: { ...extracted, deadline: "2026-10-05" }, forwardFormat: "gmail" });
+  await t.mutation(internal.pipeline.checkAndDecide, { caseId });
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const after = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  expect(after.replyDraft).toBe(before.replyDraft); expect(after.replyFirstAttemptAt).toBe(before.replyFirstAttemptAt);
+  expect(after.replyMessageId).toBeUndefined(); expect(fetch).toHaveBeenCalledTimes(1);
+  expect(fetch.mock.calls[0][1].headers["Idempotency-Key"]).toBe(`reply-${caseId}`);
+  const board = await reviewer.query(api.cases.listBoard, { familySlug: "test" });
+  expect(board?.cases[0].replyError).toContain("saved date may be outdated");
+  expect(board?.cases[0].replyText).toBe(before.replyDraft);
+});
+
+test("a changed deadline preserves an accepted receipt and its visible outdated-date notice", async () => {
+  const { t, caseId, extracted, reviewer, fetch } = await datedSetup();
+  vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
+  fetch.mockResolvedValue(new Response(JSON.stringify({ message_id: "original-receipt", thread_id: "original-thread" })));
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const before = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  await t.mutation(internal.cases.setExtracted, { caseId, extracted: { ...extracted, deadline: "2026-10-05" }, forwardFormat: "gmail" });
+  await t.mutation(internal.pipeline.checkAndDecide, { caseId });
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const board = await reviewer.query(api.cases.listBoard, { familySlug: "test" });
+  expect(board?.cases[0]).toMatchObject({ replyText: before.replyText, replySentAt: before.replySentAt, replyStatus: "sent" });
+  expect(board?.cases[0].replyError).toContain("saved date may be outdated");
+  expect((await t.run((ctx) => ctx.db.get("cases", caseId)))?.replyMessageId).toBe("original-receipt");
+  expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+test("late acceptance after a deadline change remains truthful without removing the stale-date notice", async () => {
+  const { t, caseId, extracted, fetch } = await datedSetup();
+  vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
+  let accept!: (response: Response) => void;
+  fetch.mockImplementation(() => new Promise<Response>((resolve) => { accept = resolve; }));
+  const action = t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+  const before = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  await t.mutation(internal.cases.setExtracted, { caseId, extracted: { ...extracted, deadline: "2026-10-05" }, forwardFormat: "gmail" });
+  await t.mutation(internal.cases.failReply, { caseId, attemptId: before.replyAttemptId!, error: "delayed failure" });
+  await t.mutation(internal.pipeline.checkAndDecide, { caseId });
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  expect(fetch).toHaveBeenCalledTimes(1);
+  accept(new Response(JSON.stringify({ message_id: "late-receipt", thread_id: "thread" }))); await action;
+  const after = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  expect(after.replyText).toBe(before.replyDraft); expect(after.replyStatus).toBe("sent");
+  expect(after.replyMessageId).toBe("late-receipt"); expect(after.replyError).toContain("saved date may be outdated");
+});
+
+test("a composer using an old deadline cannot commit a draft after extraction changed", async () => {
+  const { t, caseId, extracted } = await datedSetup();
+  await t.mutation(internal.cases.setExtracted, { caseId, extracted: { ...extracted, deadline: "2026-10-05" }, forwardFormat: "gmail" });
+  await expect(t.mutation(internal.cases.setReplyDraft, { caseId, replyDraft: "Old October 3 draft", sourceDeadline: "2026-10-03", sourceDeadlineAmbiguous: false })).rejects.toThrow("changed while this reply was being prepared");
+  expect((await t.run((ctx) => ctx.db.get("cases", caseId)))?.replyDraft).toBeUndefined();
+  await t.mutation(internal.cases.setReplyDraft, { caseId, replyDraft: "New October 5 draft", sourceDeadline: "2026-10-05", sourceDeadlineAmbiguous: false });
+  expect(await t.mutation(internal.cases.beginReply, { caseId, attemptId: "before-verdict", configured: true })).toBeNull();
+  await t.mutation(internal.pipeline.checkAndDecide, { caseId });
+  expect(await t.mutation(internal.cases.beginReply, { caseId, attemptId: "latest-bytes", configured: true })).toMatchObject({ replyDraft: "New October 5 draft" });
+});
+
+test("a deadline change blocks a new plain fallback after the first request rejects threading", async () => {
+  const { t, caseId, extracted, fetch } = await datedSetup();
+  vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
+  let rejectThreading!: (response: Response) => void;
+  fetch.mockImplementation(() => new Promise<Response>((resolve) => { rejectThreading = resolve; }));
+  const action = t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const failed = expect(action).rejects.toThrow("confirmed acceptance");
+  await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+  const before = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  await t.mutation(internal.cases.setExtracted, { caseId, extracted: { ...extracted, deadline: "2026-10-05" }, forwardFormat: "gmail" });
+  await t.mutation(internal.pipeline.checkAndDecide, { caseId });
+  rejectThreading(new Response("threading rejected", { status: 400 })); await failed;
+  const after = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  expect(fetch).toHaveBeenCalledTimes(1); expect(after.replyWithoutThreading).toBeUndefined();
+  expect(after.replyDraft).toBe(before.replyDraft); expect(after.replyError).toContain("saved date may be outdated");
+});
 
 test("missing credentials preserve an unsent draft; configuration recovery sends it once", async () => {
   const { t, caseId, fetch } = await setup();

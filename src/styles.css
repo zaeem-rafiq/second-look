@@ -150,10 +150,12 @@ button:disabled { opacity: 0.6; cursor: default; }
 .setup-panel > :last-child { margin-bottom: 0; }
 .setup-form { display: grid; gap: 14px; margin: 18px 0; }
 .setup-form label { display: grid; gap: 6px; font-weight: 600; }
-.setup-form input { width: 100%; min-width: 0; padding: 10px; border: 1px solid var(--line); border-radius: 8px; font: inherit; background: #fff; }
+.setup-form input, .setup-form select { width: 100%; min-width: 0; padding: 10px; border: 1px solid var(--line); border-radius: 8px; font: inherit; background: #fff; }
 .setup-form > button { justify-self: start; }
 .setup-form fieldset { min-width: 0; margin: 0; padding: 14px; border: 1px solid var(--line); border-radius: 8px; }
 .setup-form legend { padding: 0 6px; font-weight: 600; }
+.notification-settings fieldset { display: grid; gap: 12px; }
+.notification-panel > summary { cursor: pointer; }
 .setup-form label > .small { font-weight: 400; }
 .institution-fields { display: grid; grid-template-columns: 1fr 1fr auto; align-items: end; gap: 10px; margin: 12px 0; }
 .family-list, .request-list, .verified-emails, .institution-list { list-style: none; padding: 0; }

@@ -13,6 +13,7 @@ function hasSentReply(c: { replyMessageId?: string }): boolean {
 }
 
 const UNTRACKED_REPLY_ERROR = "The previous send outcome is unknown. Provider acceptance must be checked before another attempt.";
+const STALE_DEADLINE_REPLY_ERROR = "The deadline changed after this reply was prepared. Its saved date may be outdated. No additional reply will be sent.";
 
 function hasUntrackedReply(c: Doc<"cases">): boolean {
   return !!(c.replyDraft || c.replyText) && !hasSentReply(c) && c.replyMessageId !== "dry-run:not-sent"
@@ -36,12 +37,22 @@ export const setExtracted = internalMutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
+    const c = await ctx.db.get("cases", args.caseId);
+    if (!c) throw new Error("case not found");
+    const deadlineChanged = (c.extracted?.deadline ?? null) !== args.extracted.deadline ||
+      (!!(c.extracted?.deadline || args.extracted.deadline) && c.extracted?.deadlineAmbiguous !== args.extracted.deadlineAmbiguous);
+    const hasSavedReply = !!(c.replyDraft || c.replyText || hasSentReply(c));
+    const neverAttempted = c.replyFirstAttemptAt === undefined && !c.replyAttemptId && !hasSentReply(c) && !hasUntrackedReply(c);
     await ctx.db.patch("cases", args.caseId, {
       extracted: args.extracted,
       forwardFormat: args.forwardFormat,
       originalSender: args.extracted.originalSender,
       summary: args.extracted.summary,
       verdict: undefined, deadlineAt: undefined,
+      ...(deadlineChanged && hasSavedReply ? neverAttempted ? {
+        replyDraft: undefined, replyText: undefined, replyMessageId: undefined, replyThreadId: undefined,
+        replySentAt: undefined, replyStatus: "unsent" as const, replyError: undefined, replyWithoutThreading: undefined,
+      } : { replyError: STALE_DEADLINE_REPLY_ERROR } : {}),
     });
     await reconcileReminder(ctx, args.caseId);
     return null;
@@ -72,14 +83,17 @@ export const setOrg = internalMutation({
 });
 
 export const setReplyDraft = internalMutation({
-  args: { caseId: v.id("cases"), replyDraft: v.string() },
+  args: { caseId: v.id("cases"), replyDraft: v.string(), sourceDeadline: v.union(v.string(), v.null()), sourceDeadlineAmbiguous: v.optional(v.boolean()) },
   returns: v.string(),
   handler: async (ctx, args) => {
     const c = await ctx.db.get("cases", args.caseId);
     if (!c) throw new Error("case not found");
     // First draft wins, so every retry sends exactly the same text under the same idempotency key.
     const replyDraft = c.replyDraft ?? c.replyText ?? args.replyDraft;
-    if (hasSentReply(c)) return replyDraft;
+    if (hasSentReply(c) || c.replyError === STALE_DEADLINE_REPLY_ERROR) return replyDraft;
+    if ((c.extracted?.deadline ?? null) !== args.sourceDeadline || c.extracted?.deadlineAmbiguous !== args.sourceDeadlineAmbiguous) {
+      throw new Error("The notice deadline changed while this reply was being prepared. Try again.");
+    }
     await ctx.db.patch("cases", args.caseId, {
       replyDraft,
       ...(c.replyMessageId === "dry-run:not-sent" ? {
@@ -94,11 +108,12 @@ export const setReplyDraft = internalMutation({
 
 export const beginReply = internalMutation({
   args: { caseId: v.id("cases"), attemptId: v.string(), configured: v.boolean() },
-  returns: v.union(v.null(), v.object({ withoutThreading: v.boolean() })),
+  returns: v.union(v.null(), v.object({ withoutThreading: v.boolean(), replyDraft: v.string() })),
   handler: async (ctx, args) => {
     const c = await ctx.db.get("cases", args.caseId);
     if (!c) throw new Error("case not found");
     if (hasSentReply(c)) return null;
+    if (!c.verdict || c.replyError === STALE_DEADLINE_REPLY_ERROR) return null;
     if (!c.replyDraft) throw new Error("reply draft missing");
     // This guard stays in the shared send claim even if another internal caller bypasses the demo UI.
     if (c.demoSessionId) {
@@ -141,7 +156,7 @@ export const beginReply = internalMutation({
         caseId: args.caseId, attemptId: args.attemptId, error: "Sending was interrupted. The saved draft can be retried.",
       });
     }
-    return args.configured ? { withoutThreading: c.replyWithoutThreading ?? false } : null;
+    return args.configured ? { withoutThreading: c.replyWithoutThreading ?? false, replyDraft: c.replyDraft } : null;
   },
 });
 
@@ -150,7 +165,7 @@ export const omitReplyThreading = internalMutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     const c = await ctx.db.get("cases", args.caseId);
-    if (!c || c.replyAttemptId !== args.attemptId || hasSentReply(c)) throw new Error("reply send ownership changed");
+    if (!c || c.replyAttemptId !== args.attemptId || hasSentReply(c) || !c.verdict || c.replyError === STALE_DEADLINE_REPLY_ERROR) throw new Error("reply send ownership changed");
     await ctx.db.patch("cases", args.caseId, { replyWithoutThreading: true });
     return null;
   },
@@ -163,7 +178,7 @@ export const failReply = internalMutation({
     const c = await ctx.db.get("cases", args.caseId);
     if (c && !hasSentReply(c) && c.replyAttemptId === args.attemptId) {
       await ctx.db.patch("cases", args.caseId, {
-        replyStatus: "failed", replyError: args.error,
+        replyStatus: "failed", replyError: c.replyError === STALE_DEADLINE_REPLY_ERROR ? c.replyError : args.error,
         replyAttemptId: undefined, replyAttemptAt: undefined,
       });
     }
@@ -186,7 +201,7 @@ export const setReply = internalMutation({
       replyMessageId: args.replyMessageId,
       ...(args.replyThreadId ? { replyThreadId: args.replyThreadId } : {}),
       replySentAt: Date.now(),
-      replyStatus: "sent", replyError: undefined,
+      replyStatus: "sent", replyError: c.replyError === STALE_DEADLINE_REPLY_ERROR ? c.replyError : undefined,
       replyAttemptId: undefined, replyAttemptAt: undefined, error: undefined,
       status: "replied",
     });
@@ -248,7 +263,7 @@ export async function boardCase(ctx: QueryCtx, c: Doc<"cases">) {
     replySentAt: hasSentReply(c) ? c.replySentAt ?? null : null,
     replyText: c.replyDraft ?? c.replyText ?? null,
     replyStatus: hasSentReply(c) ? "sent" as const : hasUntrackedReply(c) ? "failed" as const : c.replyMessageId === "dry-run:not-sent" ? "unsent" as const : c.replyStatus ?? (c.replyDraft || c.replyText ? "unsent" as const : null),
-    replyError: hasUntrackedReply(c) ? UNTRACKED_REPLY_ERROR : c.replyError ?? null,
+    replyError: c.replyError === STALE_DEADLINE_REPLY_ERROR ? c.replyError : hasUntrackedReply(c) ? UNTRACKED_REPLY_ERROR : c.replyError ?? null,
     handledBy: c.handledBy ?? null,
     handledAt: c.handledAt ?? null,
     notes: c.notes,

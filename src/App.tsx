@@ -3,6 +3,9 @@ import { useMutation, useQuery, useConvexAuth } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Demo } from "./Demo";
 import { FamilyHome, FamilySetup, LinkAcceptance } from "./FamilySetup";
+import { NotificationSettings } from "./NotificationSettings";
+import { ReminderConsent } from "./ReminderConsent";
+import { ReminderStatus } from "./ReminderStatus";
 import type { FunctionReturnType } from "convex/server";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
@@ -73,6 +76,7 @@ function fmtDay(ms: number | null): string {
 export function App() {
   const { isLoading, isAuthenticated } = useConvexAuth();
   const params = new URLSearchParams(window.location.search);
+  if (params.has("confirmReminders")) return <ReminderConsent />;
   if (params.has("confirmParent"))
     return <LinkAcceptance kind="parent_email" />;
   if (params.get("demo") === "1" || (!isLoading && !isAuthenticated && !params.has("signin") && !params.has("acceptInvite") && !params.has("family")))
@@ -422,6 +426,8 @@ function BoardView({ board }: { board: Board }) {
         </div>
       </header>
 
+      {board.family.familyId && <details className="notification-panel"><summary>Reminders and weekly digest</summary><NotificationSettings familyId={board.family.familyId} /></details>}
+
       {board.cases.length === 0 ? (
         <section className="empty">
           <h2>Nothing yet</h2>
@@ -499,6 +505,8 @@ export function CaseCard({ c, onAddNote, onMarkHandled }: {
 
       {c.verdict === "cannot_verify" && <p className="notice">There isn't enough verified information to confirm this message. Check through a contact you already trust.</p>}
       {c.verdict === "matches_official" && <p className="muted small">The checked details match published information. This does not authenticate the sender.</p>}
+      {!onMarkHandled && <ReminderStatus reminder={c.reminder} />}
+
       {c.evidence.some((e) => e.applicable) && (
         <details className="evidence" open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
           <summary>

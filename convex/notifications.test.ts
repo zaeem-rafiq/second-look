@@ -198,3 +198,37 @@ test("legacy model-owned deadlines require source revalidation before opt-in can
   expect((await delivery())[0].status).toBe("cancelled");
   expect((await t.run((ctx) => ctx.db.get("cases", ids.caseId)))?.reminder?.status).toBe("invalid_deadline");
 });
+
+test.each(["family", "case"] as const)("a demo-marked %s cannot enqueue or dispatch notifications despite configured recipients", async (marker) => {
+  const { t, ids, delivery, fetch } = await setup();
+  const reminder = (await delivery())[0];
+  await t.mutation(internal.notifications.ensureDigest, { familyId: ids.familyId });
+  const digestAt = (await t.run((ctx) => ctx.db.get("families", ids.familyId)))!.digestNextAt!;
+  await t.run(async (ctx) => {
+    const demoSessionId = await ctx.db.insert("demoSessions", {
+      familyId: ids.familyId, parentId: ids.parentId, tokenHash: "synthetic", siblingTokenHash: "synthetic-sibling",
+      expiresAt: digestAt + 60_000, active: true, runs: 0, resets: 0, lastResetAt: 0,
+    });
+    if (marker === "family") await ctx.db.patch("families", ids.familyId, { demoSessionId });
+    else await ctx.db.patch("cases", ids.caseId, { demoSessionId });
+  });
+  // A pre-existing job must recheck the demo marker before contacting the provider.
+  vi.setSystemTime(reminder.scheduledAt);
+  await t.action(internal.notifications.dispatch, { deliveryId: reminder._id });
+  expect(fetch).not.toHaveBeenCalled();
+  expect((await delivery())[0].status).toBe("cancelled");
+  await t.run(async (ctx) => {
+    await ctx.db.patch("cases", ids.caseId, { extracted: { ...extracted, deadline: "2026-10-05" } });
+    await reconcileReminder(ctx, ids.caseId);
+  });
+  expect(await delivery()).toHaveLength(1);
+  expect((await t.run((ctx) => ctx.db.get("cases", ids.caseId)))?.reminder?.status).toBe("ineligible");
+  if (marker === "family") {
+    await t.mutation(internal.notifications.ensureDigest, { familyId: ids.familyId });
+    vi.setSystemTime(digestAt);
+    await t.mutation(internal.notifications.digestDue, { familyId: ids.familyId, scheduledAt: digestAt, timezone: "America/Chicago" });
+    expect(await t.run((ctx) => ctx.db.query("digests").collect())).toHaveLength(0);
+    expect(await delivery()).toHaveLength(1);
+    expect(fetch).not.toHaveBeenCalled();
+  }
+});

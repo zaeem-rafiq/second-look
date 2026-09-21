@@ -11,9 +11,14 @@ describe("source-owned notice deadlines", () => {
     "Renew-by: OCTOBER 3, 2026.",
     "Invoice issued September 1, 2026. Payment due October 3, 2026.",
     "Invoice date: 2026-09-01\nDue date: 2026-10-03",
+    "Invoice issued September 1, 2026\nPayment due October 3, 2026.",
+    "Invoice date: 2026-09-01; Due date: 2026-10-03",
+    "Payment due:\nOctober 3, 2026.",
+    "Due October 3, 2026\nor 3 October 2026.",
     "Issued September 1, 2026, due October 3, 2026.",
     "Due 2026-10-03. Deadline October 3, 2026.",
     "Due October 3, 2026 or 3 October 2026.",
+    "Due October 3, 2026 or pay by 2026-10-03.",
   ])("normalizes one consistent explicit due date: %s", (body) => {
     expect(sourceDeadline(body)).toEqual({ deadline: "2026-10-03", deadlineAmbiguous: false });
   });
@@ -24,6 +29,12 @@ describe("source-owned notice deadlines", () => {
       expect(sourceDeadline(`Due ${month} 3, 2026.`)).toEqual({ deadline: `2026-${String(index + 1).padStart(2, "0")}-03`, deadlineAmbiguous: false });
     }
     expect(sourceDeadline("Due February 29, 2028.")).toEqual({ deadline: "2028-02-29", deadlineAmbiguous: false });
+  });
+
+  it("separates the native statement's account-navigation choices from its complete due date", () => {
+    const body = "Your Chase statement is available. Payment due: October 10, 2026\nUse your usual Chase app or https://www.chase.com to review your statement.";
+    expect(sourceDeadline(body)).toEqual({ deadline: "2026-10-10", deadlineAmbiguous: false });
+    expect(sourceDeadline("Invoice issued October 1, 2026\nPayment due: October 10, 2026\nOpen your app or visit your branch.")).toEqual({ deadline: "2026-10-10", deadlineAmbiguous: false });
   });
 
   it.each([
@@ -52,6 +63,20 @@ describe("source-owned notice deadlines", () => {
     "Payment may be due October 3, 2026.", "Estimated deadline: October 3, 2026.",
     "If payment is due October 3, 2026, contact us.",
     "Payment isn't due October 3, 2026.", "Example: pay by October 3, 2026.",
+    "Is payment due October 3, 2026?",
+    "Is payment due October 3, 2026",
+    "Due October 3, 2026\nor October 4, 2026.",
+    "If you choose to renew:\nPayment due October 3, 2026.",
+    "If you choose to renew; payment due October 3, 2026.",
+    "Estimated:\nDeadline October 3, 2026.",
+    "Due October 3, 2026 or later.",
+    "Due October 3, 2026 or whenever you renew.",
+    "Due October 3, 2026 or another date to be agreed.",
+    "Due October 3, 2026\nor later.",
+    "Due October 3, 2026\nunless you cancel.",
+    "Payment due October 3, 2026\nif you choose to renew.",
+    "If you choose to renew:\nPayment due October 3, 2026\nUse your usual app or website.",
+    "Payment due October 3, 2026\nUse this date only if you choose to renew.",
   ])("keeps missing, conflicting, qualified, or unsupported dates ambiguous: %s", (body) => {
     expect(sourceDeadline(body)).toEqual({ deadline: null, deadlineAmbiguous: true });
   });
