@@ -5,9 +5,11 @@ import { start } from "@convex-dev/workflow";
 import { parseFromHeader } from "./clients/agentmail";
 
 /**
- * Idempotent ingest of one AgentMail delivery. Replays (same message id) do nothing.
+ * Idempotent ingest of one AgentMail delivery. Replays discard their redundant raw blob.
  * Mail from a registered parent address becomes a case and starts the workflow;
  * anything else lands in the unrouted list.
+ * ponytail: storage precedes this transaction, so an abandoned/failed ingest can leave a blob.
+ * Recovery must confirm it is unreferenced; an action error does not prove ingest failed to commit.
  */
 export const ingest = internalMutation({
   args: {
@@ -25,7 +27,12 @@ export const ingest = internalMutation({
       .query("inbound")
       .withIndex("by_message", (q) => q.eq("agentmailMessageId", args.agentmailMessageId))
       .unique();
-    if (existing) return existing.caseId ?? null;
+    if (existing) {
+      if (existing.rawStorageId !== args.rawStorageId && await ctx.db.system.get("_storage", args.rawStorageId)) {
+        await ctx.storage.delete(args.rawStorageId);
+      }
+      return existing.caseId ?? null;
+    }
 
     const from = parseFromHeader(args.from);
     const receivedAt = Date.now();
