@@ -9,14 +9,14 @@ export type AgentMailMessage = {
   message_id: string;
   from: string;
   to: string[];
-  subject?: string;
-  text?: string;
-  html?: string;
+  subject?: string | null;
+  text?: string | null;
+  html?: string | null;
   extracted_text?: string;
   extracted_html?: string;
   timestamp?: string;
   in_reply_to?: string;
-  references?: string[];
+  references?: string[] | null;
 };
 
 export type MessageReceivedEvent = {

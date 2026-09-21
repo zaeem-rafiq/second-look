@@ -36,7 +36,8 @@ export const extractCase = internalAction({
       const blob = await ctx.storage.get(c.rawStorageId);
       if (!blob) throw new Error("raw delivery missing from storage");
       const event = JSON.parse(await blob.text()) as MessageReceivedEvent;
-      ({ text = "", html = "" } = event.message);
+      text = event.message.text ?? "";
+      html = event.message.html ?? "";
     }
     if (!c.demoSessionId && (args.needsFetch || (!text && !html))) {
       const full = await getMessage(args.inboxId, c.agentmailMessageId);

@@ -92,7 +92,7 @@ export const sendReply = internalAction({
         to: recipient,
         subject: forward.subject ?? c.subject,
         messageId: forward.message_id,
-        references: forward.references,
+        references: forward.references ?? undefined,
       });
       // Only ever write to an address registered for this parent.
       if (!parent || !parent.emails.map((e) => e.toLowerCase()).includes(envelope.to)) {
