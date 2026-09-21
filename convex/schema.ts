@@ -94,7 +94,7 @@ export default defineSchema({
     createdBy: v.string(),
     /** Navigation only; membership is always required. */
     slug: v.string(),
-  }).index("by_slug", ["slug"]),
+  }).index("by_slug", ["slug"]).index("by_createdBy", ["createdBy"]),
 
   members: defineTable({
     familyId: v.id("families"),
@@ -108,10 +108,27 @@ export default defineSchema({
 
   parents: defineTable({
     familyId: v.id("families"),
+    requestId: v.optional(v.string()),
     name: v.string(),
     emails: v.array(v.string()),
     knownInstitutions: v.array(v.object({ name: v.string(), website: v.string() })),
-  }).index("by_family", ["familyId"]),
+  }).index("by_family", ["familyId"]).index("by_familyId_and_requestId", ["familyId", "requestId"]),
+
+  /** Mailbox consent and identity-bound invites. Bearer tokens only leave via email. */
+  setupLinks: defineTable({
+    kind: v.union(v.literal("parent_email"), v.literal("invitation")),
+    familyId: v.id("families"),
+    parentId: v.optional(v.id("parents")),
+    email: v.string(),
+    tokenHash: v.string(),
+    issuedAt: v.number(),
+    expiresAt: v.number(),
+    status: v.union(v.literal("pending"), v.literal("accepted"), v.literal("revoked")),
+    deliveryStatus: v.union(v.literal("pending"), v.literal("sent"), v.literal("captured"), v.literal("failed")),
+  })
+    .index("by_tokenHash", ["tokenHash"])
+    .index("by_familyId", ["familyId"])
+    .index("by_familyId_and_email_and_kind", ["familyId", "email", "kind"]),
 
   /** One row per registered parent email address, for O(1) routing of inbound mail. */
   parentEmails: defineTable({

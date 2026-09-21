@@ -95,3 +95,40 @@ button.secondary { background: #fff; color: var(--accent); }
 .sign-in-form input { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 8px; font: inherit; }
 button:disabled { opacity: 0.6; cursor: default; }
 .demo-notice { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: var(--amber-soft); }
+
+.account-bar { gap: 16px; flex-wrap: wrap; }
+.account-actions, .auth-options { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.text-button { padding: 4px 0; border: 0; background: transparent; color: var(--accent); text-decoration: underline; font-weight: 400; }
+.notice { padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--grey-soft); }
+.setup-panel { padding: 22px; margin: 20px 0; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); }
+.setup-panel > :last-child { margin-bottom: 0; }
+.setup-form { display: grid; gap: 14px; margin: 18px 0; }
+.setup-form label { display: grid; gap: 6px; font-weight: 600; }
+.setup-form input { width: 100%; min-width: 0; padding: 10px; border: 1px solid var(--line); border-radius: 8px; font: inherit; background: #fff; }
+.setup-form > button { justify-self: start; }
+.setup-form fieldset { min-width: 0; margin: 0; padding: 14px; border: 1px solid var(--line); border-radius: 8px; }
+.setup-form legend { padding: 0 6px; font-weight: 600; }
+.setup-form label > .small { font-weight: 400; }
+.institution-fields { display: grid; grid-template-columns: 1fr 1fr auto; align-items: end; gap: 10px; margin: 12px 0; }
+.family-list, .request-list, .verified-emails, .institution-list { list-style: none; padding: 0; }
+.family-item { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.family-item p { margin: 4px 0 0; }
+.request-list li { border-top: 1px solid var(--line); padding: 12px 0; }
+.request-list p { margin: 4px 0; }
+.verified-emails li { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 8px 0; }
+.email-address, .helper-instructions code, .institution-list span { overflow-wrap: anywhere; }
+.helper-instructions li { margin: 10px 0; }
+.institution-list li { margin: 8px 0; }
+.institution-list span { display: block; }
+h3 { margin: 20px 0 8px; font-size: 1rem; }
+.parent-edit { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 14px; }
+.parent-edit > summary { color: var(--accent); cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .step-active { animation: none; } }
+@media (max-width: 600px) {
+  .setup-panel { padding: 16px; }
+  .account-actions { gap: 10px; }
+  .institution-fields { grid-template-columns: 1fr; }
+  .institution-fields button { justify-self: start; }
+  .family-item { align-items: flex-start; flex-direction: column; }
+}

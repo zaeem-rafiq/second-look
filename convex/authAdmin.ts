@@ -4,7 +4,7 @@ import { internalAction, internalMutation, internalQuery } from "./_generated/se
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 
-/** Deployment-admin-only provisioning; no public sign-up or invitation endpoint. */
+/** Deployment-admin-only provisioning; public onboarding is handled by auth/families. */
 export const provisionMember = internalAction({
   args: { familySlug: v.string(), email: v.string(), password: v.string(), name: v.string(), role: v.union(v.literal("admin"), v.literal("member")) },
   returns: v.id("users"),

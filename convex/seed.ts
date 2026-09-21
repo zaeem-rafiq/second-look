@@ -11,13 +11,16 @@ export const demoFamily = internalMutation({
   handler: async (ctx, args) => {
     const slug = "demo";
     const email = args.parentEmail.trim().toLowerCase();
+    const route = await ctx.db.query("parentEmails").withIndex("by_email", (q) => q.eq("email", email)).unique();
     let family = await ctx.db.query("families").withIndex("by_slug", (q) => q.eq("slug", slug)).unique();
+    if (route && (!family || route.familyId !== family._id)) throw new Error("Parent email is already registered to another family.");
     if (!family) {
       const familyId = await ctx.db.insert("families", { name: args.familyName ?? "The Demo Family", createdBy: "seed", slug });
       family = (await ctx.db.get("families", familyId))!;
     }
-    const parents = await ctx.db.query("parents").withIndex("by_family", (q) => q.eq("familyId", family._id)).collect();
-    let parent = parents[0] ?? null;
+    const parents = await ctx.db.query("parents").withIndex("by_family", (q) => q.eq("familyId", family._id)).take(20);
+    let parent = route ? await ctx.db.get("parents", route.parentId) : parents[0] ?? null;
+    if (route && (!parent || parent.familyId !== family._id)) throw new Error("Existing parent route is inconsistent.");
     if (!parent) {
       const parentId = await ctx.db.insert("parents", {
         familyId: family._id,
@@ -29,7 +32,6 @@ export const demoFamily = internalMutation({
     } else if (!parent.emails.includes(email)) {
       await ctx.db.patch("parents", parent._id, { emails: [...parent.emails, email] });
     }
-    const route = await ctx.db.query("parentEmails").withIndex("by_email", (q) => q.eq("email", email)).unique();
     if (!route) await ctx.db.insert("parentEmails", { email, parentId: parent._id, familyId: family._id });
     return { familyId: family._id, parentId: parent._id };
   },

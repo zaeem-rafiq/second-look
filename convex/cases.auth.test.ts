@@ -4,11 +4,13 @@ import { convexTest } from "convex-test";
 import { expect, test } from "vitest";
 import schema from "./schema";
 import { api } from "./_generated/api";
+import rateLimiterTest from "@convex-dev/rate-limiter/test";
 
 const modules = import.meta.glob("./**/*.ts");
 
 async function setup() {
   const t = convexTest(schema, modules);
+  rateLimiterTest.register(t);
   const data = await t.run(async (ctx) => {
     const familyId = await ctx.db.insert("families", { name: "Private family", slug: "known-slug", createdBy: "test" });
     const otherFamilyId = await ctx.db.insert("families", { name: "Other family", slug: "other", createdBy: "test" });
@@ -61,9 +63,9 @@ test("revoking membership immediately closes reads and writes for an existing se
   await expect(member.mutation(api.cases.markHandled, { caseId })).rejects.toThrow("Case unavailable");
 });
 
-test("public sign-up cannot create an account or membership", async () => {
+test("invalid public sign-up cannot create an account or membership", async () => {
   const { t } = await setup();
-  await expect(t.action(api.auth.signIn, { provider: "password", params: { flow: "signUp", email: "intruder@example.com", password: "not-a-real-password" } })).rejects.toThrow("Account registration is not available");
+  await expect(t.action(api.auth.signIn, { provider: "password", params: { flow: "signUp", email: "intruder@example.com", password: "not-a-real-password" } })).rejects.toThrow("Enter your name");
   expect(await t.run((ctx) => ctx.db.query("users").collect())).toHaveLength(2);
   expect(await t.run((ctx) => ctx.db.query("members").collect())).toHaveLength(2);
 });

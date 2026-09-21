@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useConvexAuth } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { demoBoard } from "./demo";
+import { FamilyHome, FamilySetup, LinkAcceptance } from "./FamilySetup";
 import type { FunctionReturnType } from "convex/server";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
@@ -71,38 +72,328 @@ function fmtDay(ms: number | null): string {
 
 export function App() {
   const { isLoading, isAuthenticated } = useConvexAuth();
-  const { signOut } = useAuthActions();
   const params = new URLSearchParams(window.location.search);
-  if (params.get("demo") === "1") return <BoardView board={demoBoard} readOnly />;
-  if (isLoading) return <main className="shell"><p className="muted">Checking your sign-in…</p></main>;
-  if (!isAuthenticated) return <SignIn />;
-  return <><nav className="shell account-bar"><span>Private family board</span><button className="secondary" onClick={() => void signOut()}>Sign out</button></nav><FamilyBoard familySlug={params.get("family") ?? "demo"} /></>;
+  if (params.get("demo") === "1")
+    return <BoardView board={demoBoard} readOnly />;
+  if (params.has("confirmParent"))
+    return <LinkAcceptance kind="parent_email" />;
+  if (isLoading)
+    return (
+      <main className="shell">
+        <p className="muted" role="status">
+          Checking your sign-in…
+        </p>
+      </main>
+    );
+  if (!isAuthenticated)
+    return <SignIn invitation={params.has("acceptInvite")} />;
+  return (
+    <Account
+      familySlug={params.get("family")}
+      setup={params.get("setup") === "1"}
+      invitation={params.has("acceptInvite")}
+    />
+  );
 }
 
-function SignIn() {
+function Account({
+  familySlug,
+  setup,
+  invitation,
+}: {
+  familySlug: string | null;
+  setup: boolean;
+  invitation: boolean;
+}) {
+  const families = useQuery(api.families.listMine, {});
+  const { signOut } = useAuthActions();
+  const [signOutError, setSignOutError] = useState(false);
+  const family = families?.find((item) => item.slug === familySlug);
+  return (
+    <>
+      <nav className="shell account-bar" aria-label="Account">
+        <a href="?">My families</a>
+        <div className="account-actions">
+          {family && (
+            <a href={`?family=${encodeURIComponent(family.slug)}`}>
+              Family board
+            </a>
+          )}
+          {family?.role === "admin" && (
+            <a href={`?family=${encodeURIComponent(family.slug)}&setup=1`}>
+              Family setup
+            </a>
+          )}
+          <button
+            className="secondary"
+            onClick={() => {
+              setSignOutError(false);
+              void signOut().catch(() => setSignOutError(true));
+            }}
+          >
+            Sign out
+          </button>
+        </div>
+      </nav>
+      {signOutError && (
+        <p className="shell error" role="alert">
+          Could not sign out. Please try again.
+        </p>
+      )}
+      {invitation ? (
+        <LinkAcceptance kind="invitation" />
+      ) : families === undefined ? (
+        <main className="shell">
+          <p className="muted" role="status">
+            Loading your families…
+          </p>
+        </main>
+      ) : familySlug ? (
+        setup && family?.role === "admin" ? (
+          <FamilySetup familyId={family.familyId} />
+        ) : (
+          <FamilyBoard familySlug={familySlug} />
+        )
+      ) : (
+        <FamilyHome families={families} />
+      )}
+    </>
+  );
+}
+
+type AuthFlow =
+  "signIn" | "signUp" | "email-verification" | "reset" | "reset-verification";
+
+function SignIn({ invitation = false }: { invitation?: boolean }) {
   const { signIn } = useAuthActions();
+  const [flow, setFlow] = useState<AuthFlow>("signIn");
+  const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
-  return <main className="shell sign-in">
-    <p className="eyebrow">Second Look</p><h1>Your family's second look</h1>
-    <p className="muted">Sign in with the account set up for your family. Your family's messages and notes are private.</p>
-    <form className="sign-in-form" onSubmit={async (event) => {
-      event.preventDefault();
-      const data = new FormData(event.currentTarget);
-      data.set("flow", "signIn");
-      setBusy(true); setError("");
-      try { await signIn("password", data); }
-      catch { setError("Could not sign in. Check your email and password, then try again."); }
-      finally { setBusy(false); }
-    }}>
-      <label>Email<input name="email" type="email" autoComplete="username" required /></label>
-      <label>Password<input name="password" type="password" autoComplete="current-password" maxLength={256} required /></label>
-      {error && <p className="error" role="alert">{error}</p>}
-      <button disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
-    </form>
-    <p className="muted small">Need access or a password reset? Contact the person who set up your family's account.</p>
-    <a href="?demo=1">View the synthetic demo</a>
-  </main>;
+  const verifying =
+    flow === "email-verification" || flow === "reset-verification";
+  const label =
+    flow === "signUp"
+      ? "Create account"
+      : flow === "email-verification"
+        ? "Verify email"
+        : flow === "reset"
+          ? "Request reset code"
+          : flow === "reset-verification"
+            ? "Set new password"
+            : "Sign in";
+  const changeFlow = (next: AuthFlow) => {
+    setFlow(next);
+    setError("");
+    setNotice("");
+  };
+  return (
+    <main className="shell sign-in">
+      <p className="eyebrow">Second Look</p>
+      <h1>Your family's second look</h1>
+      <p className="muted">
+        Create a private place for your family to review confusing email. Your
+        parent only uses email and never needs an account.
+      </p>
+      {invitation && (
+        <p className="notice">
+          Sign in or create an account with the email address that received the
+          invitation. You'll then be able to accept it.
+        </p>
+      )}
+      <h2>{label}</h2>
+      <form
+        key={flow}
+        className="sign-in-form"
+        onSubmit={async (event) => {
+          event.preventDefault();
+          if (busy) return;
+          const data = new FormData(event.currentTarget);
+          data.set("flow", flow);
+          data.set("email", email.trim().toLowerCase());
+          setBusy(true);
+          setError("");
+          setNotice("");
+          try {
+            const result = await signIn("password", data);
+            if (!result.signingIn && !verifying) {
+              setFlow(
+                flow === "reset" ? "reset-verification" : "email-verification",
+              );
+              setNotice(
+                "Enter the code from your email. If it doesn't arrive, you can request another below.",
+              );
+            } else if (!result.signingIn) {
+              setError(
+                "That code could not be verified. Check the code or request a new one.",
+              );
+            }
+          } catch {
+            setError(
+              verifying
+                ? "That code is invalid or expired. Check the code or request a new one."
+                : flow === "signUp"
+                  ? "Could not create your account or send a verification code. If you already tried creating this account, sign in to request a new code, or reset your password."
+                  : flow === "reset"
+                    ? "Could not request a reset code. Check your email address and try again."
+                    : "Could not sign in. Check your email and password, then try again.",
+            );
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        {flow === "signUp" && (
+          <label>
+            Your name
+            <input
+              name="name"
+              autoComplete="name"
+              maxLength={80}
+              required
+              disabled={busy}
+            />
+          </label>
+        )}
+        <label>
+          Email
+          <input
+            name="email"
+            type="email"
+            autoComplete="username"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            readOnly={verifying}
+            required
+            disabled={busy}
+          />
+        </label>
+        {(flow === "signIn" || flow === "signUp") && (
+          <label>
+            Password
+            <input
+              name="password"
+              type="password"
+              autoComplete={
+                flow === "signUp" ? "new-password" : "current-password"
+              }
+              minLength={flow === "signUp" ? 12 : undefined}
+              maxLength={256}
+              required
+              disabled={busy}
+            />
+            {flow === "signUp" && (
+              <span className="muted small">Use at least 12 characters.</span>
+            )}
+          </label>
+        )}
+        {verifying && (
+          <label>
+            Email code
+            <input
+              name="code"
+              inputMode="numeric"
+              pattern="[0-9]{8}"
+              autoComplete="one-time-code"
+              required
+              autoFocus
+              minLength={8}
+              maxLength={8}
+              disabled={busy}
+            />
+          </label>
+        )}
+        {flow === "reset-verification" && (
+          <label>
+            New password
+            <input
+              name="newPassword"
+              type="password"
+              autoComplete="new-password"
+              minLength={12}
+              maxLength={256}
+              required
+              disabled={busy}
+            />
+            <span className="muted small">Use at least 12 characters.</span>
+          </label>
+        )}
+        {notice && (
+          <p className="notice" role="status">
+            {notice}
+          </p>
+        )}
+        {error && (
+          <p className="error" role="alert">
+            {error}
+          </p>
+        )}
+        <button disabled={busy}>{busy ? "Please wait…" : label}</button>
+      </form>
+      <div className="auth-options">
+        {verifying && (
+          <button
+            className="secondary"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              setError("");
+              setNotice("");
+              try {
+                await signIn("password", {
+                  flow:
+                    flow === "reset-verification"
+                      ? "reset"
+                      : "email-verification",
+                  email: email.trim().toLowerCase(),
+                });
+                setNotice(
+                  "A new code has been requested. Use the most recent code from your email.",
+                );
+              } catch {
+                setError("Could not request another code. Please try again.");
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            Request another code
+          </button>
+        )}
+        {flow !== "signIn" && (
+          <button
+            className="text-button"
+            disabled={busy}
+            onClick={() => changeFlow("signIn")}
+          >
+            Back to sign in
+          </button>
+        )}
+        {flow === "signIn" && (
+          <>
+            <button
+              className="secondary"
+              disabled={busy}
+              onClick={() => changeFlow("signUp")}
+            >
+              Create an account
+            </button>
+            <button
+              className="text-button"
+              disabled={busy}
+              onClick={() => changeFlow("reset")}
+            >
+              Forgot password?
+            </button>
+          </>
+        )}
+      </div>
+      <p className="small">
+        <a href="?demo=1">View the synthetic demo</a>
+      </p>
+    </main>
+  );
 }
 
 function FamilyBoard({ familySlug }: { familySlug: string }) {
@@ -121,8 +412,8 @@ function BoardView({ board, readOnly = false }: { board: Board; readOnly?: boole
           <p className="eyebrow">Second Look</p>
           <h1>{board.family.name}</h1>
           <p className="muted">
-            {readOnly ? "This fixed example shows how a family can review a message." : <>{board.parents.map((p) => p.name).join(", ") || "No parent yet"} forwards anything confusing to{" "}
-            <code>{board.helperAddress ?? "the helper inbox"}</code>. Every forward shows up here, live.</>}
+            {readOnly ? "This fixed example shows how a family can review a message." : !board.helperAddress ? "The helper inbox has not been configured. Your family administrator can prepare the family setup." : !board.parents.some((parent) => parent.emails.length > 0) ? "A family administrator needs to add a parent and confirm their email address before forwarding can begin." : <>{board.parents.filter((parent) => parent.emails.length > 0).map((parent) => parent.name).join(", ")} can forward confusing emails from their confirmed addresses to{" "}
+            <code>{board.helperAddress}</code>. The board updates as messages are checked.</>}
           </p>
         </div>
         <div className="legend">
