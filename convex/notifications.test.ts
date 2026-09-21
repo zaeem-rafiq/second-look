@@ -7,6 +7,7 @@ import { api, internal } from "./_generated/api";
 import { reconcileReminder } from "./model/notifications";
 import { SEED_ORGS } from "../lib/registrySeed";
 import type { Extracted } from "../lib/types";
+import { deliverNotification } from "./lib/notificationMail";
 
 const modules = import.meta.glob("./**/*.ts");
 afterEach(() => { vi.useRealTimers(); vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
@@ -18,6 +19,7 @@ async function setup() {
   vi.useFakeTimers(); vi.setSystemTime(new Date("2026-09-30T12:00:00Z"));
   vi.stubEnv("NOTIFICATION_TEST_NOW", ""); vi.stubEnv("CONVEX_SITE_URL", "http://127.0.0.1:3241");
   vi.stubEnv("NOTIFICATION_EMAIL_MODE", "agentmail"); vi.stubEnv("AGENTMAIL_INBOX_ID", "helper@example.test"); vi.stubEnv("AGENTMAIL_API_KEY", "test-key");
+  vi.stubEnv("NOTIFICATION_EMAIL_ALLOWLIST", "parent@example.test,owner@example.test,sibling@example.test");
   const fetch = vi.fn(async () => new Response(JSON.stringify({ message_id: "accepted", thread_id: "thread" })));
   vi.stubGlobal("fetch", fetch);
   const t = convexTest(schema, modules);
@@ -48,8 +50,10 @@ test("valid notice schedules at 09:00 two local calendar days before; duplicate 
   await t.action(internal.notifications.dispatch, { deliveryId: rows[0]._id }); expect(fetch).not.toHaveBeenCalled();
   vi.setSystemTime(rows[0].scheduledAt);
   await t.action(internal.notifications.dispatch, { deliveryId: rows[0]._id });
+  vi.stubEnv("NOTIFICATION_EMAIL_ALLOWLIST", ""); // Pausing later must preserve acceptance and deduplication.
   await t.action(internal.notifications.dispatch, { deliveryId: rows[0]._id });
   expect(fetch).toHaveBeenCalledTimes(1); expect((await delivery())[0].status).toBe("sent");
+  expect((await owner.query(api.cases.listBoard, { familySlug: "first" }))?.cases[0].reminder?.deliveryStatus).toBe("sent");
 });
 
 test.each([null, "October 3", "2026-02-30", "2026-09-20", "2026-10-01"])("missing, ambiguous, invalid, past or late date %s cannot leave old work active", async (deadline) => {
@@ -114,6 +118,29 @@ test("disabled notifications never inherit setup mail enablement or claim sent",
   vi.stubEnv("NOTIFICATION_EMAIL_MODE", ""); vi.stubEnv("SETUP_EMAIL_MODE", "agentmail");
   await t.action(internal.notifications.dispatch, { deliveryId: d._id });
   expect((await delivery())[0]).toMatchObject({ status: "failed", attempts: 0 }); expect(fetch).not.toHaveBeenCalled();
+});
+
+test("unlisted recipients cannot claim or retry delivery and removing a claimed recipient stops transport", async () => {
+  const { t, delivery, fetch, owner } = await setup(); const d = (await delivery())[0]; vi.setSystemTime(d.scheduledAt);
+  vi.stubEnv("NOTIFICATION_EMAIL_ALLOWLIST", "owner@example.test");
+  expect((await owner.query(api.cases.listBoard, { familySlug: "first" }))?.cases[0].reminder).toMatchObject({ deliveryStatus: "disabled", error: "This reminder has not been sent." });
+  await t.action(internal.notifications.dispatch, { deliveryId: d._id });
+  expect((await delivery())[0]).toMatchObject({ status: "failed", attempts: 0 });
+  expect((await delivery())[0].firstAttemptAt).toBeUndefined();
+  expect((await owner.query(api.cases.listBoard, { familySlug: "first" }))?.cases[0].reminder?.deliveryStatus).toBe("disabled");
+  expect(fetch).not.toHaveBeenCalled();
+  vi.stubEnv("NOTIFICATION_EMAIL_ALLOWLIST", "parent@example.test");
+  const claimed = await t.mutation(internal.notifications.claim, { deliveryId: d._id, attemptId: "controlled-attempt" });
+  expect(claimed).toMatchObject({ status: "sending", attempts: 1 });
+  vi.stubEnv("NOTIFICATION_EMAIL_ALLOWLIST", "owner@example.test");
+  expect((await owner.query(api.cases.listBoard, { familySlug: "first" }))?.cases[0].reminder?.deliveryStatus).toBe("sending");
+  await expect(deliverNotification({ to: claimed!.to, subject: claimed!.subject, text: claimed!.text }, claimed!.key,
+    { mode: claimed!.providerMode!, inboxId: claimed!.providerInbox! })).rejects.toThrow("paused for this recipient");
+  await t.mutation(internal.notifications.fail, { deliveryId: d._id, attemptId: "controlled-attempt" });
+  await t.action(internal.notifications.dispatch, { deliveryId: d._id });
+  expect((await delivery())[0]).toMatchObject({ status: "failed", attempts: 1 });
+  expect((await owner.query(api.cases.listBoard, { familySlug: "first" }))?.cases[0].reminder?.deliveryStatus).toBe("failed");
+  expect(fetch).not.toHaveBeenCalled();
 });
 
 test("Sunday digest is private per member, includes handled status, and retries only failed recipients", async () => {

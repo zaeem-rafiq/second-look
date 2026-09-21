@@ -2,7 +2,7 @@ import type { Doc, Id } from "../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { isReviewedOrg } from "./registry";
-import { notificationDeliveryConfig } from "../lib/notificationMail";
+import { notificationDeliveryConfig, notificationRecipientAllowed } from "../lib/notificationMail";
 import { reminderSchedule, dateKeyAt, localTimeAt } from "../../lib/notificationTime";
 
 export const hour = 60 * 60 * 1000;
@@ -110,15 +110,21 @@ export async function deliveryAuthorized(ctx: QueryCtx, d: Doc<"notificationDeli
   return !!user?.emailVerificationTime && user.email?.trim().toLowerCase() === d.to && digest?.familyId === family._id;
 }
 
+export function notificationDisplayStatus(d: Doc<"notificationDeliveries">): Doc<"notificationDeliveries">["status"] | "disabled" {
+  const config = notificationDeliveryConfig();
+  return (d.status === "pending" || d.status === "failed") && d.attempts === 0 && d.firstAttemptAt === undefined &&
+    (!config || !notificationRecipientAllowed(config, d.to)) ? "disabled" : d.status;
+}
+
 export type ReminderBoard = { status: string; scheduledAt?: number; timezone: string | null; deliveryStatus?: string | null; error?: string | null };
 export async function reminderBoard(ctx: QueryCtx, c: Doc<"cases">, family: Doc<"families">, needsReview: boolean): Promise<{ reminder?: ReminderBoard }> {
   if (!c.reminder) return {};
   const d = c.reminder.deliveryId ? await ctx.db.get("notificationDeliveries", c.reminder.deliveryId) : null;
-  const disabled = d?.status === "pending" && !notificationDeliveryConfig();
+  const deliveryStatus = d ? notificationDisplayStatus(d) : null;
   return { reminder: {
     status: needsReview ? "not_verified" : c.reminder.status,
     scheduledAt: c.reminder.scheduledAt, timezone: family.timezone ?? null,
-    deliveryStatus: needsReview ? null : disabled ? "disabled" : d?.status ?? null,
-    error: disabled ? "Notification sending is disabled. This reminder has not been sent." : d?.error ?? null,
+    deliveryStatus: needsReview ? null : deliveryStatus,
+    error: deliveryStatus === "disabled" ? "This reminder has not been sent." : d?.error ?? null,
   } };
 }

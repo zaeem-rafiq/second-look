@@ -1,7 +1,18 @@
 import { ConvexError } from "convex/values";
 import { sendMessage } from "../clients/agentmail";
+import { parseFromHeader } from "../../lib/address";
 
 export type NotificationDeliveryConfig = { mode: "agentmail" | "local"; inboxId: string };
+
+function notificationAllowlist(): string[] | null {
+  const addresses = (process.env.NOTIFICATION_EMAIL_ALLOWLIST ?? "").split(",").map((address) => address.trim().toLowerCase());
+  // Require whole bare addresses; the shared header parser otherwise accepts display names and substrings.
+  return addresses.every((address) => address.length <= 254 && parseFromHeader(address).address === address) ? addresses : null;
+}
+
+export function notificationRecipientAllowed(config: NotificationDeliveryConfig, to: string): boolean {
+  return config.mode === "local" || notificationAllowlist()?.includes(to.toLowerCase()) === true;
+}
 
 function localUrl(value: string | undefined): URL | null {
   try {
@@ -23,7 +34,7 @@ export function notificationDeliveryConfig(): NotificationDeliveryConfig | null 
   }
   const inboxId = process.env.AGENTMAIL_INBOX_ID;
   if (process.env.NOTIFICATION_EMAIL_MODE === "agentmail" && inboxId?.trim() &&
-      inboxId === inboxId.trim() && process.env.AGENTMAIL_API_KEY?.trim()) {
+      inboxId === inboxId.trim() && process.env.AGENTMAIL_API_KEY?.trim() && notificationAllowlist()) {
     return { mode: "agentmail", inboxId };
   }
   return null;
@@ -40,6 +51,7 @@ export async function deliverNotification(
   if (config.mode !== expected.mode || config.inboxId !== expected.inboxId) {
     throw new ConvexError("Notification delivery configuration changed.");
   }
+  if (!notificationRecipientAllowed(config, message.to)) throw new ConvexError("Notification delivery is paused for this recipient.");
   if (!/^[A-Za-z0-9._~-]{1,256}$/.test(key)) throw new ConvexError("Invalid notification delivery key.");
   try {
     if (config.mode === "agentmail") {

@@ -30,7 +30,7 @@ function SettingsForm({ familyId, settings }: { familyId: Id<"families">; settin
   return <section className="setup-panel notification-settings" aria-labelledby="notifications-title">
     <h2 id="notifications-title">Reminders and weekly digest</h2>
     <p>Deadline reminders run at 09:00, two calendar days before an eligible notice’s due date. The family digest runs on Sunday at 09:00. Both use the family timezone.</p>
-    <p className="notice">{settings.deliveryMode === "disabled" ? "Email delivery is paused for this deployment. Preferences can be saved, but no reminder or digest mail will be sent until delivery is enabled." : settings.deliveryMode === "local" ? "Local verification mode: messages are captured locally. No reminder or digest email is sent." : "Email delivery is enabled. Only recipients who opt in are eligible."}</p>
+    <p className="notice">{settings.deliveryMode === "disabled" ? "Email delivery is paused for this deployment. Preferences can be saved, but no reminder or digest mail will be sent until delivery is enabled." : settings.deliveryMode === "local" ? "Local verification mode: messages are captured locally. No reminder or digest email is sent." : "Email delivery is available only for approved recipients who opt in. Saving a preference does not enable delivery for a paused recipient."}</p>
     {settings.role === "admin" ? <form className="setup-form" onSubmit={async (event) => {
       event.preventDefault(); if (busy) return;
       setBusy(true); setError(""); setNotice("");
@@ -86,6 +86,7 @@ function DigestPreference({ familyId, settings }: { familyId: Id<"families">; se
     <h3>Your weekly digest</h3>
     <label className="digest-choice"><span><input type="checkbox" style={{ width: "auto" }} checked={enabled} onChange={(event) => setEnabled(event.target.checked)} disabled={busy || (!settings.digestEnabled && (!settings.email || !settings.timezone))} /> Email me this family’s Sunday digest</span></label>
     <p className="small muted">{settings.email ? `Recipient: ${settings.email}. This preference changes only your own verified account.` : "Verify your account email before enabling the digest."} {!settings.timezone && "A family timezone must be saved first."}</p>
+    {settings.email && settings.deliveryPaused && <p className="small muted">Email delivery is paused for this recipient. Your digest preference can still be saved.</p>}
     <button disabled={busy || enabled === settings.digestEnabled}>{busy ? "Saving…" : "Save digest preference"}</button>
     {error && <p className="error" role="alert">{error}</p>}
     {saved && <p className="notice" role="status">Digest preference saved.</p>}
@@ -109,7 +110,8 @@ function ParentReminders({ parent, hasTimezone }: { parent: Settings["parents"][
     finally { setBusy(false); }
   }}>
     <fieldset><legend>{parent.name}</legend>
-      <p className="small">{parent.reminderEmail && parent.consentAt ? `Reminders enabled by consent for ${parent.reminderEmail}.` : "Reminders are off. No consent recorded."}</p>
+      <p className="small">{parent.reminderEmail && parent.consentAt ? `Reminder consent recorded for ${parent.reminderEmail}.` : "Reminders are off. No consent recorded."}</p>
+      {parent.reminderEmail && parent.deliveryPaused && <p className="small muted">Email delivery is paused for this recipient.</p>}
       <label>Confirmed recipient<select value={email} onChange={(event) => setEmail(event.target.value)} disabled={busy || !parent.emails.length} required>
         {!parent.emails.length && <option value="">Confirm an email in Family setup first</option>}
         {parent.emails.map((address) => <option key={address} value={address}>{address}</option>)}

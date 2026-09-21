@@ -4,7 +4,7 @@ import type { Doc } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
 import { familyMember } from "./model/auth";
 import { accepted, cancelDelivery, deliveryAuthorized, hour, isDemo, notificationNow, reconcileReminder } from "./model/notifications";
-import { deliverNotification, notificationDeliveryConfig } from "./lib/notificationMail";
+import { deliverNotification, notificationDeliveryConfig, notificationRecipientAllowed } from "./lib/notificationMail";
 import { dateKeyAt, nextSunday, strictDate } from "../lib/notificationTime";
 import { isReviewedOrg } from "./model/registry";
 import { paginationOptsValidator } from "convex/server";
@@ -37,6 +37,10 @@ export const claim = internalMutation({
     const config = notificationDeliveryConfig();
     if (!config || (d.providerMode && (d.providerMode !== config.mode || d.providerInbox !== config.inboxId))) {
       await ctx.db.patch("notificationDeliveries", deliveryId, { status: "failed", error: "Notification delivery is disabled or its configuration changed. No new attempt was made." });
+      return null;
+    }
+    if (!notificationRecipientAllowed(config, d.to)) {
+      await ctx.db.patch("notificationDeliveries", deliveryId, { status: "failed", error: "Notification delivery is paused for this recipient. No new attempt was made." });
       return null;
     }
     await ctx.db.patch("notificationDeliveries", deliveryId, {

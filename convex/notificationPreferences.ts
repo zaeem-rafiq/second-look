@@ -5,14 +5,14 @@ import type { Doc, Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
 import { newToken, requireAdmin, tokenHash } from "./families";
 import { familyMember } from "./model/auth";
-import { isDemo } from "./model/notifications";
+import { isDemo, notificationDisplayStatus } from "./model/notifications";
 import { isValidTimeZone } from "../lib/notificationTime";
 import { deliverSetupMail, setupUrl } from "./lib/setupMail";
-import { notificationDeliveryConfig } from "./lib/notificationMail";
+import { notificationDeliveryConfig, notificationRecipientAllowed } from "./lib/notificationMail";
 import { rateLimiter } from "./rateLimits";
 
 const familyArgs = { familyId: v.id("families") };
-const parentValidator = v.object({ id: v.id("parents"), name: v.string(), emails: v.array(v.string()), reminderEmail: v.union(v.string(), v.null()), consentAt: v.union(v.number(), v.null()) });
+const parentValidator = v.object({ id: v.id("parents"), name: v.string(), emails: v.array(v.string()), reminderEmail: v.union(v.string(), v.null()), consentAt: v.union(v.number(), v.null()), deliveryPaused: v.boolean() });
 const previewValidator = v.object({ familyName: v.string(), parentName: v.string(), email: v.string(), timezone: v.string(), expiresAt: v.number() });
 type Preview = { familyName: string; parentName: string; email: string; timezone: string; expiresAt: number };
 type Issued = { status: "pending" | "already_enabled"; linkId: Id<"setupLinks"> | null; familyName: string; parentName: string; email: string; timezone: string; send: boolean };
@@ -45,21 +45,23 @@ export const settings = query({
   args: familyArgs,
   returns: v.object({
     timezone: v.union(v.string(), v.null()), role: v.union(v.literal("admin"), v.literal("member")),
-    digestEnabled: v.boolean(), email: v.union(v.string(), v.null()), parents: v.array(parentValidator),
+    digestEnabled: v.boolean(), email: v.union(v.string(), v.null()), deliveryPaused: v.boolean(), parents: v.array(parentValidator),
     deliveryMode: v.union(v.literal("disabled"), v.literal("local"), v.literal("agentmail")),
     recentDeliveries: v.array(v.object({ id: v.id("notificationDeliveries"), kind: v.union(v.literal("reminder"), v.literal("digest")), to: v.string(), status: v.string(), scheduledAt: v.number(), timezone: v.string(), acceptedAt: v.union(v.number(), v.null()), error: v.union(v.string(), v.null()), canRetry: v.boolean() })),
   }),
   handler: async (ctx, { familyId }) => {
     const { family, member, email } = await ownMembership(ctx, familyId);
+    const config = notificationDeliveryConfig();
+    const paused = (to: string | null | undefined) => !config || !to || !notificationRecipientAllowed(config, to);
     const parents = member.role === "admin" ? await ctx.db.query("parents").withIndex("by_family", (q) => q.eq("familyId", familyId)).take(20) : [];
     const deliveries = member.role === "admin"
       ? await ctx.db.query("notificationDeliveries").withIndex("by_familyId_and_scheduledAt", (q) => q.eq("familyId", familyId)).order("desc").take(10)
       : await ctx.db.query("notificationDeliveries").withIndex("by_memberId_and_scheduledAt", (q) => q.eq("memberId", member._id)).order("desc").take(10);
     return {
-      timezone: family.timezone ?? null, role: member.role, digestEnabled: member.digestEnabled ?? false, email,
-      deliveryMode: notificationDeliveryConfig()?.mode ?? ("disabled" as const),
-      parents: parents.map((parent) => ({ id: parent._id, name: parent.name, emails: parent.emails, reminderEmail: parent.reminderEmail ?? null, consentAt: parent.reminderConsentAt ?? null })),
-      recentDeliveries: deliveries.filter((d) => d.familyId === familyId).map((d) => ({ id: d._id, kind: d.kind, to: d.to, status: d.status, scheduledAt: d.scheduledAt, timezone: d.timezone, acceptedAt: d.acceptedAt ?? null, error: d.error ?? null, canRetry: d.status === "failed" && (d.kind === "reminder" ? member.role === "admin" : d.memberId === member._id) })),
+      timezone: family.timezone ?? null, role: member.role, digestEnabled: member.digestEnabled ?? false, email, deliveryPaused: paused(email),
+      deliveryMode: config?.mode ?? ("disabled" as const),
+      parents: parents.map((parent) => ({ id: parent._id, name: parent.name, emails: parent.emails, reminderEmail: parent.reminderEmail ?? null, consentAt: parent.reminderConsentAt ?? null, deliveryPaused: paused(parent.reminderEmail) })),
+      recentDeliveries: deliveries.filter((d) => d.familyId === familyId).map((d) => ({ id: d._id, kind: d.kind, to: d.to, status: notificationDisplayStatus(d), scheduledAt: d.scheduledAt, timezone: d.timezone, acceptedAt: d.acceptedAt ?? null, error: d.error ?? null, canRetry: d.status === "failed" && !paused(d.to) && (d.kind === "reminder" ? member.role === "admin" : d.memberId === member._id) })),
     };
   },
 });

@@ -12,6 +12,7 @@ beforeEach(() => {
   vi.stubEnv("CONVEX_SITE_URL", "http://127.0.0.1:3221");
   vi.stubEnv("AGENTMAIL_INBOX_ID", provider.inboxId);
   vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
+  vi.stubEnv("NOTIFICATION_EMAIL_ALLOWLIST", "parent@example.com");
   vi.stubGlobal("fetch", vi.fn());
 });
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
@@ -25,7 +26,7 @@ test("notification mail stays disabled even when setup mail is enabled", async (
   expect(notificationDeliveryConfig()).toBeNull();
 });
 
-test("agentmail configuration requires an explicit mode, inbox, and API key", () => {
+test("agentmail configuration requires an explicit mode, inbox, API key and recipient allowlist", () => {
   vi.stubEnv("NOTIFICATION_EMAIL_MODE", "agentmail");
   expect(notificationDeliveryConfig()).toEqual(provider);
   vi.stubEnv("AGENTMAIL_API_KEY", " ");
@@ -33,6 +34,28 @@ test("agentmail configuration requires an explicit mode, inbox, and API key", ()
   vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
   vi.stubEnv("AGENTMAIL_INBOX_ID", "");
   expect(notificationDeliveryConfig()).toBeNull();
+});
+
+test.each([undefined, "", "*", "parent@example.com,", "Parent <parent@example.com>", "parent@example.com\nBcc: other@example.com", "parent@example.com;other@example.com"])("invalid or absent real-mail allowlist %s disables all notification sends", async (allowlist) => {
+  vi.stubEnv("NOTIFICATION_EMAIL_MODE", "agentmail");
+  vi.stubEnv("NOTIFICATION_EMAIL_ALLOWLIST", allowlist);
+  expect(notificationDeliveryConfig()).toBeNull();
+  await expect(deliverNotification(message, key, provider)).rejects.toThrow("not configured");
+  expect(fetch).not.toHaveBeenCalled();
+});
+
+test("recipient allowlist matches normalized whole addresses and is checked again at transport", async () => {
+  vi.stubEnv("NOTIFICATION_EMAIL_MODE", "agentmail");
+  vi.stubEnv("NOTIFICATION_EMAIL_ALLOWLIST", " PARENT@EXAMPLE.COM , sibling@example.com ");
+  const claimedConfig = notificationDeliveryConfig()!;
+  const fetcher = vi.mocked(fetch).mockImplementation(async () => new Response(JSON.stringify({ message_id: "message-123", thread_id: "thread-123" })));
+  await deliverNotification(message, key, claimedConfig);
+  expect(fetcher).toHaveBeenCalledTimes(1);
+  fetcher.mockClear();
+  vi.stubEnv("NOTIFICATION_EMAIL_ALLOWLIST", "sibling@example.com");
+  await expect(deliverNotification(message, key, claimedConfig)).rejects.toThrow("paused for this recipient");
+  await expect(deliverNotification({ ...message, to: "Display <sibling@example.com>" }, key, claimedConfig)).rejects.toThrow("paused for this recipient");
+  expect(fetcher).not.toHaveBeenCalled();
 });
 
 test.each([
@@ -76,6 +99,7 @@ test.each(["", "contains spaces", "contains@symbol", "a".repeat(257)])("invalid 
 
 test("capture preserves exact payload and idempotency key on retry, and disallows redirects", async () => {
   vi.stubEnv("NOTIFICATION_EMAIL_MODE", "local");
+  vi.stubEnv("NOTIFICATION_EMAIL_ALLOWLIST", "");
   const fetcher = vi.mocked(fetch).mockImplementation(async () => new Response(JSON.stringify({ message_id: "capture-123" })));
   for (let attempt = 0; attempt < 2; attempt++) {
     expect(await deliverNotification(message, key, local)).toEqual({ status: "captured", messageId: "capture-123" });

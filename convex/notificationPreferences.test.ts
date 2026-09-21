@@ -179,6 +179,8 @@ test("failed delivery can issue a fresh token, old callbacks cannot overwrite it
 
 test("member activity retains its own failure when more than ten other deliveries exist", async () => {
   const { t, ids, admin, sibling, other } = await setup();
+  vi.stubEnv("NOTIFICATION_EMAIL_MODE", "agentmail"); vi.stubEnv("AGENTMAIL_INBOX_ID", "helper@example.test"); vi.stubEnv("AGENTMAIL_API_KEY", "test-key");
+  vi.stubEnv("NOTIFICATION_EMAIL_ALLOWLIST", "sibling@example.test");
   await t.run(async (ctx) => {
     const base = { familyId: ids.familyId, kind: "digest" as const, timezone: "America/Chicago", subject: "Private digest", text: "Do not expose this body", expiresAt: 99_999, attempts: 1 };
     await ctx.db.insert("notificationDeliveries", { ...base, memberId: ids.siblingMember, key: "own", to: "sibling@example.test", scheduledAt: 1, status: "failed", error: "Delivery failed" });
@@ -190,4 +192,38 @@ test("member activity retains its own failure when more than ten other deliverie
   expect(JSON.stringify(own)).not.toContain("Do not expose"); expect(JSON.stringify(own)).not.toContain("foreign@example.test");
   expect((await admin.query(api.notificationPreferences.settings, { familyId: ids.familyId })).recentDeliveries).toHaveLength(10);
   await expect(other.query(api.notificationPreferences.settings, { familyId: ids.familyId })).rejects.toThrow("unavailable");
+});
+
+test("settings project recipient pauses without hiding prior attempts or exposing other approved recipients", async () => {
+  const { t, ids, admin, sibling } = await setup();
+  vi.stubEnv("NOTIFICATION_EMAIL_MODE", "agentmail"); vi.stubEnv("AGENTMAIL_INBOX_ID", "helper@example.test"); vi.stubEnv("AGENTMAIL_API_KEY", "test-key");
+  vi.stubEnv("NOTIFICATION_EMAIL_ALLOWLIST", "admin@example.test,private-approved@example.test");
+  const rows = await t.run(async (ctx) => {
+    await ctx.db.patch("parents", ids.parentId, { reminderEmail: "parent@example.test", reminderConsentAt: 1 });
+    const rows = [];
+    for (const [status, attempts] of [["pending", 0], ["failed", 0], ["sending", 1], ["failed", 1], ["uncertain", 1], ["sent", 1], ["captured", 1]] as const) {
+      const id = await ctx.db.insert("notificationDeliveries", {
+        familyId: ids.familyId, memberId: ids.siblingMember, kind: "digest", key: `${status}-${attempts}`, to: "sibling@example.test",
+        timezone: "America/Chicago", subject: "Private digest", text: "Private body", scheduledAt: 1, expiresAt: 99_999,
+        status, attempts, ...(attempts ? { firstAttemptAt: 1 } : {}), ...(["sent", "captured"].includes(status) ? { acceptedAt: 2 } : {}),
+      });
+      rows.push({ id, status, attempts });
+    }
+    return rows;
+  });
+  const args = { familyId: ids.familyId };
+  const own = await sibling.query(api.notificationPreferences.settings, args);
+  expect(own).toMatchObject({ deliveryMode: "agentmail", deliveryPaused: true });
+  expect(JSON.stringify(own)).not.toContain("private-approved@example.test");
+  for (const row of rows) {
+    expect(own.recentDeliveries.find((d) => d.id === row.id)).toMatchObject({ status: row.attempts ? row.status : "disabled", canRetry: false });
+    expect((await t.run((ctx) => ctx.db.get("notificationDeliveries", row.id)))?.status).toBe(row.status);
+  }
+  expect(own.recentDeliveries.filter((d) => d.acceptedAt === 2)).toHaveLength(2);
+  expect(await admin.query(api.notificationPreferences.settings, args)).toMatchObject({ deliveryPaused: false, parents: [{ deliveryPaused: true }] });
+  vi.stubEnv("NOTIFICATION_EMAIL_ALLOWLIST", "sibling@example.test,parent@example.test");
+  const allowed = await sibling.query(api.notificationPreferences.settings, args);
+  expect(allowed.deliveryPaused).toBe(false);
+  for (const row of rows) expect(allowed.recentDeliveries.find((d) => d.id === row.id)).toMatchObject({ status: row.status, canRetry: row.status === "failed" });
+  expect((await admin.query(api.notificationPreferences.settings, args)).parents[0].deliveryPaused).toBe(false);
 });

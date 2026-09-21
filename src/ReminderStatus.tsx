@@ -15,7 +15,7 @@ export function notificationStatusText(state: ReminderState): string {
     case "failed": return "Send failed. No confirmed delivery.";
     case "uncertain": return "Delivery is uncertain. Automatic retries stopped to avoid duplicates.";
     case "cancelled": return "Cancelled because the date, recipient, or eligibility changed.";
-    case "disabled": return "Email delivery is paused for this deployment.";
+    case "disabled": return "Email delivery is paused for this recipient.";
     case "consent_required": return "Off until the parent agrees to reminder emails.";
     case "recipient_unavailable": return "The reminder address is no longer confirmed.";
     case "missing_deadline": return "No due date found; no reminder scheduled.";

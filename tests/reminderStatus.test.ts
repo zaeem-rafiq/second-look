@@ -12,4 +12,6 @@ test("rendered reminder copy distinguishes scheduling, capture, provider accepta
   expect(notificationStatusText({ status: "consent_required" })).toContain("parent agrees");
   expect(notificationStatusText({ status: "invalid_deadline" })).toContain("ambiguous or invalid");
   expect(notificationStatusText({ status: "pending", deliveryStatus: "cancelled" })).toContain("Cancelled");
+  const paused = renderToStaticMarkup(createElement(ReminderStatus, { reminder: { status: "pending", deliveryStatus: "disabled", scheduledAt: Date.parse("2026-09-21T14:00:00Z") } }));
+  expect(paused).toContain("Email delivery is paused for this recipient"); expect(paused).not.toContain("Scheduled for");
 });
