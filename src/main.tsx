@@ -1,13 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { ConvexReactClient } from "convex/react";
+import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { App } from "./App";
 import "./styles.css";
 
 const url = import.meta.env.VITE_CONVEX_URL as string | undefined;
+const client = url ? new ConvexReactClient(url) : null;
 
 function Root() {
-  if (!url) {
+  if (!client) {
     return (
       <main className="setup">
         <h1>Second Look</h1>
@@ -15,11 +17,10 @@ function Root() {
       </main>
     );
   }
-  const client = new ConvexReactClient(url);
   return (
-    <ConvexProvider client={client}>
+    <ConvexAuthProvider client={client}>
       <App />
-    </ConvexProvider>
+    </ConvexAuthProvider>
   );
 }
 

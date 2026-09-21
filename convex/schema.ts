@@ -1,5 +1,6 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { authTables } from "@convex-dev/auth/server";
 
 export const caseStatus = v.union(
   v.literal("received"),
@@ -77,20 +78,23 @@ export const extracted = v.object({
 });
 
 export default defineSchema({
+  ...authTables,
   families: defineTable({
     name: v.string(),
     createdBy: v.string(),
-    /** Stable slug used by the demo/judges family before auth ships. */
+    /** Navigation only; membership is always required. */
     slug: v.string(),
   }).index("by_slug", ["slug"]),
 
   members: defineTable({
     familyId: v.id("families"),
+    /** Stable Convex Auth users id; never an email or display name. */
     userId: v.string(),
     role: v.union(v.literal("admin"), v.literal("member")),
   })
     .index("by_family", ["familyId"])
-    .index("by_user", ["userId"]),
+    .index("by_user", ["userId"])
+    .index("by_familyId_and_userId", ["familyId", "userId"]),
 
   parents: defineTable({
     familyId: v.id("families"),

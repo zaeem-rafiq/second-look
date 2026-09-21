@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation, useQuery, useConvexAuth } from "convex/react";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { demoBoard } from "./demo";
 import type { FunctionReturnType } from "convex/server";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
 
-type Board = NonNullable<FunctionReturnType<typeof api.cases.listBoard>>;
+export type Board = NonNullable<FunctionReturnType<typeof api.cases.listBoard>>;
 type Case = Board["cases"][number];
 
 const STEPS: { key: Case["status"][]; label: (c: Case) => string }[] = [
@@ -68,15 +70,52 @@ function fmtDay(ms: number | null): string {
 }
 
 export function App() {
+  const { isLoading, isAuthenticated } = useConvexAuth();
+  const { signOut } = useAuthActions();
   const params = new URLSearchParams(window.location.search);
-  const familySlug = params.get("family") ?? "demo";
+  if (params.get("demo") === "1") return <BoardView board={demoBoard} readOnly />;
+  if (isLoading) return <main className="shell"><p className="muted">Checking your sign-in…</p></main>;
+  if (!isAuthenticated) return <SignIn />;
+  return <><nav className="shell account-bar"><span>Private family board</span><button className="secondary" onClick={() => void signOut()}>Sign out</button></nav><FamilyBoard familySlug={params.get("family") ?? "demo"} /></>;
+}
+
+function SignIn() {
+  const { signIn } = useAuthActions();
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  return <main className="shell sign-in">
+    <p className="eyebrow">Second Look</p><h1>Your family's second look</h1>
+    <p className="muted">Sign in with the account set up for your family. Your family's messages and notes are private.</p>
+    <form className="sign-in-form" onSubmit={async (event) => {
+      event.preventDefault();
+      const data = new FormData(event.currentTarget);
+      data.set("flow", "signIn");
+      setBusy(true); setError("");
+      try { await signIn("password", data); }
+      catch { setError("Could not sign in. Check your email and password, then try again."); }
+      finally { setBusy(false); }
+    }}>
+      <label>Email<input name="email" type="email" autoComplete="username" required /></label>
+      <label>Password<input name="password" type="password" autoComplete="current-password" maxLength={256} required /></label>
+      {error && <p className="error" role="alert">{error}</p>}
+      <button disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
+    </form>
+    <p className="muted small">Need access or a password reset? Contact the person who set up your family's account.</p>
+    <a href="?demo=1">View the synthetic demo</a>
+  </main>;
+}
+
+function FamilyBoard({ familySlug }: { familySlug: string }) {
   const board = useQuery(api.cases.listBoard, { familySlug });
-
   if (board === undefined) return <main className="shell"><p className="muted">Loading the board…</p></main>;
-  if (board === null) return <main className="shell"><h1>Second Look</h1><p className="muted">No family called “{familySlug}” yet.</p></main>;
+  if (board === null) return <main className="shell"><h1>Board unavailable</h1><p className="muted">This account does not have access to that family board.</p><a href="?demo=1">View the synthetic demo</a></main>;
+  return <BoardView board={board} />;
+}
 
+function BoardView({ board, readOnly = false }: { board: Board; readOnly?: boolean }) {
   return (
     <main className="shell">
+      {readOnly && <p className="demo-notice">Synthetic demo · Fictional messages, names, and addresses. <a href="?">Sign in to your family board</a></p>}
       <header className="masthead">
         <div>
           <p className="eyebrow">Second Look</p>
@@ -101,7 +140,7 @@ export function App() {
       ) : (
         <section className="cards">
           {board.cases.map((c) => (
-            <CaseCard key={c._id} c={c} />
+            <CaseCard key={c._id} c={c} readOnly={readOnly} />
           ))}
         </section>
       )}
@@ -109,11 +148,12 @@ export function App() {
   );
 }
 
-function CaseCard({ c }: { c: Case }) {
+function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
   const markHandled = useMutation(api.cases.markHandled);
   const addNote = useMutation(api.cases.addNote);
   const [note, setNote] = useState("");
-  const [who, setWho] = useState(() => localStorage.getItem("secondlook.name") ?? "");
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
   const [open, setOpen] = useState(c.verdict === "mismatch");
   // A card that arrives live gets its verdict after first render; open the evidence when it turns into a mismatch.
   useEffect(() => {
@@ -125,12 +165,6 @@ function CaseCard({ c }: { c: Case }) {
   const failed = c.status === "failed";
   const mismatches = c.evidence.filter((e) => e.applicable && !e.matched);
   const matches = c.evidence.filter((e) => e.applicable && e.matched);
-
-  const name = () => {
-    const n = who.trim() || "A family member";
-    localStorage.setItem("secondlook.name", n);
-    return n;
-  };
 
   return (
     <article className={`card ${c.verdict ? `card-${c.verdict}` : ""} ${c.handledAt ? "card-handled" : ""}`}>
@@ -231,26 +265,33 @@ function CaseCard({ c }: { c: Case }) {
             <strong>{n.by}</strong> {n.text} <span className="muted small">{fmtDate(n.at)}</span>
           </p>
         ))}
-        <form
+        {!readOnly && <form
           className="actions"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            if (!note.trim()) return;
-            void addNote({ caseId: c._id as Id<"cases">, by: name(), text: note });
-            setNote("");
+            if (!note.trim() || saving) return;
+            setSaving(true); setError("");
+            try { await addNote({ caseId: c._id as Id<"cases">, text: note }); setNote(""); }
+            catch { setError("Could not save your note. Your text is still here; try again."); }
+            finally { setSaving(false); }
           }}
         >
-          <input value={who} onChange={(e) => setWho(e.target.value)} placeholder="Your name" aria-label="Your name" className="who" />
-          <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add a note for the family" aria-label="Note" />
-          <button type="submit">Add note</button>
+          <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add a note for the family" aria-label="Note" maxLength={500} disabled={saving} />
+          <button type="submit" disabled={saving || !note.trim()}>Add note</button>
           {c.handledAt ? (
             <span className="handled">Handled by {c.handledBy}</span>
           ) : (
-            <button type="button" className="secondary" onClick={() => void markHandled({ caseId: c._id as Id<"cases">, by: name() })}>
+            <button type="button" className="secondary" disabled={saving} onClick={async () => {
+              setSaving(true); setError("");
+              try { await markHandled({ caseId: c._id as Id<"cases"> }); }
+              catch { setError("Could not mark this case handled. Try again."); }
+              finally { setSaving(false); }
+            }}>
               Mark handled
             </button>
           )}
-        </form>
+        </form>}
+        {error && <p role="alert" className="error">{error}</p>}
       </footer>
     </article>
   );

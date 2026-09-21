@@ -6,7 +6,10 @@ import { verifySvixSignature } from "../lib/svix";
 import { rateLimiter } from "./rateLimits";
 import type { MessageReceivedEvent } from "./clients/agentmail";
 
+import { auth } from "./auth";
+
 const http = httpRouter();
+auth.addHttpRoutes(http);
 
 /**
  * AgentMail -> Convex. Verifies the Svix signature over the raw body, rate limits,

@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { caseStatus, extracted as extractedValidator } from "./schema";
+import { familyMember, requireCaseMember } from "./model/auth";
 
 export const setStatus = internalMutation({
   args: { caseId: v.id("cases"), status: caseStatus },
@@ -85,7 +86,7 @@ export const getForPipeline = internalQuery({
   },
 });
 
-// ---- Board (public). Authorization is by family slug until Convex Auth lands on Day 2. ----
+// ---- Private board: slugs select a family; authenticated membership grants access. ----
 
 const evidenceOut = v.object({
   check: v.string(),
@@ -101,8 +102,10 @@ const evidenceOut = v.object({
 export const listBoard = query({
   args: { familySlug: v.string() },
   handler: async (ctx, args) => {
+    if (!await ctx.auth.getUserIdentity()) return null;
     const family = await ctx.db.query("families").withIndex("by_slug", (q) => q.eq("slug", args.familySlug)).unique();
-    if (!family) return null;
+    const viewer = family ? await familyMember(ctx, family._id) : null;
+    if (!family || !viewer) return null;
     const parents = await ctx.db.query("parents").withIndex("by_family", (q) => q.eq("familyId", family._id)).collect();
     const cases = await ctx.db
       .query("cases")
@@ -146,6 +149,7 @@ export const listBoard = query({
       });
     }
     return {
+      viewer: { name: viewer.name, role: viewer.role },
       family: { name: family.name, slug: family.slug },
       parents: parents.map((p) => ({ name: p.name, emails: p.emails })),
       helperAddress: process.env.AGENTMAIL_INBOX_ID ?? null,
@@ -155,25 +159,23 @@ export const listBoard = query({
 });
 
 export const markHandled = mutation({
-  args: { caseId: v.id("cases"), by: v.string() },
+  args: { caseId: v.id("cases") },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const c = await ctx.db.get("cases", args.caseId);
-    if (!c) throw new Error("case not found");
-    await ctx.db.patch("cases", args.caseId, { handledBy: args.by.slice(0, 80), handledAt: Date.now() });
+    const { member } = await requireCaseMember(ctx, args.caseId);
+    await ctx.db.patch("cases", args.caseId, { handledBy: member.name, handledAt: Date.now() });
     return null;
   },
 });
 
 export const addNote = mutation({
-  args: { caseId: v.id("cases"), by: v.string(), text: v.string() },
+  args: { caseId: v.id("cases"), text: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const c = await ctx.db.get("cases", args.caseId);
-    if (!c) throw new Error("case not found");
+    const { c, member } = await requireCaseMember(ctx, args.caseId);
     const text = args.text.trim().slice(0, 500);
     if (!text) return null;
-    await ctx.db.patch("cases", args.caseId, { notes: [...c.notes, { by: args.by.slice(0, 80), text, at: Date.now() }] });
+    await ctx.db.patch("cases", args.caseId, { notes: [...c.notes, { by: member.name, text, at: Date.now() }] });
     return null;
   },
 });
