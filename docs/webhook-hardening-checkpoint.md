@@ -2,7 +2,7 @@
 
 ## Objective and scope
 
-Validate signed AgentMail deliveries before storage and remove redundant raw blobs on replay. Local implementation, isolated tests, review and commits are authorized. Main, HAC-73's release candidate, cloud configuration and historical cloud files remain untouched.
+Validate signed AgentMail deliveries before storage and remove redundant raw blobs on replay. The initial authorization covered local implementation, isolated tests, review and commits. The owner subsequently approved integration and dev deployment; the execution record below supersedes the initial local-only handoff. Cloud configuration and historical cloud files remain unchanged.
 
 Base: `7a1c9a288d8527dbcfc2d44ebf8f519f1dec0917`.
 
@@ -26,7 +26,7 @@ Recovery: discard neither existing work nor historical files; any correction sta
 
 ## Status
 
-Complete locally, reviewed and verified. Not merged into main or deployed. HAC-73 remains independently owned; its checkpoint is being edited by that task and was not touched here.
+Deployed and verified within the approved scope. Exact application/main commit at deployment: `2180f98b5aac0efc853f26681ebf77fe46bad01e`. This integrates reviewed implementation `48930fb` with main's final HAC-73 checkpoint; the merge adds documentation only to the tested application source. Subsequent checkpoint commits do not alter deployed code.
 
 Base verification in the integration worktree: `npm test` exited 0 (453 tests, 34 files), `npm run typecheck` exited 0, and `npm run build` exited 0. The build used no deployment environment and proves compilation only.
 
@@ -48,4 +48,41 @@ Tests use registered workflow/rate-limiter components in convex-test with captur
 
 A crash or failed/abandoned ingest after raw storage creation can still leave an unreferenced blob. No unsafe HTTP catch deletion or historical cleanup was added; reference-aware recovery is a separate concern.
 
-Main and HAC-73 release worktree HEAD both remained `7a1c9a288d8527dbcfc2d44ebf8f519f1dec0917` after verification. This branch is the tested integration handoff; including it in a future release requires a separately selected and verified deployment candidate.
+At the original local handoff, main and the HAC-73 release worktree remained `7a1c9a288d8527dbcfc2d44ebf8f519f1dec0917`. The later approved release is recorded below.
+
+## Approved deployment and live verification
+
+The owner replied “Approved” to deploying HAC-79 and HAC-80 together after integrating current main, followed by focused valid/malformed webhook and replay checks. The selected candidate was `2180f98b5aac0efc853f26681ebf77fe46bad01e`; clean local main was fast-forwarded to it. No additional application changes were introduced. Target: existing personal dev `friendly-retriever-712`, app https://friendly-retriever-712.convex.site, backend https://friendly-retriever-712.convex.cloud. Existing auth, registry, provider settings, families and credentials were preserved. No schema migration, frontend upload, notification activation, historical blob cleanup or new email was performed.
+
+Runtime evidence: `/private/tmp/agh-webhook-release/`. This protected directory contains a private cloud export; do not publish it wholesale. `release-manifest.json` links the exact candidate, checks, deployment and live evidence.
+
+| Command | Observed result on the exact candidate |
+| --- | --- |
+| `npm test` | exit 0; 512/512 tests, 36 files |
+| `npm run typecheck` | exit 0 |
+| `VITE_CONVEX_URL=https://friendly-retriever-712.convex.cloud STATIC_HOSTING_BASE_PATH=/ npm run build` | exit 0; HTML, JS and CSS byte-identical to HAC-73 |
+| `env -u OPENAI_API_KEY -u FIRECRAWL_API_KEY -u TYPESAFE_API_KEY -u AGENTMAIL_API_KEY EVAL_VERSION=v2 EVAL_SPLIT=all EVAL_ONLINE=0 PAYMENT_GATE_MODE=off EVAL_OUTPUT=/private/tmp/agh-webhook-release/offline-v2.json node --import tsx evals/run.ts` | exit 0; 90/90 labels, all eight failure categories zero; publicationReady=false |
+| `git diff --check` | exit 0 |
+| `node node_modules/convex/bin/main.js export --include-file-storage --path /private/tmp/agh-webhook-release/pre-hardening-cloud.zip --env-file /Users/zaeemkhan/Documents/agh/.env.local --deployment-name friendly-retriever-712` | exit 0; ZIP integrity PASS |
+| `node node_modules/convex/bin/main.js dev --once --env-file /Users/zaeemkhan/Documents/agh/.env.local --tail-logs disable` | exit 0; 2026-09-21T18:27:57.932Z–18:28:02.634Z |
+| `HAC73_VERIFY_FAMILY_SLUG=family-m97a320y4s4edezswcm2xwrxn98etvvz HAC73_VERIFY_FAMILY_ID=jh70edpekmzahh48gn23eztx9h8et8db node /private/tmp/agh-webhook-release/verify-release.mjs` | exit 0; exact hosted hashes, health, public auth issuer/JWKS, function contracts and denied anonymous private access |
+| `HAC7980_CONFIRMED_COMMIT=2180f98b5aac0efc853f26681ebf77fe46bad01e node /private/tmp/agh-webhook-release/judge-webhook-acceptance.mjs` | exit 0; fresh browser assertions and visual review PASS |
+| `node /private/tmp/agh-webhook-release/verify-webhooks.mjs execute-approved` | exit 0; all 23 bounded requests and storage/record/inbox assertions PASS |
+| `node /private/tmp/agh-webhook-release/preflight.mjs` | exit 0; final mode/allowlist/test-clock/local-transport configuration absent |
+| `node /private/tmp/agh-webhook-release/review-backend-logs.mjs` | exit 0; 615 post-deployment entries, four expected negative-test refusals, zero warnings/unexplained errors; stream stopped after 10 seconds as planned |
+
+Backend push identity: `hw2af7reggmnt18rdv5zmazf3n8evdeg`, 2026-09-21T18:28:02.587Z. The audit event is paired with the captured command, source checks and commit; it is not independently a Git source hash. Retained frontend upload: `185c91bf-48fc-4b0d-8f74-b74271cd9154`. Hosted HTML SHA256 `e40e49faa2d29284696bba0737967065a946fbb7d8cdcd0cc56c8ad9e5f34879`, JS `7fd1388659caa85aeb08ae88bb1309c06342fc9e202cb638a837ce1a5d2b7cca`, CSS `9518fd1dd0bc573eb3adf133fe28f6d0a811b090f375b6444ee06d3160cefa12` all match the exact-candidate build.
+
+Live webhook checks ran 18:29:44–18:30:30UTC. Eight signed malformed payloads returned 400 with no storage/inbound/case/workflow changes. Unsigned returned 401; unsupported event and wrong inbox returned 204. Text, HTML-only, body-omitted and null-optional payloads from the existing controlled, unregistered `hac73-admin@agentmail.to` each retained one unrouted row and one byte-identical raw blob. Three concurrent first deliveries, sequential replays and two concurrent exact replays of the prior controlled routed event all passed. Four new synthetic unrouted rows/blobs remain intentionally as evidence; no historical files were deleted.
+
+Storage changed 19→23 and inbound records 12→16, exactly the four unique synthetic events. Case and workflow counts both stayed 11; notification rows stayed 3. Existing routed case `j57f1mxd4ny6rbng9t1s0w36jn8etgzx`, canonical blob `kg26vp77ycawx7sqcmrx5dkp7h8ev1dt`, raw bytes, workflow, provider reply identity and attempt state were unchanged. Complete bounded helper/parent inbox listings before and after were identical: zero new messages. This verifies deployed concurrent/replay behavior, not exhaustive transaction interleavings or a fresh real-email extraction/reply run. The HAC-73 actual receipt record remains separately attributed to `7a1c9a2`.
+
+Fresh desktop 1440×1080 and mobile 390×844 sessions passed all three synthetic outcomes, keyboard controls, Alex/Sam live collaboration, repeated-run identity, reset/rerun/cooldown, visitor isolation, denied private access and invalid-consent handling. Eight screenshots were visually inspected; no clipping or horizontal overflow. No unexpected page, request, HTTP or console errors. Public samples remained unsent and notification-ineligible. Provider network telemetry was NOT_MEASURED; no provider-send helper was used.
+
+Final readback at 18:30:46UTC confirmed recurring notification email still disabled, with existing helper, auth site, setup-mail mode and payment-gate mode preserved. No notification consent, membership or schedule was changed by this patch release. The four expected backend errors correlate with the deliberate anonymous-access, reset-cooldown and invalid-consent checks.
+
+Recovery export: 125 ZIP entries, 193558 bytes, SHA256 `d47ad9d26617c81bce2857cef714d7b36ecf4115598324bfb6e5ed3421dc08d3`; integrity PASS. Full cloud restore rehearsal: NOT RUN. Keep notifications disabled and retain compatible data, canonical raw blobs and idempotency records. The prior verified application source is `7a1c9a2`; no rollback was needed. Any recovery deployment should identify its exact candidate; never restore an old snapshot over newer records or delete historical files without a separate scoped decision. The known store-before-ingest crash window, HTML-only deadline false negatives, and offline-evaluation limits remain unchanged.
+
+The current video/documentation application baseline is `2180f98b5aac0efc853f26681ebf77fe46bad01e`. No repository push/publication, video recording, social post or hackathon submission occurred. Evidence references: `local-check-summary.json`, `local-check-results.json`, `deployment.json`, `backend-push-observation.json`, `release-evidence.json`, `live-webhook-evidence.json`, `judge-webhook-acceptance/evidence.json`, `judge-visual-review.json`, `backend-log-review.json`, `preflight.json`, `backup-evidence.json`.
+
+Independent final artifact review passed: all 23 expected responses, all 19 historical blob metadata records retained, four new raw hashes matching signed payloads, canonical routed identities unchanged, and unchanged controlled helper/parent inbox IDs. Linear release evidence comments: HAC-79 `20693fff-0a99-474f-94f9-c05ba2a67135`, HAC-80 `7f0ff568-11b9-4242-8d7e-e5f23a2c62b6`, HAC-73 `e844b265-901d-41bf-bf69-2a43771a2f5f`.
