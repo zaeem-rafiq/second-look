@@ -7,6 +7,7 @@ import { composeReply, explanationReasons, formatPhoneForHumans, templateReply, 
 import { REPLY_MODEL, openaiClient, openaiConfigured } from "./clients/openai";
 import { parseFromHeader, sendMessage, type MessageReceivedEvent } from "./clients/agentmail";
 import { buildReplyEnvelope } from "../lib/replyEnvelope";
+import { SOURCE_REVIEW_ERROR } from "./model/registry";
 
 function humanDate(iso: string | null): string | null {
   if (!iso) return null;
@@ -24,9 +25,10 @@ export const sendReply = internalAction({
   args: { caseId: v.id("cases"), inboxId: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const { case: c, family, parent, org, evidence } = await ctx.runQuery(internal.cases.getForPipeline, { caseId: args.caseId });
+    const { case: c, family, parent, org, evidence, sourceReviewRequired } = await ctx.runQuery(internal.cases.getForPipeline, { caseId: args.caseId });
     if (!c.verdict) throw new Error("case has no verdict");
     if (c.replyMessageId && c.replyMessageId !== "dry-run:not-sent") return null;
+    if (sourceReviewRequired) throw new Error(SOURCE_REVIEW_ERROR);
 
     const facts: ReplyFacts = {
       verdict: c.verdict,

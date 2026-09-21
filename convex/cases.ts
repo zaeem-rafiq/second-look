@@ -4,6 +4,7 @@ import { caseStatus, extracted as extractedValidator } from "./schema";
 import { familyMember, requireCaseMember } from "./model/auth";
 import { internal } from "./_generated/api";
 import type { Doc } from "./_generated/dataModel";
+import { isReviewedOrg, sourceReviewRequired, SOURCE_REVIEW_ERROR } from "./model/registry";
 
 function hasSentReply(c: { replyMessageId?: string }): boolean {
   return !!c.replyMessageId && c.replyMessageId !== "dry-run:not-sent";
@@ -47,7 +48,14 @@ export const setOrg = internalMutation({
   args: { caseId: v.id("cases"), orgId: v.union(v.id("officialOrgs"), v.null()) },
   returns: v.null(),
   handler: async (ctx, args) => {
+    const c = await ctx.db.get("cases", args.caseId);
+    if (!c) throw new Error("case not found");
+    const previous = c.orgId ? await ctx.db.get("officialOrgs", c.orgId) : null;
+    if (sourceReviewRequired(c, previous) && (c.replyDraft || c.replyText || hasSentReply(c))) {
+      throw new Error(SOURCE_REVIEW_ERROR);
+    }
     const org = args.orgId ? await ctx.db.get("officialOrgs", args.orgId) : null;
+    if (args.orgId && !isReviewedOrg(org)) throw new Error("organization source is not reviewed");
     await ctx.db.patch("cases", args.caseId, {
       orgId: args.orgId ?? undefined,
       orgName: org?.name,
@@ -179,9 +187,14 @@ export const getForPipeline = internalQuery({
     if (!c) throw new Error("case not found");
     const family = await ctx.db.get("families", c.familyId);
     const parent = await ctx.db.get("parents", c.parentId);
-    const org = c.orgId ? await ctx.db.get("officialOrgs", c.orgId) : null;
+    const storedOrg = c.orgId ? await ctx.db.get("officialOrgs", c.orgId) : null;
+    const org = isReviewedOrg(storedOrg) ? storedOrg : null;
+    const needsReview = sourceReviewRequired(c, storedOrg);
     const evidence = await ctx.db.query("evidence").withIndex("by_case", (q) => q.eq("caseId", args.caseId)).collect();
-    return { case: c, family, parent, org, evidence };
+    return {
+      case: needsReview ? { ...c, orgName: undefined, orgCrawledAt: null, verdict: "cannot_verify" as const } : c,
+      family, parent, org, evidence: needsReview ? [] : evidence, sourceReviewRequired: needsReview,
+    };
   },
 });
 
@@ -213,17 +226,20 @@ export const listBoard = query({
       .take(50);
     const out = [];
     for (const c of cases) {
+      const org = c.orgId ? await ctx.db.get("officialOrgs", c.orgId) : null;
+      const needsReview = sourceReviewRequired(c, org);
       const evidence = await ctx.db.query("evidence").withIndex("by_case", (q) => q.eq("caseId", c._id)).collect();
       out.push({
         _id: c._id,
         status: c.replyMessageId === "dry-run:not-sent" && c.status === "replied" ? "replying" as const : c.status,
-        verdict: c.verdict ?? null,
+        verdict: needsReview ? "cannot_verify" as const : c.verdict ?? null,
+        sourceReviewRequired: needsReview,
         summary: c.summary ?? null,
         subject: c.subject,
         forwardFormat: c.forwardFormat,
         originalSender: c.originalSender,
-        orgName: c.orgName ?? null,
-        orgCrawledAt: c.orgCrawledAt ?? null,
+        orgName: needsReview ? null : c.orgName ?? null,
+        orgCrawledAt: needsReview ? null : c.orgCrawledAt ?? null,
         deadlineAt: c.deadlineAt ?? null,
         receivedAt: c.receivedAt,
         replySentAt: hasSentReply(c) ? c.replySentAt ?? null : null,
@@ -237,7 +253,7 @@ export const listBoard = query({
         extracted: c.extracted
           ? { urls: c.extracted.urls, phones: c.extracted.phones, actionRequested: c.extracted.actionRequested, deadline: c.extracted.deadline }
           : null,
-        evidence: evidence.map((e) => ({
+        evidence: (needsReview ? [] : evidence).map((e) => ({
           check: e.check,
           applicable: e.applicable,
           matched: e.matched,

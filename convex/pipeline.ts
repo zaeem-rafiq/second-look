@@ -6,6 +6,7 @@ import { runChecks } from "../lib/checks";
 import { decideVerdict } from "../lib/verdict";
 import type { OfficialOrg } from "../lib/types";
 import type { Doc } from "./_generated/dataModel";
+import { isReviewedOrg, sourceReviewRequired, SOURCE_REVIEW_ERROR } from "./model/registry";
 
 export const workflow = new WorkflowManager(components.workflow, {
   workpoolOptions: {
@@ -72,9 +73,12 @@ export const checkAndDecide = internalMutation({
     if (!c) throw new Error("case not found");
     if (!c.extracted) throw new Error("case has no extraction");
     const orgDoc = c.orgId ? await ctx.db.get("officialOrgs", c.orgId) : null;
+    if (sourceReviewRequired(c, orgDoc) && (c.replyDraft || c.replyText || c.replyMessageId)) {
+      throw new Error(SOURCE_REVIEW_ERROR);
+    }
     const fallbackDoc = await ctx.db.query("officialOrgs").withIndex("by_key", (q) => q.eq("key", "federal-trade-commission")).unique();
-    const org = orgDoc ? toOfficialOrg(orgDoc) : null;
-    const fallback = fallbackDoc ? toOfficialOrg(fallbackDoc) : null;
+    const org = isReviewedOrg(orgDoc) ? toOfficialOrg(orgDoc) : null;
+    const fallback = isReviewedOrg(fallbackDoc) ? toOfficialOrg(fallbackDoc) : null;
 
     const results = runChecks(c.extracted, org, fallback);
     const verdict = decideVerdict({ orgResolved: org !== null, results });

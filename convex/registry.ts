@@ -12,6 +12,7 @@ import type { Doc } from "./_generated/dataModel";
 import type { OfficialOrg } from "../lib/types";
 import { normalizeQuoteText } from "../lib/quotes";
 import type { Id } from "./_generated/dataModel";
+import { isReviewedOrg } from "./model/registry";
 
 
 export const listAliases = internalQuery({
@@ -19,7 +20,7 @@ export const listAliases = internalQuery({
   returns: v.array(v.object({ name: v.string(), aliases: v.array(v.string()) })),
   handler: async (ctx) => {
     const orgs = await ctx.db.query("officialOrgs").take(500);
-    return orgs.map((o) => ({ name: o.name, aliases: o.aliases }));
+    return orgs.filter(isReviewedOrg).map((o) => ({ name: o.name, aliases: o.aliases }));
   },
 });
 
@@ -65,13 +66,16 @@ export const upsertCrawled = internalMutation({
     policyQuotes: v.array(policyQuote),
     sourceUrls: v.array(v.string()),
     contactEmail: v.union(v.string(), v.null()),
-    familyId: v.optional(v.id("families")),
+    familyId: v.id("families"),
   },
   returns: v.id("officialOrgs"),
   handler: async (ctx, args) => {
+    if (!await ctx.db.get("families", args.familyId)) throw new Error("family not found");
     const existing = await ctx.db.query("officialOrgs").withIndex("by_key", (q) => q.eq("key", args.key)).unique();
     const now = Date.now();
     if (existing) {
+      if (isReviewedOrg(existing)) throw new Error("cannot overwrite a reviewed organization with a search candidate");
+      if (existing.familyId !== args.familyId) throw new Error("search candidate belongs to another family");
       await ctx.db.patch("officialOrgs", existing._id, { ...args, lastCrawledAt: now });
       return existing._id;
     }
@@ -80,8 +84,8 @@ export const upsertCrawled = internalMutation({
 });
 
 /**
- * Remove a registry entry that the unknown-organization web lookup created, and detach cases from it.
- * Refuses to touch hand-verified seed entries.
+ * Remove an unused search candidate. Referenced historical entries must be reviewed first,
+ * so deleting them cannot hide the provenance of an existing verdict or saved reply.
  */
 export const removeWebLookupOrg = internalMutation({
   args: { key: v.string() },
@@ -90,16 +94,13 @@ export const removeWebLookupOrg = internalMutation({
     const org = await ctx.db.query("officialOrgs").withIndex("by_key", (q) => q.eq("key", args.key)).unique();
     if (!org) return { removed: false, casesDetached: 0 };
     if (org.seededBy !== "firecrawl") throw new Error(`refusing to remove ${args.key}: not created by the web lookup`);
-    let casesDetached = 0;
-    const scope = org.familyId ? ctx.db.query("cases").withIndex("by_family", (q) => q.eq("familyId", org.familyId!)) : ctx.db.query("cases");
-    for await (const c of scope) {
+    for await (const c of ctx.db.query("cases")) {
       if (c.orgId === org._id) {
-        await ctx.db.patch("cases", c._id, { orgId: undefined });
-        casesDetached += 1;
+        throw new Error("referenced search candidate requires source review before removal");
       }
     }
     await ctx.db.delete("officialOrgs", org._id);
-    return { removed: true, casesDetached };
+    return { removed: true, casesDetached: 0 };
   },
 });
 
@@ -139,7 +140,7 @@ export const resolveForCase = internalAction({
     const { case: c } = await ctx.runQuery(internal.cases.getForPipeline, { caseId: args.caseId });
     if (!c.extracted) throw new Error("case has no extraction");
     const docs: Doc<"officialOrgs">[] = await ctx.runQuery(internal.registry.listAll, {});
-    const orgs = docs.map(toOfficialOrg);
+    const orgs = docs.filter(isReviewedOrg).map(toOfficialOrg);
     const found = findOrg(orgs, {
       claimedOrganization: c.extracted.claimedOrganization,
       senderAddress: c.extracted.originalSender.address,
@@ -164,7 +165,7 @@ export const resolveForCase = internalAction({
 
     try {
       const hits = await search(`${claim} official website contact us`, { limit: 3 });
-      // The site's own domain must match the claimed name; page text alone is not enough.
+      // Lexical similarity only selects a candidate for inspection; it does not prove identity.
       const candidate = pickOfficialCandidate(claim, hits);
       if (!candidate) {
         await ctx.runMutation(internal.cases.setOrg, { caseId: args.caseId, orgId: null });
@@ -178,8 +179,8 @@ export const resolveForCase = internalAction({
         await ctx.runMutation(internal.cases.setOrg, { caseId: args.caseId, orgId: null });
         return null;
       }
-      const orgId: Id<"officialOrgs"> = await ctx.runMutation(internal.registry.upsertCrawled, {
-        key: orgKey(claim),
+      await ctx.runMutation(internal.registry.upsertCrawled, {
+        key: `candidate-${c.familyId}-${orgKey(claim)}`,
         name: claim,
         aliases: [claim],
         domains: [domain],
@@ -189,8 +190,8 @@ export const resolveForCase = internalAction({
         contactEmail: null,
         familyId: c.familyId,
       });
-      await ctx.runMutation(internal.cases.setOrg, { caseId: args.caseId, orgId });
-      return orgId;
+      await ctx.runMutation(internal.cases.setOrg, { caseId: args.caseId, orgId: null });
+      return null;
     } catch (err) {
       console.error("firecrawl resolve failed; leaving org unknown", String(err));
       await ctx.runMutation(internal.cases.setOrg, { caseId: args.caseId, orgId: null });
@@ -217,7 +218,7 @@ export const refreshAll = internalAction({
     const docs: Doc<"officialOrgs">[] = await ctx.runQuery(internal.registry.listAll, {});
     let crawled = 0;
     let skipped = 0;
-    for (const org of docs) {
+    for (const org of docs.filter(isReviewedOrg)) {
       const pages = new Map<string, string>();
       for (const url of new Set([...org.sourceUrls, ...org.policyQuotes.map((q) => q.sourceUrl)])) {
         try {
