@@ -1,0 +1,267 @@
+{
+  "version": "v2",
+  "reviewer": "independent agent /root/hac67_auth",
+  "baseCommit": "ab4578e404d40ba04dce1abe0d36a7c7ddf1930a",
+  "reviewedAt": "2026-09-21T12:23:39.808Z",
+  "decision": "approve",
+  "reviewInputSha256": "878aa6bcfde12d67d055651bb8450045c12f9be93493a6b42195cbc11419ddec",
+  "sourceCorpusHash": "6b89f1edefd7e6d39eed90146d70261ddd4de6bce7acf436f693a297525658cb",
+  "priorResultsExposed": true,
+  "notBlind": true,
+  "method": "Reviewed the two original scenarios and all six committed EML representations at the stated commit, then checked current official pages and their exceptions. Prior v1 results had already been exposed; this is an independent reassessment, not a blind holdout. No v2 evaluation or model/provider call was performed before this decision. All other 28 labels are retained from the original independent review.",
+  "evidenceContract": "mismatch requires an applicable, cited, source-supported contradiction; warning signs and missing context alone do not establish it. cannot_verify does not mean legitimate or safe. Synthetic scenario category is separate from the evidence verdict.",
+  "decisions": [
+    {
+      "scenarioId": "medicare-suspension",
+      "oldExpected": "mismatch",
+      "newExpected": "cannot_verify",
+      "decision": "approve",
+      "formats": [
+        "gmail",
+        "outlook",
+        "apple"
+      ],
+      "observedFacts": "The message claims suspended benefits after a billing error, threatens termination within 24 hours, and asks the recipient to call a displayed number or visit a displayed link and confirm a Medicare Number. None of the three formats establishes prior contact, consent, or a callback situation.",
+      "rationale": "Retain the synthetic scam category, but require an applicable documented contradiction for mismatch. Current Medicare guidance qualifies personal-information contact restrictions by invitation and prior permission, while the cited fraud page describes outbound calls with limited exceptions. This email asks the recipient to initiate a call or website visit. The quoted sender, unfamiliar link and phone, pressure, and information request warrant caution; a curated registry difference is not an exhaustive authentication or ownership finding. No reviewed policy supports a universal claim that Medicare benefits can never be suspended. Unknown invitation/contact history must not be converted to an asserted absence of permission. cannot_verify preserves that uncertainty and must retain a warning and an independently obtained contact route.",
+      "sourceUrls": [
+        "https://www.medicare.gov/basics/reporting-medicare-fraud-and-abuse",
+        "https://www.medicare.gov/basics/get-started-with-medicare/using-medicare/your-medicare-card"
+      ],
+      "sourceContext": [
+        {
+          "url": "https://www.medicare.gov/basics/reporting-medicare-fraud-and-abuse",
+          "excerpt": "will only call and ask for personal information in limited situations",
+          "scope": "Outbound calls, including specified return-contact examples; not a universal ban on all requests across channels."
+        },
+        {
+          "url": "https://www.medicare.gov/basics/get-started-with-medicare/using-medicare/your-medicare-card",
+          "excerpt": "unless you contacted them first and gave them permission to contact you",
+          "scope": "The no-sharing guidance covers phone, email and in-person contact but expressly preserves this condition. Cancellation-threat response guidance on the same page concerns calls."
+        }
+      ]
+    },
+    {
+      "scenarioId": "irs-refund",
+      "oldExpected": "mismatch",
+      "newExpected": "cannot_verify",
+      "decision": "approve",
+      "formats": [
+        "gmail",
+        "outlook",
+        "apple"
+      ],
+      "observedFacts": "The email says an IRS refund is ready, links to irs-rebate.example.net/claim, and asks the recipient to confirm an account number within 24 hours. It does not establish whether the recipient opted in, previously contacted IRS, has an ongoing case, or received any authenticated case context. These omissions are the same in all three formats.",
+      "rationale": "The pressure and financial-information request match official warning signs and justify strong caution. However, reading those broad warning bullets as a universal no-email/no-information policy would conflict with the same IRS guidance on opt-in contact and its specific secure-email exceptions for authenticated recurring case interactions. The phrase account number does not establish a particular banking-update workflow, and the fixture does not establish absent consent or first contact. Prior permission is neither presumed nor disproved. An unfamiliar quoted domain/link is not by itself a source-backed exhaustive identity finding. Under the strict evidence-verdict contract, cannot_verify is the conservative reviewed label; the synthetic scam category remains unchanged. This approval does not assert that no relevant official warning exists or that the message is legitimate, and is not based on limiting review to the currently stored quote set.",
+      "sourceUrls": [
+        "https://www.irs.gov/help/how-to-know-its-the-irs",
+        "https://www.irs.gov/privacy-disclosure/irs-privacy-guidance-about-email-contact",
+        "https://www.irs.gov/help/sending-and-receiving-emails-securely",
+        "https://www.irs.gov/refunds"
+      ],
+      "sourceContext": [
+        {
+          "url": "https://www.irs.gov/help/how-to-know-its-the-irs",
+          "excerpt": "We email only when you opt in.",
+          "scope": "The warning-sign list includes pressure and requests for personal or financial information; the full page also allows opt-in email and investigation-related email questions. Warning text was considered and is not silently omitted."
+        },
+        {
+          "url": "https://www.irs.gov/privacy-disclosure/irs-privacy-guidance-about-email-contact",
+          "excerpt": "In specific cases, secure email may be an option to communicate with us.",
+          "scope": "Distinguishes general opt-in account notifications from secure ongoing-case email. Advises against emailing sensitive data and points to secure IRS applications."
+        },
+        {
+          "url": "https://www.irs.gov/help/sending-and-receiving-emails-securely",
+          "excerpt": "You are interacting directly with an identified IRS employee",
+          "scope": "Through October 31, 2026, specified email exchanges must be person-to-person, authenticated and recurring, with consent and protected messages. This is an exception to broad warning language, not evidence that this fixture qualifies."
+        },
+        {
+          "url": "https://www.irs.gov/refunds",
+          "excerpt": "Refund email notifications NEW",
+          "scope": "Current refund guidance includes email notifications and account-based status access, so an IRS refund email alone is not a contradiction."
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "unchangedOtherLabels": 28,
+    "changedScenarios": 2,
+    "changedFormatLabels": 6,
+    "scenarioCount": 30,
+    "formatFixtureCount": 90,
+    "categories": {
+      "scam": 12,
+      "legit": 12,
+      "unverifiable": 6
+    },
+    "sourceCorpusAndAll90EmlUnchanged": true,
+    "legacyReviewMatchesOriginal30Labels": true,
+    "legacyExpectedLabelsSha256": "d27620d98a53a6d24f83f03228ea639cee73932981389be7d14f455c0d8b3bf6",
+    "legacyIndependentReviewSha256": "5f29c54259b38dd7456cdb94dc786a7917377746dc0d0c88cf063b12356d5d13",
+    "sixReviewedEmlSha256": {
+      "medicare-suspension-gmail": "81456725130211cb8cbf4a1f331e4b900ee0034f5aa8b360767bcf1fba3cfe13",
+      "medicare-suspension-outlook": "c055c2b3af595ab2bf2f0fc5963b6e9836117727390c15fdd2c15cd70aad2569",
+      "medicare-suspension-apple": "f700b864f742ab28c2138056f06cf007793bb5b4f397edd791e2edd5371c12c5",
+      "irs-refund-gmail": "56dcc367a7fae82a2d745a8959c0c3286455f61007cdca546765516140b9e52c",
+      "irs-refund-outlook": "7c7694bdff90251bd13cb0a99671bc4a635cb33a675859a8ffca55531f68f231",
+      "irs-refund-apple": "6285569a1ae57ade2c8f9fc553298935b4f44e58730e3a5491961249a60ae104"
+    }
+  },
+  "rows": [
+    {
+      "id": "medicare-suspension",
+      "expected": "cannot_verify",
+      "reviewReason": "Retain the synthetic scam category, but require an applicable documented contradiction for mismatch. Current Medicare guidance qualifies personal-information contact restrictions by invitation and prior permission, while the cited fraud page describes outbound calls with limited exceptions. This email asks the recipient to initiate a call or website visit. The quoted sender, unfamiliar link and phone, pressure, and information request warrant caution; a curated registry difference is not an exhaustive authentication or ownership finding. No reviewed policy supports a universal claim that Medicare benefits can never be suspended. Unknown invitation/contact history must not be converted to an asserted absence of permission. cannot_verify preserves that uncertainty and must retain a warning and an independently obtained contact route."
+    },
+    {
+      "id": "ssa-number-suspended",
+      "expected": "mismatch",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "tech-support-gift-cards",
+      "expected": "mismatch",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "amazon-order",
+      "expected": "matches_official",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "coned-bill",
+      "expected": "matches_official",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "friend-chain-letter",
+      "expected": "cannot_verify",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "empty-forward",
+      "expected": "cannot_verify",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "irs-refund",
+      "expected": "cannot_verify",
+      "reviewReason": "The pressure and financial-information request match official warning signs and justify strong caution. However, reading those broad warning bullets as a universal no-email/no-information policy would conflict with the same IRS guidance on opt-in contact and its specific secure-email exceptions for authenticated recurring case interactions. The phrase account number does not establish a particular banking-update workflow, and the fixture does not establish absent consent or first contact. Prior permission is neither presumed nor disproved. An unfamiliar quoted domain/link is not by itself a source-backed exhaustive identity finding. Under the strict evidence-verdict contract, cannot_verify is the conservative reviewed label; the synthetic scam category remains unchanged. This approval does not assert that no relevant official warning exists or that the message is legitimate, and is not based on limiting review to the currently stored quote set."
+    },
+    {
+      "id": "usps-redelivery-fee",
+      "expected": "mismatch",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "amazon-account-locked",
+      "expected": "mismatch",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "bank-unusual-login",
+      "expected": "mismatch",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "grandchild-in-jail",
+      "expected": "mismatch",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "utility-disconnect-today",
+      "expected": "mismatch",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "netflix-payment-failed",
+      "expected": "mismatch",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "lottery-prize",
+      "expected": "mismatch",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "fake-charity",
+      "expected": "mismatch",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "medicare-summary-notice",
+      "expected": "matches_official",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "bank-statement-ready",
+      "expected": "cannot_verify",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "pharmacy-refill",
+      "expected": "cannot_verify",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "appointment-reminder",
+      "expected": "cannot_verify",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "property-tax",
+      "expected": "cannot_verify",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "insurance-renewal",
+      "expected": "cannot_verify",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "church-newsletter",
+      "expected": "cannot_verify",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "ssa-cola-notice",
+      "expected": "matches_official",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "dmv-renewal",
+      "expected": "matches_official",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "jury-summons",
+      "expected": "cannot_verify",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "friend-email",
+      "expected": "cannot_verify",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "newsletter",
+      "expected": "cannot_verify",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "local-promo",
+      "expected": "cannot_verify",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    },
+    {
+      "id": "no-claim-greeting",
+      "expected": "cannot_verify",
+      "reviewReason": "Existing independently reviewed v1 label retained unchanged; this bounded review did not re-adjudicate the other 28 scenarios."
+    }
+  ],
+  "limitations": [
+    "No v2 run, implementation modification, source-policy mutation, cloud action, or email was performed in this review.",
+    "This decision does not authenticate either message or estimate real-world scam-detection performance.",
+    "Source pages can change; the URLs and short excerpts record the context reviewed on the review date.",
+    "Original corpus, labels, independent review and historical results must remain preserved under their original version."
+  ]
+}
