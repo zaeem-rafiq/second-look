@@ -3,6 +3,8 @@ import {
   deterministicExtract,
   heuristicClaimedOrganization,
   heuristicUrgency,
+  heuristicPaymentMethods,
+  heuristicPersonalInfoRequest,
   mergeExtraction,
   parseForwardedEmail,
 } from "../lib/extract";
@@ -297,11 +299,11 @@ To: <mom.demo@example.com>
     paymentMethods, requestsPersonalInfo: false, threatensPenalty: false, claimsSuspension: false, summary: "A store receipt.",
   });
 
-  it("keyword check alone flags the receipt (fallback when the AI is unavailable)", () => {
+  it("fallback does not turn a receipt or excluded methods into a payment request", () => {
     const parsed = parseForwardedEmail(receipt, "");
     const det = deterministicExtract(parsed, receipt, "", orgs);
-    expect(det.paymentMethods.sort()).toEqual(["crypto", "gift_card", "wire"]);
-    expect(mergeExtraction(det, null, normalizePhone).paymentMethods.sort()).toEqual(["crypto", "gift_card", "wire"]);
+    expect(det.paymentMethods).toEqual([]);
+    expect(mergeExtraction(det, null, normalizePhone).paymentMethods).toEqual([]);
   });
   it("an AI 'no' removes the keyword check's gift card, crypto and wire", () => {
     const parsed = parseForwardedEmail(receipt, "");
@@ -328,5 +330,21 @@ describe("forwarded sender evidence limits", () => {
     for (const claim of ["This didn't come from Medicare.", "Medicare sent this.", "This is genuine.", "This one checks out.", "The sender is verified."]) {
       expect(acceptableExplanation(claim), claim).toBeNull();
     }
+  });
+});
+
+describe("request-aware deterministic fallback", () => {
+  it("distinguishes affirmative requests from notices and payment warnings", () => {
+    for (const text of ["You received a gift card.", "We never accept Bitcoin or gift cards.", "Do not send gift cards.", "Your Social Security COLA notice is ready."]) {
+      expect(heuristicPaymentMethods(text), text).toEqual([]);
+      expect(heuristicPersonalInfoRequest(text), text).toBe(false);
+    }
+    expect(heuristicPaymentMethods("Buy gift cards and send us the codes.")).toEqual(["gift_card"]);
+    expect(heuristicPaymentMethods("Pay the balance with Bitcoin.")).toEqual(["crypto"]);
+    expect(heuristicPaymentMethods("Send the fee by Western Union.")).toEqual(["wire"]);
+    expect(heuristicPaymentMethods("Do not use cards, but pay using Bitcoin.")).toEqual(["crypto"]);
+    expect(heuristicPersonalInfoRequest("Confirm your Social Security number.")).toBe(true);
+    expect(heuristicPersonalInfoRequest("Reply with your password.")).toBe(true);
+    expect(heuristicPersonalInfoRequest("Do not send your password.")).toBe(false);
   });
 });

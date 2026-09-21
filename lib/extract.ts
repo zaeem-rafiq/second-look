@@ -43,7 +43,7 @@ const URGENCY_RE =
 const SUSPENSION_RE = /\b(suspend(?:ed|sion)?|locked|deactivat(?:ed|ion)|cancel(?:led|ed|lation)|on hold|restricted|disabled|terminated)\b/i;
 const THREAT_RE = /\b(arrest|warrant|legal action|lawsuit|prosecut|penalt(?:y|ies)|fine of|lose (?:your )?(?:benefits|coverage|access)|permanently (?:closed|lost)|law enforcement)\b/i;
 const PERSONAL_INFO_RE =
-  /\b(social security(?: number)?|ssn|medicare number|medicare id|account number|routing number|password|pin\b|date of birth|verify your (?:identity|account|information)|confirm your (?:identity|account|number|information|details)|card number|security code)\b/i;
+  /\b(social security number|ssn|medicare number|medicare id|account number|routing number|password|pin\b|date of birth|verify your (?:identity|account|information)|confirm your (?:identity|account|number|information|details)|card number|security code)\b/i;
 const GIFT_CARD_RE = /\b(gift ?cards?|itunes|google play|steam card|prepaid card|vanilla card)\b/i;
 const CRYPTO_RE = /\b(bitcoin|btc|ethereum|crypto(?:currency)?|coinbase|atm)\b/i;
 const WIRE_RE = /\b(wire transfer|western union|moneygram|zelle|venmo|cash ?app)\b/i;
@@ -61,12 +61,25 @@ export function heuristicUrgency(text: string): string[] {
   return out;
 }
 
+// ponytail: clause-level fallback, not semantic understanding; the configured model handles ambiguous language.
+function affirmativeClauses(text: string): string[] {
+  return text.split(/[.!?;\n]+|,?\s+but\s+/i).filter((clause) =>
+    !/\b(?:do(?:es)? not|don['’]t|doesn['’]t|never|not accepted|no payment)\b/i.test(clause));
+}
+
 export function heuristicPaymentMethods(text: string): PaymentMethod[] {
+  const requests = affirmativeClauses(text).filter((clause) =>
+    /\b(?:pay|send|buy|purchase|transfer|remit|renew|settle|donate)\b/i.test(clause));
   const out: PaymentMethod[] = [];
-  if (GIFT_CARD_RE.test(text)) out.push("gift_card");
-  if (CRYPTO_RE.test(text)) out.push("crypto");
-  if (WIRE_RE.test(text)) out.push("wire");
+  if (requests.some((clause) => GIFT_CARD_RE.test(clause))) out.push("gift_card");
+  if (requests.some((clause) => CRYPTO_RE.test(clause))) out.push("crypto");
+  if (requests.some((clause) => WIRE_RE.test(clause))) out.push("wire");
   return out;
+}
+
+export function heuristicPersonalInfoRequest(text: string): boolean {
+  return affirmativeClauses(text).some((clause) =>
+    /\b(?:provide|confirm|verify|enter|reply|respond|send|share|submit)\b/i.test(clause) && PERSONAL_INFO_RE.test(clause));
 }
 
 export function heuristicActionType(text: string, phones: string[], urls: string[]): ActionType {
@@ -126,7 +139,7 @@ export function deterministicExtract(
     dates: [],
     deadline: null,
     paymentMethods: heuristicPaymentMethods(searchable),
-    requestsPersonalInfo: PERSONAL_INFO_RE.test(searchable),
+    requestsPersonalInfo: heuristicPersonalInfoRequest(searchable),
     threatensPenalty: THREAT_RE.test(searchable),
     claimsSuspension: SUSPENSION_RE.test(searchable),
     summary: parsed.originalSubject ? `Message with subject "${parsed.originalSubject}".` : "Forwarded message.",
@@ -155,10 +168,7 @@ export function mergeExtraction(det: Extracted, llm: LlmExtraction | null, norma
     const u = raw.replace(/[*_`]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
     if (u && !urgency.includes(u)) urgency.push(u);
   }
-  // Payment methods: the AI's answer is final whenever the AI ran. The keyword check over-fires on
-  // receipts, "you received" notices, gifts and warnings (20 of 32 non-payment emails in the payment
-  // eval), and a gift card, crypto or wire answer forces a hard mismatch, so it is only a fallback
-  // for when the AI is unavailable (the early return above). Decision made 2026-09-17.
+  // The configured model supplies payment semantics; clause checks are only a fallback when unavailable.
   const payments = [...new Set(llm.paymentMethods)];
   return {
     claimedOrganization: det.claimedOrganization ?? llm.claimedOrganization,
