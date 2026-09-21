@@ -94,7 +94,6 @@ export function phoneMatches(extracted: Extracted, org: OfficialOrg): CheckResul
 /** Which policy tags the extracted email violates, derived only from structured fields. */
 export function violatedTags(extracted: Extracted): Set<PolicyTag> {
   const tags = new Set<PolicyTag>();
-  const pressured = extracted.urgencyPhrases.length > 0;
   if (extracted.threatensPenalty) tags.add("never_threatens");
   if (extracted.claimsSuspension) tags.add("never_suspends");
   if (extracted.requestsPersonalInfo && extracted.personalInfoRequestConfirmed !== false) tags.add("never_asks_personal_info");
@@ -105,16 +104,8 @@ export function violatedTags(extracted: Extracted): Set<PolicyTag> {
   }
   if (extracted.requestsPrizeFee) tags.add("never_requires_prize_fee");
   if (extracted.requestsRedeliveryFee) tags.add("never_requires_redelivery_fee");
-  if ((extracted.actionType === "pay" && extracted.paymentRequestConfirmed !== false) ||
-      (extracted.actionType === "reply_with_info" && extracted.personalInfoRequestConfirmed !== false)) {
-    tags.add("never_asks_payment_by_phone_or_email");
-  }
-  // never_calls_uninvited is intentionally not derived: an email asking the reader to call a number
-  // does not contradict a policy about the organization calling people. It needs an explicit
-  // "we called you" signal, which extraction does not produce yet.
-  if ((extracted.actionType === "click_link" || extracted.actionType === "reply_with_info") && pressured) {
-    tags.add("never_emails_uninvited");
-  }
+  // Consent, who initiated contact, and a requested payment's channel are not extracted.
+  // Keep legacy tags readable, but do not infer them from urgency, links, or an information reply.
   return tags;
 }
 
@@ -143,6 +134,13 @@ export function policyContradiction(extracted: Extracted, org: OfficialOrg): Che
     rows.push({
       check: "policy_contradiction", applicable: true, matched: false, severity: "soft",
       claimValue: "personal information is mentioned; a request could not be confirmed",
+      officialValue: "", sourceUrl: "", quote: "",
+    });
+  }
+  if (rows.length === 0 && (extracted.requestsPersonalInfo || extracted.threatensPenalty || extracted.claimsSuspension)) {
+    rows.push({
+      check: "policy_contradiction", applicable: true, matched: false, severity: "soft",
+      claimValue: "a sensitive-information request or adverse claim has no applicable policy evidence",
       officialValue: "", sourceUrl: "", quote: "",
     });
   }

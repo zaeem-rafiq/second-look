@@ -3,7 +3,7 @@ import type { OfficialOrg } from "./types";
 /**
  * Seed registry: the most-impersonated organizations plus a generic FTC entry used
  * for org-independent checks. Every quote was fetched from the cited page and
- * verified by exact substring on 2026-09-15; FTC/Chase and payment-method quotes were
+ * verified by exact substring on 2026-09-15; FTC/Chase/Amazon and payment-method quotes were
  * rechecked on 2026-09-21, along with USPS redelivery fees. The weekly Firecrawl cron re-verifies.
  * Phones are E.164. Curly apostrophes are preserved where the page uses them.
  */
@@ -29,7 +29,8 @@ export const SEED_ORGS: SeedOrg[] = [
         quote:
           "Medicare, or someone representing Medicare, will only call and ask for personal information in limited situations (like an agent or representative returning your call after you've joined a plan, reported fraud, or left a message for Medicare).",
         sourceUrl: "https://www.medicare.gov/basics/reporting-medicare-fraud-and-abuse",
-        tags: ["never_asks_personal_info"],
+        // The message does not establish who initiated a phone call or whether an exception applies.
+        tags: [],
       },
       {
         quote: "If you suspect fraud call 1-800-MEDICARE (1-800-633-4227) or Report Medicare Fraud online.",
@@ -55,15 +56,15 @@ export const SEED_ORGS: SeedOrg[] = [
       {
         quote: "Social Security will never ask for sensitive or personal information through social media, email, or text message.",
         sourceUrl: "https://www.ssa.gov/scam/",
-        tags: ["never_asks_personal_info", "never_emails_uninvited"],
+        tags: ["never_asks_personal_info"],
       },
       {
         quote:
           "Federal law enforcement will never send photographs of credentials or badges to demand any kind of payment, and neither will federal government employees.",
         sourceUrl: "https://www.ssa.gov/scam/",
-        tags: ["never_asks_payment_by_phone_or_email"],
+        tags: [], // A credentials/badge photograph is not an extracted fact.
       },
-      { quote: "Threaten arrest or legal action unless you immediately pay.", sourceUrl: "https://www.ssa.gov/scam/", tags: ["never_threatens"] },
+      { quote: "Threaten arrest or legal action unless you immediately pay.", sourceUrl: "https://www.ssa.gov/scam/", tags: [] },
     ],
     sourceUrls: ["https://www.ssa.gov/scam/", "https://www.ssa.gov/agency/contact/", "https://www.ssa.gov/agency/contact/phone.html"],
     lastCrawledAt: null,
@@ -79,12 +80,12 @@ export const SEED_ORGS: SeedOrg[] = [
       {
         quote: "We never call to demand payment now, threaten arrest or inform you of a refund.",
         sourceUrl: "https://www.irs.gov/help/report-fraud/report-fake-irs-treasury-or-tax-related-emails-and-messages",
-        tags: ["never_threatens", "never_calls_uninvited", "never_asks_payment_by_phone_or_email"],
+        tags: [], // The published policy concerns IRS-initiated calls, not email requests.
       },
       {
         quote: "We never email without your permission.",
         sourceUrl: "https://www.irs.gov/help/report-fraud/report-fake-irs-treasury-or-tax-related-emails-and-messages",
-        tags: ["never_emails_uninvited"],
+        tags: [], // Recipient permission is unknown.
       },
       { quote: "A social media direct message is never from us.", sourceUrl: "https://www.irs.gov/help/how-to-know-its-the-irs", tags: [] },
     ],
@@ -131,12 +132,18 @@ export const SEED_ORGS: SeedOrg[] = [
         quote:
           "We will never ask for your password, OTP, gift card details, bank card details or any other confidential information over the phone.",
         sourceUrl: "https://www.amazon.com/gp/help/customer/display.html?nodeId=T3rnIphp327SSKYl8e",
-        tags: ["never_asks_personal_info", "never_asks_gift_card"],
+        tags: [], // Phone-only guidance does not establish an email contradiction.
+      },
+      {
+        quote: "Amazon and AWS never request sensitive information over email.",
+        sourceUrl: "https://repost.aws/knowledge-center/amazon-spoofed-email",
+        tags: ["never_asks_personal_info"],
       },
     ],
     sourceUrls: [
       "https://www.amazon.com/gp/help/customer/display.html?nodeId=G4YFYCCNUSENA23B",
       "https://www.amazon.com/gp/help/customer/display.html?nodeId=T3rnIphp327SSKYl8e",
+      "https://repost.aws/knowledge-center/amazon-spoofed-email",
     ],
     lastCrawledAt: null,
   },
@@ -151,12 +158,12 @@ export const SEED_ORGS: SeedOrg[] = [
       {
         quote: "Microsoft will never ask that you pay for support in the form of cryptocurrency like Bitcoin, or gift cards.",
         sourceUrl: "https://support.microsoft.com/en-us/office/protect-yourself-from-tech-support-scams",
-        tags: ["never_asks_gift_card", "never_asks_crypto"],
+        tags: [], // The policy is for support payments; that purpose is not a structured signal.
       },
       {
         quote: "If you didn't ask us to, we won't call you to offer support.",
         sourceUrl: "https://support.microsoft.com/en-us/office/protect-yourself-from-tech-support-scams",
-        tags: ["never_calls_uninvited"],
+        tags: [],
       },
       {
         quote: "Microsoft error and warning messages never include phone numbers.",
@@ -175,8 +182,8 @@ export const SEED_ORGS: SeedOrg[] = [
     phones: ["+18002752273"],
     contactEmail: "reportphishing@apple.com",
     policyQuotes: [
-      { quote: "Apple never asks for this information to provide support.", sourceUrl: "https://support.apple.com/en-us/102568", tags: ["never_asks_personal_info"] },
-      { quote: "Never use Apple Gift Cards to make payments to other people.", sourceUrl: "https://support.apple.com/en-us/102568", tags: ["never_asks_gift_card"] },
+      { quote: "Apple never asks for this information to provide support.", sourceUrl: "https://support.apple.com/en-us/102568", tags: [] },
+      { quote: "Never use Apple Gift Cards to make payments to other people.", sourceUrl: "https://support.apple.com/en-us/102568", tags: [] },
     ],
     sourceUrls: ["https://support.apple.com/en-us/102568", "https://support.apple.com/en-us/106932"],
     lastCrawledAt: null,
@@ -192,12 +199,12 @@ export const SEED_ORGS: SeedOrg[] = [
       {
         quote: "We'll never ask you to share your personal information in a text or email.",
         sourceUrl: "https://help.netflix.com/en/node/65674",
-        tags: ["never_asks_personal_info", "never_emails_uninvited"],
+        tags: ["never_asks_personal_info"],
       },
       {
         quote: "We'll never ask for payment through a 3rd party vendor or website.",
         sourceUrl: "https://help.netflix.com/en/node/65674",
-        tags: ["never_asks_payment_by_phone_or_email"],
+        tags: [], // A third-party payment destination is not established by a personal-info reply.
       },
     ],
     sourceUrls: ["https://help.netflix.com/en/node/65674"],
@@ -254,7 +261,7 @@ export const SEED_ORGS: SeedOrg[] = [
         quote:
           "Neither Bank of America Corporation nor any of its affiliates will ever ask you for your Social Security number, account information, passwords or PINs via Facebook, Instagram or X.",
         sourceUrl: "https://www.bankofamerica.com/customer-service/contact-us/",
-        tags: ["never_asks_personal_info"],
+        tags: [], // This passage only covers social-media channels.
       },
     ],
     sourceUrls: ["https://www.bankofamerica.com/customer-service/contact-us/", "https://web.bankofamerica.com/en/security"],
@@ -272,7 +279,7 @@ export const SEED_ORGS: SeedOrg[] = [
         quote:
           "Wells Fargo employees will not initiate contact with you and ask you for your password or sensitive information like your Social Security Number.",
         sourceUrl: "https://www.wellsfargo.com/privacy-security/fraud/bank-scams/bank-imposter/",
-        tags: ["never_asks_personal_info"],
+        tags: [], // Who initiated the contact is unknown.
       },
       {
         quote: "Legitimate organizations like Wells Fargo will never rush you or prevent you from ending a call.",
@@ -294,12 +301,12 @@ export const SEED_ORGS: SeedOrg[] = [
       {
         quote: "Like most companies, we generally don’t make unsolicited calls to customers.",
         sourceUrl: "https://www.bestbuy.com/site/privacy-policy/protect-yourself/pcmcat266100050002.c?id=pcmcat266100050002",
-        tags: ["never_calls_uninvited"],
+        tags: [],
       },
       {
         quote: "Most legitimate companies, including Best Buy, will never request personal information in this manner.",
         sourceUrl: "https://www.bestbuy.com/site/privacy-policy/protect-yourself/pcmcat266100050002.c?id=pcmcat266100050002",
-        tags: ["never_asks_personal_info"],
+        tags: [], // The referenced manner of contact is not established by extraction.
       },
     ],
     sourceUrls: ["https://www.bestbuy.com/site/privacy-policy/protect-yourself/pcmcat266100050002.c?id=pcmcat266100050002"],
@@ -313,12 +320,12 @@ export const SEED_ORGS: SeedOrg[] = [
     phones: [],
     contactEmail: null,
     policyQuotes: [
-      { quote: "The DMV will never ask for personal or financial information by text.", sourceUrl: "https://www.dmv.ca.gov/portal/dmv-scam-alert/", tags: ["never_asks_personal_info"] },
-      { quote: "The DMV does not send text messages with links to make payments.", sourceUrl: "https://www.dmv.ca.gov/portal/dmv-scam-alert/", tags: ["never_asks_payment_by_phone_or_email"] },
+      { quote: "The DMV will never ask for personal or financial information by text.", sourceUrl: "https://www.dmv.ca.gov/portal/dmv-scam-alert/", tags: [] },
+      { quote: "The DMV does not send text messages with links to make payments.", sourceUrl: "https://www.dmv.ca.gov/portal/dmv-scam-alert/", tags: [] },
       {
         quote: "DMV will never send a text like this, threatening you to make payments within days or risk suspension.",
         sourceUrl: "https://dmv.ny.gov/news/dmv-warns-new-yorkers-about-latest-barrage-of-scam-texts",
-        tags: ["never_threatens", "never_suspends"],
+        tags: [], // These DMV warnings concern text messages, not the recovered email.
       },
     ],
     sourceUrls: ["https://www.dmv.ca.gov/portal/dmv-scam-alert/", "https://dmv.ny.gov/more-info/phishing-attacks"],

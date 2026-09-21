@@ -8,7 +8,7 @@ import type { OfficialOrg } from "../lib/types";
 const org: OfficialOrg = {
   name: "Medicare", aliases: [], domains: ["medicare.gov"], phones: [], contactEmail: null,
   sourceUrls: ["https://www.medicare.gov"], lastCrawledAt: null,
-  policyQuotes: [{ quote: "Synthetic policy for this test.", sourceUrl: "https://www.medicare.gov", tags: ["never_asks_personal_info", "never_asks_gift_card", "never_asks_payment_by_phone_or_email"] }],
+  policyQuotes: [{ quote: "Synthetic policy for this test.", sourceUrl: "https://www.medicare.gov", tags: ["never_asks_personal_info", "never_asks_gift_card", "never_asks_crypto", "never_asks_wire"] }],
 };
 function extract(body: string) {
   const forward = `---------- Forwarded message ---------\nFrom: Medicare <notice@medicare.gov>\nSubject: Information\nTo: parent@example.com\n\n${body}`;
@@ -63,7 +63,7 @@ test("a successful model payment answer resolves fallback uncertainty", () => {
 });
 
 test("an unrelated excluded method cannot weaken a confirmed request or become requested evidence", () => {
-  const body = "Buy gift cards and send the codes.";
+  const body = "Buy gift cards and send the codes to pay your invoice.";
   expect(verdict(extract(body))).toBe("mismatch");
   for (const warning of ["We never accept Bitcoin.", "Do not send money by Western Union.", "Bitcoin and Zelle are not accepted."]) {
     const result = extract(`${body} ${warning}`);

@@ -71,6 +71,11 @@ const PAYMENT_METHOD_PATTERNS: [PaymentMethod, RegExp][] = [
   ["gift_card", GIFT_CARD_RE], ["crypto", CRYPTO_RE], ["wire", WIRE_RE],
 ];
 const PAYMENT_REQUEST_RE = /(?:^|[:,])\s*(?:please\s+)?(?:pay|send|buy|purchase|transfer|remit|renew|settle|donate)\b(?!\s+of\b)|\bpayment\s+(?:(?:is|must be)\s+)?(?:required|due|in|by|using)\b/i;
+const GIFT_PAYMENT_REQUEST_RE = /(?:^|[:,])\s*(?:please\s+)?(?:pay|transfer|remit|renew|settle|donate)\b|\bpayment\s+(?:(?:is|must be)\s+)?(?:required|due|in|by|using)\b/i;
+const GIFT_PAYMENT_INSTRUMENT_RE = new RegExp(String.raw`\b(?:by|with|using|in)\s+(?:(?:a|the|your)\s+)?(?:${GIFT_CARD_RE.source})`, "i");
+const CARD_PURCHASE_REQUEST_RE = /(?:^|[:,])\s*(?:please\s+)?(?:buy|purchase)\b(?!\s+of\b)/i;
+const CARD_CODES_REQUEST_RE = /(?:^|[:,])\s*(?:please\s+)?(?:(?:reply|respond)\s+with|(?:send|email|text|give)\s+(?:(?:us|me)\s+)?)(?:\s*(?:the|your|card|gift))*(?:\s+)?(?:codes?|numbers?|pins?)\b/i;
+const CARD_PAYMENT_PURPOSE_RE = /\b(?:codes?|numbers?|pins?)\s+(?:(?:as|for)\s+(?:(?:a|the|your)\s+)?(?:payment|donation|fees?|bail|bills?|invoices?)\b|to\s+(?:pay|settle)\b|so\b[^.!?;]*\b(?:pay|bail|donate)\b)/i;
 
 /** Broad mentions are retained even when a payment request cannot be confirmed. */
 export function heuristicPaymentMethods(text: string): PaymentMethod[] {
@@ -80,8 +85,16 @@ export function heuristicPaymentMethods(text: string): PaymentMethod[] {
 
 function requestedPaymentMethods(text: string): PaymentMethod[] {
   const clauses = requestClauses(text);
-  return PAYMENT_METHOD_PATTERNS.filter(([, pattern]) =>
-    clauses.some((clause) => pattern.test(clause) && PAYMENT_REQUEST_RE.test(clause)))
+  // Buying a card and forwarding its codes can be a gift. Confirm only a linked
+  // payment purpose in the code-transfer clause; unrelated sentences do not supply context.
+  const asksForCardCodes = text.replace(/\s+/g, " ").split(/[!?;]|\.(?:\s|$)/).some((sentence) => {
+    const parts = requestClauses(sentence);
+    return parts.some((part) => GIFT_CARD_RE.test(part) && (CARD_PURCHASE_REQUEST_RE.test(part) || CARD_CODES_REQUEST_RE.test(part))) &&
+      parts.some((part) => CARD_CODES_REQUEST_RE.test(part) && CARD_PAYMENT_PURPOSE_RE.test(part));
+  });
+  return PAYMENT_METHOD_PATTERNS.filter(([method, pattern]) =>
+    clauses.some((clause) => pattern.test(clause) &&
+      (method === "gift_card" ? (GIFT_PAYMENT_REQUEST_RE.test(clause) && GIFT_PAYMENT_INSTRUMENT_RE.test(clause)) || asksForCardCodes : PAYMENT_REQUEST_RE.test(clause))))
     .map(([method]) => method);
 }
 

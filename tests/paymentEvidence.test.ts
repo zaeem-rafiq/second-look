@@ -82,10 +82,10 @@ describe("payment method evidence stays specific to the cited policy", () => {
     expect(row).toMatchObject({ severity: "hard", claimValue: method, quote: coned.policyQuotes[0].quote });
   });
 
-  it("uses Microsoft's crypto restriction without extending it to wire transfers", () => {
+  it("keeps Microsoft's support-only payment restriction unconfirmed without an extracted purpose", () => {
     const det = { ...extract("Pay for support."), paymentRequestConfirmed: true };
     expect(paymentByGiftCardOrCrypto({ ...det, paymentMethods: ["crypto"] }, microsoft, fallback))
-      .toMatchObject({ severity: "hard", quote: microsoft.policyQuotes[0].quote });
+      .toMatchObject({ severity: "soft", quote: "" });
     expect(paymentByGiftCardOrCrypto({ ...det, paymentMethods: ["wire"] }, microsoft, fallback))
       .toMatchObject({ severity: "soft", quote: "" });
   });

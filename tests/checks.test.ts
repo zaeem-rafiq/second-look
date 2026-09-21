@@ -209,11 +209,12 @@ describe("reviewer fixes 2026-09-17", () => {
     const tags = violatedTags({ ...base, requestsPersonalInfo: false, claimsSuspension: false, threatensPenalty: false });
     expect(tags.has("never_calls_uninvited")).toBe(false);
   });
-  it("the seeded Medicare quotes only cite contradictions the email can actually make, verbatim and complete", async () => {
+  it("retains the complete Medicare call exception without treating it as an email prohibition", async () => {
     const { SEED_ORGS } = await import("../lib/registrySeed");
     const m = SEED_ORGS.find((o) => o.key === "medicare")!;
-    const personal = m.policyQuotes.find((q) => q.tags.includes("never_asks_personal_info"))!;
+    const personal = m.policyQuotes.find((q) => q.quote.startsWith("Medicare, or someone representing Medicare,"))!;
     expect(personal.quote.endsWith("left a message for Medicare).")).toBe(true);
+    expect(personal.tags).toEqual([]);
     expect(m.policyQuotes.find((q) => q.quote.startsWith("Remember that Medicare will never call you"))!.tags).toEqual([]);
     expect(m.phones).not.toContain("+18777723379");
   });
