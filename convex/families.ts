@@ -55,7 +55,7 @@ async function verifiedUser(ctx: QueryCtx) {
   return { userId: user._id, email: emailAddress(user.email) };
 }
 
-async function requireAdmin(ctx: QueryCtx, familyId: Id<"families">) {
+export async function requireAdmin(ctx: QueryCtx, familyId: Id<"families">) {
   const member = await familyMember(ctx, familyId);
   const family = member?.role === "admin" ? await ctx.db.get("families", familyId) : null;
   if (!member || !family) throw new ConvexError("Family administration is unavailable.");
@@ -151,13 +151,13 @@ export const saveParent = mutation({
   },
 });
 
-async function tokenHash(token: string) {
+export async function tokenHash(token: string) {
   if (!/^[a-f0-9]{64}$/.test(token)) throw new ConvexError("This link is invalid. Ask the family administrator for a new one.");
   const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token));
   return Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-function newToken() {
+export function newToken() {
   return Array.from(crypto.getRandomValues(new Uint8Array(32)), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
@@ -268,7 +268,7 @@ export const readLink = internalQuery({
     const family = await ctx.db.get("families", link.familyId);
     const parent = link.parentId ? await ctx.db.get("parents", link.parentId) : null;
     if (!family || (args.kind === "parent_email" && !parent)) throw new ConvexError("This link is no longer available.");
-    return { kind: link.kind, email: link.email, familyName: family.name, parentName: parent?.name ?? null, expiresAt: link.expiresAt };
+    return { kind: args.kind, email: link.email, familyName: family.name, parentName: parent?.name ?? null, expiresAt: link.expiresAt };
   },
 });
 

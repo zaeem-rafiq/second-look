@@ -6,6 +6,8 @@ import { internal } from "./_generated/api";
 import type { Doc } from "./_generated/dataModel";
 import { isReviewedOrg, sourceReviewRequired, SOURCE_REVIEW_ERROR } from "./model/registry";
 
+import { reconcileReminder, reminderBoard } from "./model/notifications";
+
 function hasSentReply(c: { replyMessageId?: string }): boolean {
   return !!c.replyMessageId && c.replyMessageId !== "dry-run:not-sent";
 }
@@ -39,7 +41,9 @@ export const setExtracted = internalMutation({
       forwardFormat: args.forwardFormat,
       originalSender: args.extracted.originalSender,
       summary: args.extracted.summary,
+      verdict: undefined, deadlineAt: undefined,
     });
+    await reconcileReminder(ctx, args.caseId);
     return null;
   },
 });
@@ -60,7 +64,9 @@ export const setOrg = internalMutation({
       orgId: args.orgId ?? undefined,
       orgName: org?.name,
       orgCrawledAt: org?.lastCrawledAt ?? null,
+      ...(c.orgId !== args.orgId ? { verdict: undefined } : {}),
     });
+    await reconcileReminder(ctx, args.caseId);
     return null;
   },
 });
@@ -240,7 +246,8 @@ export const listBoard = query({
         originalSender: c.originalSender,
         orgName: needsReview ? null : c.orgName ?? null,
         orgCrawledAt: needsReview ? null : c.orgCrawledAt ?? null,
-        deadlineAt: c.deadlineAt ?? null,
+        deadlineAt: c.extracted?.deadlineAmbiguous === false ? c.deadlineAt ?? null : null,
+        ...await reminderBoard(ctx, c, family, needsReview),
         receivedAt: c.receivedAt,
         replySentAt: hasSentReply(c) ? c.replySentAt ?? null : null,
         replyText: c.replyDraft ?? c.replyText ?? null,
@@ -267,7 +274,7 @@ export const listBoard = query({
     }
     return {
       viewer: { name: viewer.name, role: viewer.role },
-      family: { name: family.name, slug: family.slug },
+      family: { name: family.name, slug: family.slug, ...({ familyId: family._id, timezone: family.timezone ?? null } as { familyId?: typeof family._id; timezone?: string | null }) },
       parents: parents.map((p) => ({ name: p.name, emails: p.emails })),
       helperAddress: process.env.AGENTMAIL_INBOX_ID ?? null,
       cases: out,
@@ -281,6 +288,7 @@ export const markHandled = mutation({
   handler: async (ctx, args) => {
     const { member } = await requireCaseMember(ctx, args.caseId);
     await ctx.db.patch("cases", args.caseId, { handledBy: member.name, handledAt: Date.now() });
+    await reconcileReminder(ctx, args.caseId);
     return null;
   },
 });

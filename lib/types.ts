@@ -25,6 +25,8 @@ export type Extracted = {
   dates: string[];
   /** ISO 8601 date (YYYY-MM-DD) when a deadline is stated, else null. */
   deadline: string | null;
+  /** Code found deadline wording without one unambiguous, explicitly year-bearing source date. */
+  deadlineAmbiguous?: boolean;
   paymentMethods: PaymentMethod[];
   /** false means fallback mentions only; absent preserves existing stored extraction behavior. */
   paymentRequestConfirmed?: boolean;

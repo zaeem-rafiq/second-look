@@ -67,6 +67,7 @@ export const extracted = v.object({
   moneyAmounts: v.array(v.string()),
   dates: v.array(v.string()),
   deadline: v.union(v.string(), v.null()),
+  deadlineAmbiguous: v.optional(v.boolean()),
   paymentMethods: v.array(
     v.union(
       v.literal("gift_card"),
@@ -94,13 +95,16 @@ export default defineSchema({
     createdBy: v.string(),
     /** Navigation only; membership is always required. */
     slug: v.string(),
-  }).index("by_slug", ["slug"]).index("by_createdBy", ["createdBy"]),
+    timezone: v.optional(v.string()),
+    digestNextAt: v.optional(v.number()),
+  }).index("by_slug", ["slug"]).index("by_createdBy", ["createdBy"]).index("by_digestNextAt", ["digestNextAt"]),
 
   members: defineTable({
     familyId: v.id("families"),
     /** Stable Convex Auth users id; never an email or display name. */
     userId: v.string(),
     role: v.union(v.literal("admin"), v.literal("member")),
+    digestEnabled: v.optional(v.boolean()),
   })
     .index("by_family", ["familyId"])
     .index("by_user", ["userId"])
@@ -111,12 +115,14 @@ export default defineSchema({
     requestId: v.optional(v.string()),
     name: v.string(),
     emails: v.array(v.string()),
+    reminderEmail: v.optional(v.string()),
+    reminderConsentAt: v.optional(v.number()),
     knownInstitutions: v.array(v.object({ name: v.string(), website: v.string() })),
   }).index("by_family", ["familyId"]).index("by_familyId_and_requestId", ["familyId", "requestId"]),
 
   /** Mailbox consent and identity-bound invites. Bearer tokens only leave via email. */
   setupLinks: defineTable({
-    kind: v.union(v.literal("parent_email"), v.literal("invitation")),
+    kind: v.union(v.literal("parent_email"), v.literal("invitation"), v.literal("reminder")),
     familyId: v.id("families"),
     parentId: v.optional(v.id("parents")),
     email: v.string(),
@@ -183,6 +189,7 @@ export default defineSchema({
     orgName: v.optional(v.string()),
     orgCrawledAt: v.optional(v.union(v.number(), v.null())),
     deadlineAt: v.optional(v.number()),
+    reminder: v.optional(v.object({ status: v.string(), scheduledAt: v.optional(v.number()), deliveryId: v.optional(v.id("notificationDeliveries")) })),
     receivedAt: v.number(),
     replySentAt: v.optional(v.number()),
     replyText: v.optional(v.string()),
@@ -210,6 +217,7 @@ export default defineSchema({
     notes: v.array(v.object({ by: v.string(), text: v.string(), at: v.number() })),
   })
     .index("by_family", ["familyId", "receivedAt"])
+    .index("by_parentId_and_receivedAt", ["parentId", "receivedAt"])
     .index("by_message", ["agentmailMessageId"]),
 
   evidence: defineTable({
@@ -236,6 +244,37 @@ export default defineSchema({
   digests: defineTable({
     familyId: v.id("families"),
     weekOf: v.string(),
-    sentAt: v.number(),
-  }).index("by_family", ["familyId"]),
+    sentAt: v.optional(v.number()),
+    scheduledAt: v.optional(v.number()),
+    timezone: v.optional(v.string()),
+    text: v.optional(v.string()),
+  }).index("by_family", ["familyId"]).index("by_familyId_and_weekOf", ["familyId", "weekOf"]),
+
+  notificationDeliveries: defineTable({
+    familyId: v.id("families"),
+    kind: v.union(v.literal("reminder"), v.literal("digest")),
+    caseId: v.optional(v.id("cases")),
+    parentId: v.optional(v.id("parents")),
+    memberId: v.optional(v.id("members")),
+    digestId: v.optional(v.id("digests")),
+    key: v.string(),
+    deadline: v.optional(v.string()),
+    timezone: v.string(),
+    to: v.string(),
+    subject: v.string(),
+    text: v.string(),
+    scheduledAt: v.number(),
+    expiresAt: v.number(),
+    status: v.union(v.literal("pending"), v.literal("sending"), v.literal("sent"), v.literal("captured"), v.literal("failed"), v.literal("cancelled"), v.literal("uncertain")),
+    error: v.optional(v.string()),
+    scheduleId: v.optional(v.id("_scheduled_functions")),
+    attemptId: v.optional(v.string()),
+    attemptAt: v.optional(v.number()),
+    firstAttemptAt: v.optional(v.number()),
+    attempts: v.number(),
+    providerMode: v.optional(v.union(v.literal("agentmail"), v.literal("local"))),
+    providerInbox: v.optional(v.string()),
+    messageId: v.optional(v.string()),
+    acceptedAt: v.optional(v.number()),
+  }).index("by_key", ["key"]).index("by_familyId_and_scheduledAt", ["familyId", "scheduledAt"]).index("by_status_and_scheduledAt", ["status", "scheduledAt"]).index("by_memberId_and_scheduledAt", ["memberId", "scheduledAt"]),
 });

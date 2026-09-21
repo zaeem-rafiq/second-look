@@ -3,6 +3,7 @@ import { extractPhones } from "./phones";
 import { extractUrls } from "./urls";
 import { htmlToText, parseForwardedEmail } from "./forwardParser";
 import { paymentMethodsDescription } from "./paymentDefinitions";
+import { sourceDeadline } from "./deadline";
 import type { ActionType, Extracted, OfficialOrg, ParsedForward, PaymentMethod } from "./types";
 
 /** Zod schema for the model's structured extraction (strict: every field required, nullable not optional). */
@@ -178,7 +179,7 @@ export function deterministicExtract(
     urgencyPhrases: heuristicUrgency(searchable),
     moneyAmounts: Array.from(searchable.matchAll(/\$\s?\d[\d,]*(?:\.\d{2})?/g)).map((m) => m[0]),
     dates: [],
-    deadline: null,
+    ...sourceDeadline(parsed.originalBody),
     paymentMethods: requestedMethods.length > 0 ? requestedMethods : heuristicPaymentMethods(searchable),
     paymentRequestConfirmed: requestedMethods.length > 0,
     requestsPrizeFee: requestsFee(requestText, PRIZE_FEE_REQUEST),
@@ -193,7 +194,7 @@ export function deterministicExtract(
 
 /**
  * Merge the model's extraction into the deterministic one. Deterministic facts
- * win for identity (sender, URLs, phones); the model adds semantics and fills gaps.
+ * win for identity (sender, URLs, phones) and source deadlines; the model adds other semantics.
  * Boolean signals are OR-ed so a signal either side saw is kept.
  */
 export function mergeExtraction(det: Extracted, llm: LlmExtraction | null, normalizePhone: (p: string) => string | null): Extracted {
@@ -228,7 +229,8 @@ export function mergeExtraction(det: Extracted, llm: LlmExtraction | null, norma
     urgencyPhrases: urgency,
     moneyAmounts: det.moneyAmounts.length ? det.moneyAmounts : llm.moneyAmounts,
     dates: llm.dates,
-    deadline: llm.deadline,
+    deadline: det.deadline,
+    deadlineAmbiguous: det.deadlineAmbiguous,
     paymentMethods: payments,
     paymentRequestConfirmed: payments.length > 0 || llm.actionType === "pay",
     requestsPrizeFee: det.requestsPrizeFee ?? false,

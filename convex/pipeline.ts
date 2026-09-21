@@ -1,4 +1,6 @@
 import { v } from "convex/values";
+import { reconcileReminder } from "./model/notifications";
+import { strictDate } from "../lib/notificationTime";
 import { WorkflowManager, vWorkflowId, vResultValidator } from "@convex-dev/workflow";
 import { components, internal } from "./_generated/api";
 import { internalMutation } from "./_generated/server";
@@ -88,15 +90,16 @@ export const checkAndDecide = internalMutation({
     for (const r of results) {
       await ctx.db.insert("evidence", { caseId: args.caseId, ...r });
     }
-    const deadlineAt = c.extracted.deadline ? Date.parse(`${c.extracted.deadline}T12:00:00Z`) : NaN;
+    const deadlineAt = c.extracted.deadline && c.extracted.deadlineAmbiguous === false && strictDate(c.extracted.deadline) ? Date.parse(`${c.extracted.deadline}T12:00:00Z`) : NaN;
     await ctx.db.patch("cases", args.caseId, {
       verdict,
       status: "replying",
       summary: c.extracted.summary,
       orgName: org?.name,
       orgCrawledAt: org?.lastCrawledAt ?? null,
-      ...(Number.isFinite(deadlineAt) ? { deadlineAt } : {}),
+      deadlineAt: Number.isFinite(deadlineAt) ? deadlineAt : undefined,
     });
+    await reconcileReminder(ctx, args.caseId);
     return verdict;
   },
 });
