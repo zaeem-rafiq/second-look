@@ -1,0 +1,31 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: Fwd: Your lottery prize
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <lottery-prize-apple@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_lotteryprizeapple"
+
+------=_Part_lotteryprizeapple
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Please check this.
+
+> Begin forwarded message:
+>
+> From: Prize Desk <winner@lottery-demo.example.com>
+> Subject: Your lottery prize
+> Date: September 15, 2026 at 9:12:07 AM EDT
+> To: mom.demo@example.com
+>
+> You won $100000 in our lottery. Send a $200 processing payment by Western Union to release your prize.
+
+
+------=_Part_lotteryprizeapple
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; line-break: after-white-space;" class=""><div class="">Please check this.</div><br class=""><blockquote type="cite" class=""><div class="">Begin forwarded message:</div><br class="Apple-interchange-newline"><div class="" style="margin: 0px;"><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">From: </b></span><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;">Prize Desk &lt;<a href="mailto:winner@lottery-demo.example.com" class="">winner@lottery-demo.example.com</a>&gt;<br class=""></span></div><div class="" style="margin: 0px;"><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">Subject: </b></span><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">Your lottery prize</b><br class=""></span></div><div class="" style="margin: 0px;"><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">Date: </b></span><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;">September 15, 2026 at 9:12:07 AM EDT<br class=""></span></div><div class="" style="margin: 0px;"><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">To: </b></span><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;">mom.demo@example.com<br class=""></span></div><br class=""><div class=""><p>You won $100000 in our lottery. Send a $200 processing payment by Western Union to release your prize.</p></div></blockquote></body></html>
+
+------=_Part_lotteryprizeapple--

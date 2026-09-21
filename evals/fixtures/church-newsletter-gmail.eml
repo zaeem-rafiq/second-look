@@ -1,0 +1,32 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: Fwd: Sunday church newsletter
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <church-newsletter-gmail@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_churchnewslettergmail"
+
+------=_Part_churchnewslettergmail
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Please check this.
+
+---------- Forwarded message ---------
+From: Elm Street Church <news@elmchurch-demo.example.org>
+Date: Tue, Sep 15, 2026 at 9:12 AM
+Subject: Sunday church newsletter
+To: <mom.demo@example.com>
+
+
+Our food drive distributed gift cards to families last week. We do not need donations this week. Sunday gathering starts at 10 AM.
+
+
+------=_Part_churchnewslettergmail
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<div dir="ltr">Please check this.<br><div><br><div class="gmail_quote gmail_quote_container"><div dir="ltr" class="gmail_attr">---------- Forwarded message ---------<br>From: <b class="gmail_sendername" dir="auto">Elm Street Church</b> <span dir="auto">&lt;<a href="mailto:news@elmchurch-demo.example.org">news@elmchurch-demo.example.org</a>&gt;</span><br>Date: Tue, Sep 15, 2026 at 9:12 AM<br>Subject: Sunday church newsletter<br>To:  &lt;<a href="mailto:mom.demo@example.com">mom.demo@example.com</a>&gt;<br></div><br><br><p>Our food drive distributed gift cards to families last week. We do not need donations this week. Sunday gathering starts at 10 AM.</p>
+</div></div></div>
+
+------=_Part_churchnewslettergmail--

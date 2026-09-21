@@ -1,0 +1,2010 @@
+{
+  "startedAt": "2026-09-21T01:52:46.827Z",
+  "finishedAt": "2026-09-21T01:52:46.867Z",
+  "commit": "0aa0be11be7da6215b9dc320456654149e563312",
+  "datasetHash": "6b89f1edefd7e6d39eed90146d70261ddd4de6bce7acf436f693a297525658cb",
+  "sourceHash": "81e4e0bf5b44c60f2fc39d01804330d8f8b25bf7c6623ee2a4d704756401ac9a",
+  "sourceFiles": [
+    "convex/clients/firecrawl.ts",
+    "convex/clients/openai.ts",
+    "convex/extract.ts",
+    "convex/registry.ts",
+    "convex/reply.ts",
+    "evals/run.ts",
+    "lib/address.ts",
+    "lib/checks.ts",
+    "lib/domains.ts",
+    "lib/extract.ts",
+    "lib/forwardParser.ts",
+    "lib/paymentDefinitions.ts",
+    "lib/paymentGate.ts",
+    "lib/paymentGateClient.ts",
+    "lib/phones.ts",
+    "lib/quotes.ts",
+    "lib/registry.ts",
+    "lib/registrySeed.ts",
+    "lib/replyEnvelope.ts",
+    "lib/replyPrompt.ts",
+    "lib/replyTemplates.ts",
+    "lib/svix.ts",
+    "lib/types.ts",
+    "lib/urls.ts",
+    "lib/verdict.ts"
+  ],
+  "command": "env -u OPENAI_API_KEY -u FIRECRAWL_API_KEY EVAL_ONLINE=0 EVAL_SPLIT=development node --import tsx evals/run.ts",
+  "config": {
+    "split": "development",
+    "online": false,
+    "extractionModel": null,
+    "replyModel": null,
+    "paymentGateMode": "off",
+    "paymentGateCutoff": 0.8,
+    "openaiConfigured": false,
+    "firecrawlConfigured": false,
+    "typesafeConfigured": true,
+    "registry": "local SEED_ORGS, optional read-only unknown-org search; not deployed registry"
+  },
+  "datasetComplete": true,
+  "labelsReviewed": true,
+  "counts": {
+    "scam": {
+      "fixtures": 30,
+      "scenarios": 10,
+      "ids": [
+        "medicare-suspension-gmail",
+        "medicare-suspension-outlook",
+        "medicare-suspension-apple",
+        "ssa-number-suspended-gmail",
+        "ssa-number-suspended-outlook",
+        "ssa-number-suspended-apple",
+        "tech-support-gift-cards-gmail",
+        "tech-support-gift-cards-outlook",
+        "tech-support-gift-cards-apple",
+        "irs-refund-gmail",
+        "irs-refund-outlook",
+        "irs-refund-apple",
+        "usps-redelivery-fee-gmail",
+        "usps-redelivery-fee-outlook",
+        "usps-redelivery-fee-apple",
+        "amazon-account-locked-gmail",
+        "amazon-account-locked-outlook",
+        "amazon-account-locked-apple",
+        "grandchild-in-jail-gmail",
+        "grandchild-in-jail-outlook",
+        "grandchild-in-jail-apple",
+        "utility-disconnect-today-gmail",
+        "utility-disconnect-today-outlook",
+        "utility-disconnect-today-apple",
+        "netflix-payment-failed-gmail",
+        "netflix-payment-failed-outlook",
+        "netflix-payment-failed-apple",
+        "lottery-prize-gmail",
+        "lottery-prize-outlook",
+        "lottery-prize-apple"
+      ]
+    },
+    "legit": {
+      "fixtures": 30,
+      "scenarios": 10,
+      "ids": [
+        "amazon-order-gmail",
+        "amazon-order-outlook",
+        "amazon-order-apple",
+        "coned-bill-gmail",
+        "coned-bill-outlook",
+        "coned-bill-apple",
+        "medicare-summary-notice-gmail",
+        "medicare-summary-notice-outlook",
+        "medicare-summary-notice-apple",
+        "pharmacy-refill-gmail",
+        "pharmacy-refill-outlook",
+        "pharmacy-refill-apple",
+        "appointment-reminder-gmail",
+        "appointment-reminder-outlook",
+        "appointment-reminder-apple",
+        "property-tax-gmail",
+        "property-tax-outlook",
+        "property-tax-apple",
+        "insurance-renewal-gmail",
+        "insurance-renewal-outlook",
+        "insurance-renewal-apple",
+        "ssa-cola-notice-gmail",
+        "ssa-cola-notice-outlook",
+        "ssa-cola-notice-apple",
+        "dmv-renewal-gmail",
+        "dmv-renewal-outlook",
+        "dmv-renewal-apple",
+        "jury-summons-gmail",
+        "jury-summons-outlook",
+        "jury-summons-apple"
+      ]
+    },
+    "unverifiable": {
+      "fixtures": 12,
+      "scenarios": 4,
+      "ids": [
+        "friend-chain-letter-gmail",
+        "friend-chain-letter-outlook",
+        "friend-chain-letter-apple",
+        "empty-forward-gmail",
+        "empty-forward-outlook",
+        "empty-forward-apple",
+        "friend-email-gmail",
+        "friend-email-outlook",
+        "friend-email-apple",
+        "no-claim-greeting-gmail",
+        "no-claim-greeting-outlook",
+        "no-claim-greeting-apple"
+      ]
+    }
+  },
+  "heldOut": {
+    "fixtures": 0,
+    "scenarios": 0,
+    "ids": []
+  },
+  "modelCounts": {
+    "extractionAccepted": 0,
+    "extractionFailed": 0,
+    "replyAttempted": 0,
+    "replyCompleted": 0,
+    "replyIncomplete": 0,
+    "replyAccepted": 0,
+    "replyRejected": 0,
+    "replyFailed": 0,
+    "paymentGateInvoked": 0,
+    "resolutionAttempted": 0,
+    "resolutionFailed": 0
+  },
+  "paymentGateDecisions": [],
+  "failures": {
+    "safety": {
+      "fixtures": 0,
+      "scenarios": 0,
+      "ids": []
+    },
+    "precision": {
+      "fixtures": 9,
+      "scenarios": 3,
+      "ids": [
+        "pharmacy-refill-gmail",
+        "pharmacy-refill-outlook",
+        "pharmacy-refill-apple",
+        "insurance-renewal-gmail",
+        "insurance-renewal-outlook",
+        "insurance-renewal-apple",
+        "ssa-cola-notice-gmail",
+        "ssa-cola-notice-outlook",
+        "ssa-cola-notice-apple"
+      ]
+    },
+    "unverifiable": {
+      "fixtures": 0,
+      "scenarios": 0,
+      "ids": []
+    },
+    "extraction": {
+      "fixtures": 0,
+      "scenarios": 0,
+      "ids": []
+    },
+    "evidence": {
+      "fixtures": 0,
+      "scenarios": 0,
+      "ids": []
+    },
+    "reply": {
+      "fixtures": 0,
+      "scenarios": 0,
+      "ids": []
+    },
+    "authenticationWording": {
+      "fixtures": 51,
+      "scenarios": 17,
+      "ids": [
+        "medicare-suspension-gmail",
+        "medicare-suspension-outlook",
+        "medicare-suspension-apple",
+        "ssa-number-suspended-gmail",
+        "ssa-number-suspended-outlook",
+        "ssa-number-suspended-apple",
+        "tech-support-gift-cards-gmail",
+        "tech-support-gift-cards-outlook",
+        "tech-support-gift-cards-apple",
+        "amazon-order-gmail",
+        "amazon-order-outlook",
+        "amazon-order-apple",
+        "coned-bill-gmail",
+        "coned-bill-outlook",
+        "coned-bill-apple",
+        "irs-refund-gmail",
+        "irs-refund-outlook",
+        "irs-refund-apple",
+        "usps-redelivery-fee-gmail",
+        "usps-redelivery-fee-outlook",
+        "usps-redelivery-fee-apple",
+        "amazon-account-locked-gmail",
+        "amazon-account-locked-outlook",
+        "amazon-account-locked-apple",
+        "grandchild-in-jail-gmail",
+        "grandchild-in-jail-outlook",
+        "grandchild-in-jail-apple",
+        "utility-disconnect-today-gmail",
+        "utility-disconnect-today-outlook",
+        "utility-disconnect-today-apple",
+        "netflix-payment-failed-gmail",
+        "netflix-payment-failed-outlook",
+        "netflix-payment-failed-apple",
+        "lottery-prize-gmail",
+        "lottery-prize-outlook",
+        "lottery-prize-apple",
+        "medicare-summary-notice-gmail",
+        "medicare-summary-notice-outlook",
+        "medicare-summary-notice-apple",
+        "pharmacy-refill-gmail",
+        "pharmacy-refill-outlook",
+        "pharmacy-refill-apple",
+        "insurance-renewal-gmail",
+        "insurance-renewal-outlook",
+        "insurance-renewal-apple",
+        "ssa-cola-notice-gmail",
+        "ssa-cola-notice-outlook",
+        "ssa-cola-notice-apple",
+        "dmv-renewal-gmail",
+        "dmv-renewal-outlook",
+        "dmv-renewal-apple"
+      ]
+    },
+    "expectedLabels": {
+      "fixtures": 9,
+      "scenarios": 3,
+      "ids": [
+        "pharmacy-refill-gmail",
+        "pharmacy-refill-outlook",
+        "pharmacy-refill-apple",
+        "insurance-renewal-gmail",
+        "insurance-renewal-outlook",
+        "insurance-renewal-apple",
+        "ssa-cola-notice-gmail",
+        "ssa-cola-notice-outlook",
+        "ssa-cola-notice-apple"
+      ]
+    }
+  },
+  "passed": false,
+  "publicationReady": false,
+  "limitations": [
+    "Synthetic labels measure this contract, not real-world sender authentication or safety.",
+    "Precision counts distinct scenarios with any mislabeled format: at most 1 of 12; all 90 expected labels remain mandatory.",
+    "Code-only evidence checks citation presence; live quote verification requires EVAL_ONLINE=1.",
+    "No Convex deployment, registry mutation, webhook, email send or delivery was exercised. Production rate-limit and database persistence behavior of unknown-org resolution are not exercised by this read-only replay.",
+    "The 6-scenario/18-format challenge set is reserved from prompt development, but content was exposed to the independent label reviewer; it is synthetic, not an unseen real-mail sample.",
+    "Injected production-action source/model failures are covered by tests/evalFailurePaths.test.ts; not represented as live provider outages.",
+    "Independent label review and subjective reply readability review are recorded separately; publicationReady is only the executable gate."
+  ],
+  "sources": [],
+  "results": [
+    {
+      "id": "medicare-suspension-gmail",
+      "scenarioId": "medicare-suspension",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Medicare",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.medicare.gov/basics/reporting-medicare-fraud-and-abuse",
+            "quote": "Medicare, or someone representing Medicare, will only call and ask for personal information in limited situations (like an agent or representative returning your call after you've joined a plan, reported fraud, or left a message for Medicare).",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Medicare. The sender and the details don't match Medicare's official contact information. Don't call or click anything in that email. If you're worried, call Medicare at 1-800-633-4227, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "medicare-suspension-outlook",
+      "scenarioId": "medicare-suspension",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Medicare",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.medicare.gov/basics/reporting-medicare-fraud-and-abuse",
+            "quote": "Medicare, or someone representing Medicare, will only call and ask for personal information in limited situations (like an agent or representative returning your call after you've joined a plan, reported fraud, or left a message for Medicare).",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Medicare. The sender and the details don't match Medicare's official contact information. Don't call or click anything in that email. If you're worried, call Medicare at 1-800-633-4227, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "medicare-suspension-apple",
+      "scenarioId": "medicare-suspension",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Medicare",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.medicare.gov/basics/reporting-medicare-fraud-and-abuse",
+            "quote": "Medicare, or someone representing Medicare, will only call and ask for personal information in limited situations (like an agent or representative returning your call after you've joined a plan, reported fraud, or left a message for Medicare).",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Medicare. The sender and the details don't match Medicare's official contact information. Don't call or click anything in that email. If you're worried, call Medicare at 1-800-633-4227, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "ssa-number-suspended-gmail",
+      "scenarioId": "ssa-number-suspended",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Social Security Administration",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.ssa.gov/scam/",
+            "quote": "Social Security will never ask for sensitive or personal information through social media, email, or text message.",
+            "verified": null
+          },
+          {
+            "sourceUrl": "https://www.ssa.gov/scam/",
+            "quote": "Threaten arrest or legal action unless you immediately pay.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Social Security Administration. The sender and the details don't match Social Security Administration's official contact information. Don't call or click anything in that email. If you're worried, call Social Security Administration at 1-800-772-1213, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "ssa-number-suspended-outlook",
+      "scenarioId": "ssa-number-suspended",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Social Security Administration",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.ssa.gov/scam/",
+            "quote": "Social Security will never ask for sensitive or personal information through social media, email, or text message.",
+            "verified": null
+          },
+          {
+            "sourceUrl": "https://www.ssa.gov/scam/",
+            "quote": "Threaten arrest or legal action unless you immediately pay.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Social Security Administration. The sender and the details don't match Social Security Administration's official contact information. Don't call or click anything in that email. If you're worried, call Social Security Administration at 1-800-772-1213, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "ssa-number-suspended-apple",
+      "scenarioId": "ssa-number-suspended",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Social Security Administration",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.ssa.gov/scam/",
+            "quote": "Social Security will never ask for sensitive or personal information through social media, email, or text message.",
+            "verified": null
+          },
+          {
+            "sourceUrl": "https://www.ssa.gov/scam/",
+            "quote": "Threaten arrest or legal action unless you immediately pay.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Social Security Administration. The sender and the details don't match Social Security Administration's official contact information. Don't call or click anything in that email. If you're worried, call Social Security Administration at 1-800-772-1213, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "tech-support-gift-cards-gmail",
+      "scenarioId": "tech-support-gift-cards",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from this sender. The sender and the details don't match this sender's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "tech-support-gift-cards-outlook",
+      "scenarioId": "tech-support-gift-cards",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from this sender. The sender and the details don't match this sender's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "tech-support-gift-cards-apple",
+      "scenarioId": "tech-support-gift-cards",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from this sender. The sender and the details don't match this sender's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "amazon-order-gmail",
+      "scenarioId": "amazon-order",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Amazon",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This one checks out. The sender and links match Amazon's official contact information. Keep it with your other Amazon mail. It mentions $18.99.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "amazon-order-outlook",
+      "scenarioId": "amazon-order",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Amazon",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This one checks out. The sender and links match Amazon's official contact information. Keep it with your other Amazon mail. It mentions $18.99.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "amazon-order-apple",
+      "scenarioId": "amazon-order",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Amazon",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This one checks out. The sender and links match Amazon's official contact information. Keep it with your other Amazon mail. It mentions $18.99.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "coned-bill-gmail",
+      "scenarioId": "coned-bill",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Con Edison",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This one checks out. The sender and links match Con Edison's official contact information. Keep it with your other Con Edison mail. It mentions $84.20.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "coned-bill-outlook",
+      "scenarioId": "coned-bill",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Con Edison",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This one checks out. The sender and links match Con Edison's official contact information. Keep it with your other Con Edison mail. It mentions $84.20.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "coned-bill-apple",
+      "scenarioId": "coned-bill",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Con Edison",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This one checks out. The sender and links match Con Edison's official contact information. Keep it with your other Con Edison mail. It mentions $84.20.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "friend-chain-letter-gmail",
+      "scenarioId": "friend-chain-letter",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "friend-chain-letter-outlook",
+      "scenarioId": "friend-chain-letter",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "friend-chain-letter-apple",
+      "scenarioId": "friend-chain-letter",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "empty-forward-gmail",
+      "scenarioId": "empty-forward",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "empty-forward-outlook",
+      "scenarioId": "empty-forward",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "empty-forward-apple",
+      "scenarioId": "empty-forward",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "irs-refund-gmail",
+      "scenarioId": "irs-refund",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Internal Revenue Service",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.irs.gov/help/report-fraud/report-fake-irs-treasury-or-tax-related-emails-and-messages",
+            "quote": "We never email without your permission.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Internal Revenue Service. The sender and the details don't match Internal Revenue Service's official contact information. Don't call or click anything in that email. If you're worried, call Internal Revenue Service at 1-800-829-1040, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "irs-refund-outlook",
+      "scenarioId": "irs-refund",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Internal Revenue Service",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.irs.gov/help/report-fraud/report-fake-irs-treasury-or-tax-related-emails-and-messages",
+            "quote": "We never email without your permission.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Internal Revenue Service. The sender and the details don't match Internal Revenue Service's official contact information. Don't call or click anything in that email. If you're worried, call Internal Revenue Service at 1-800-829-1040, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "irs-refund-apple",
+      "scenarioId": "irs-refund",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Internal Revenue Service",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.irs.gov/help/report-fraud/report-fake-irs-treasury-or-tax-related-emails-and-messages",
+            "quote": "We never email without your permission.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Internal Revenue Service. The sender and the details don't match Internal Revenue Service's official contact information. Don't call or click anything in that email. If you're worried, call Internal Revenue Service at 1-800-829-1040, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "usps-redelivery-fee-gmail",
+      "scenarioId": "usps-redelivery-fee",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "United States Postal Service",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.uspis.gov/news/scam-article/smishing-package-tracking-text-scams",
+            "quote": "USPS will not send customers text messages or e-mails without a customer first requesting the service with a tracking number, and it will NOT contain a link.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from United States Postal Service. The sender and the details don't match United States Postal Service's official contact information. Don't call or click anything in that email. If you're worried, call United States Postal Service at 1-800-275-8777, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "usps-redelivery-fee-outlook",
+      "scenarioId": "usps-redelivery-fee",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "United States Postal Service",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.uspis.gov/news/scam-article/smishing-package-tracking-text-scams",
+            "quote": "USPS will not send customers text messages or e-mails without a customer first requesting the service with a tracking number, and it will NOT contain a link.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from United States Postal Service. The sender and the details don't match United States Postal Service's official contact information. Don't call or click anything in that email. If you're worried, call United States Postal Service at 1-800-275-8777, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "usps-redelivery-fee-apple",
+      "scenarioId": "usps-redelivery-fee",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "United States Postal Service",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.uspis.gov/news/scam-article/smishing-package-tracking-text-scams",
+            "quote": "USPS will not send customers text messages or e-mails without a customer first requesting the service with a tracking number, and it will NOT contain a link.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from United States Postal Service. The sender and the details don't match United States Postal Service's official contact information. Don't call or click anything in that email. If you're worried, call United States Postal Service at 1-800-275-8777, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "amazon-account-locked-gmail",
+      "scenarioId": "amazon-account-locked",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Amazon",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.amazon.com/gp/help/customer/display.html?nodeId=T3rnIphp327SSKYl8e",
+            "quote": "We will never ask for your password, OTP, gift card details, bank card details or any other confidential information over the phone.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Amazon. The sender and the details don't match Amazon's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "amazon-account-locked-outlook",
+      "scenarioId": "amazon-account-locked",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Amazon",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.amazon.com/gp/help/customer/display.html?nodeId=T3rnIphp327SSKYl8e",
+            "quote": "We will never ask for your password, OTP, gift card details, bank card details or any other confidential information over the phone.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Amazon. The sender and the details don't match Amazon's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "amazon-account-locked-apple",
+      "scenarioId": "amazon-account-locked",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Amazon",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.amazon.com/gp/help/customer/display.html?nodeId=T3rnIphp327SSKYl8e",
+            "quote": "We will never ask for your password, OTP, gift card details, bank card details or any other confidential information over the phone.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Amazon. The sender and the details don't match Amazon's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "grandchild-in-jail-gmail",
+      "scenarioId": "grandchild-in-jail",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from this sender. The sender and the details don't match this sender's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "grandchild-in-jail-outlook",
+      "scenarioId": "grandchild-in-jail",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from this sender. The sender and the details don't match this sender's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "grandchild-in-jail-apple",
+      "scenarioId": "grandchild-in-jail",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from this sender. The sender and the details don't match this sender's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "utility-disconnect-today-gmail",
+      "scenarioId": "utility-disconnect-today",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Con Edison",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.coned.com/en/safety/energy-safety/beware-of-scammers",
+            "quote": "We do not accept payment via prepaid gift cards, cryptocurrency such as Bitcoin, wire transfers, or cash apps",
+            "verified": null
+          },
+          {
+            "sourceUrl": "https://www.coned.com/en/safety/energy-safety/beware-of-scammers",
+            "quote": "We do not accept payment via prepaid gift cards, cryptocurrency such as Bitcoin, wire transfers, or cash apps",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Con Edison. The sender and the details don't match Con Edison's official contact information. Don't call or click anything in that email. If you're worried, call Con Edison at 1-800-752-6633, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "utility-disconnect-today-outlook",
+      "scenarioId": "utility-disconnect-today",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Con Edison",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.coned.com/en/safety/energy-safety/beware-of-scammers",
+            "quote": "We do not accept payment via prepaid gift cards, cryptocurrency such as Bitcoin, wire transfers, or cash apps",
+            "verified": null
+          },
+          {
+            "sourceUrl": "https://www.coned.com/en/safety/energy-safety/beware-of-scammers",
+            "quote": "We do not accept payment via prepaid gift cards, cryptocurrency such as Bitcoin, wire transfers, or cash apps",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Con Edison. The sender and the details don't match Con Edison's official contact information. Don't call or click anything in that email. If you're worried, call Con Edison at 1-800-752-6633, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "utility-disconnect-today-apple",
+      "scenarioId": "utility-disconnect-today",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Con Edison",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.coned.com/en/safety/energy-safety/beware-of-scammers",
+            "quote": "We do not accept payment via prepaid gift cards, cryptocurrency such as Bitcoin, wire transfers, or cash apps",
+            "verified": null
+          },
+          {
+            "sourceUrl": "https://www.coned.com/en/safety/energy-safety/beware-of-scammers",
+            "quote": "We do not accept payment via prepaid gift cards, cryptocurrency such as Bitcoin, wire transfers, or cash apps",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Con Edison. The sender and the details don't match Con Edison's official contact information. Don't call or click anything in that email. If you're worried, call Con Edison at 1-800-752-6633, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "netflix-payment-failed-gmail",
+      "scenarioId": "netflix-payment-failed",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Netflix",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://help.netflix.com/en/node/65674",
+            "quote": "We'll never ask you to share your personal information in a text or email.",
+            "verified": null
+          },
+          {
+            "sourceUrl": "https://help.netflix.com/en/node/65674",
+            "quote": "We'll never ask for payment through a 3rd party vendor or website.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Netflix. The sender and the details don't match Netflix's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "netflix-payment-failed-outlook",
+      "scenarioId": "netflix-payment-failed",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Netflix",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://help.netflix.com/en/node/65674",
+            "quote": "We'll never ask you to share your personal information in a text or email.",
+            "verified": null
+          },
+          {
+            "sourceUrl": "https://help.netflix.com/en/node/65674",
+            "quote": "We'll never ask for payment through a 3rd party vendor or website.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Netflix. The sender and the details don't match Netflix's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "netflix-payment-failed-apple",
+      "scenarioId": "netflix-payment-failed",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Netflix",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://help.netflix.com/en/node/65674",
+            "quote": "We'll never ask you to share your personal information in a text or email.",
+            "verified": null
+          },
+          {
+            "sourceUrl": "https://help.netflix.com/en/node/65674",
+            "quote": "We'll never ask for payment through a 3rd party vendor or website.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Netflix. The sender and the details don't match Netflix's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "lottery-prize-gmail",
+      "scenarioId": "lottery-prize",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from this sender. The sender and the details don't match this sender's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "lottery-prize-outlook",
+      "scenarioId": "lottery-prize",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from this sender. The sender and the details don't match this sender's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "lottery-prize-apple",
+      "scenarioId": "lottery-prize",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from this sender. The sender and the details don't match this sender's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "medicare-summary-notice-gmail",
+      "scenarioId": "medicare-summary-notice",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Medicare",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This one checks out. The sender and links match Medicare's official contact information. Keep it with your other Medicare mail.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "medicare-summary-notice-outlook",
+      "scenarioId": "medicare-summary-notice",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Medicare",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This one checks out. The sender and links match Medicare's official contact information. Keep it with your other Medicare mail.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "medicare-summary-notice-apple",
+      "scenarioId": "medicare-summary-notice",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Medicare",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This one checks out. The sender and links match Medicare's official contact information. Keep it with your other Medicare mail.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "pharmacy-refill-gmail",
+      "scenarioId": "pharmacy-refill",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from this sender. The sender and the details don't match this sender's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "pharmacy-refill-outlook",
+      "scenarioId": "pharmacy-refill",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from this sender. The sender and the details don't match this sender's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "pharmacy-refill-apple",
+      "scenarioId": "pharmacy-refill",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from this sender. The sender and the details don't match this sender's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "appointment-reminder-gmail",
+      "scenarioId": "appointment-reminder",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "appointment-reminder-outlook",
+      "scenarioId": "appointment-reminder",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "appointment-reminder-apple",
+      "scenarioId": "appointment-reminder",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "property-tax-gmail",
+      "scenarioId": "property-tax",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "property-tax-outlook",
+      "scenarioId": "property-tax",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "property-tax-apple",
+      "scenarioId": "property-tax",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "insurance-renewal-gmail",
+      "scenarioId": "insurance-renewal",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from this sender. The sender and the details don't match this sender's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "insurance-renewal-outlook",
+      "scenarioId": "insurance-renewal",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from this sender. The sender and the details don't match this sender's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "insurance-renewal-apple",
+      "scenarioId": "insurance-renewal",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from this sender. The sender and the details don't match this sender's official contact information. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "ssa-cola-notice-gmail",
+      "scenarioId": "ssa-cola-notice",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "mismatch",
+      "org": "Social Security Administration",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.ssa.gov/scam/",
+            "quote": "Social Security will never ask for sensitive or personal information through social media, email, or text message.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Social Security Administration. The sender and the details don't match Social Security Administration's official contact information. Don't call or click anything in that email. If you're worried, call Social Security Administration at 1-800-772-1213, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "ssa-cola-notice-outlook",
+      "scenarioId": "ssa-cola-notice",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "mismatch",
+      "org": "Social Security Administration",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.ssa.gov/scam/",
+            "quote": "Social Security will never ask for sensitive or personal information through social media, email, or text message.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Social Security Administration. The sender and the details don't match Social Security Administration's official contact information. Don't call or click anything in that email. If you're worried, call Social Security Administration at 1-800-772-1213, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "ssa-cola-notice-apple",
+      "scenarioId": "ssa-cola-notice",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "mismatch",
+      "org": "Social Security Administration",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.ssa.gov/scam/",
+            "quote": "Social Security will never ask for sensitive or personal information through social media, email, or text message.",
+            "verified": null
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This didn't come from Social Security Administration. The sender and the details don't match Social Security Administration's official contact information. Don't call or click anything in that email. If you're worried, call Social Security Administration at 1-800-772-1213, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "dmv-renewal-gmail",
+      "scenarioId": "dmv-renewal",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "DMV",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This one checks out. The sender and links match DMV's official contact information. Keep it with your other DMV mail.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "dmv-renewal-outlook",
+      "scenarioId": "dmv-renewal",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "DMV",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This one checks out. The sender and links match DMV's official contact information. Keep it with your other DMV mail.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "dmv-renewal-apple",
+      "scenarioId": "dmv-renewal",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "DMV",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": false,
+      "reply": "This one checks out. The sender and links match DMV's official contact information. Keep it with your other DMV mail.\n— The Demo Family's helper (Second Look)",
+      "notes": [
+        "reply asserts sender authentication from quoted details"
+      ]
+    },
+    {
+      "id": "jury-summons-gmail",
+      "scenarioId": "jury-summons",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "jury-summons-outlook",
+      "scenarioId": "jury-summons",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "jury-summons-apple",
+      "scenarioId": "jury-summons",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "friend-email-gmail",
+      "scenarioId": "friend-email",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "friend-email-outlook",
+      "scenarioId": "friend-email",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "friend-email-apple",
+      "scenarioId": "friend-email",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "no-claim-greeting-gmail",
+      "scenarioId": "no-claim-greeting",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "no-claim-greeting-outlook",
+      "scenarioId": "no-claim-greeting",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "no-claim-greeting-apple",
+      "scenarioId": "no-claim-greeting",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "I couldn't confirm who sent this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    }
+  ]
+}

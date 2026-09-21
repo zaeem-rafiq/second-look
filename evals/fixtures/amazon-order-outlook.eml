@@ -1,0 +1,56 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: FW: Your Amazon.com order #112-3456789-0123456
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <amazon-order-outlook@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_amazonorderoutlook"
+
+------=_Part_amazonorderoutlook
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Did I order this?
+
+________________________________
+From: Amazon.com <auto-confirm@amazon.com>
+Sent: Tuesday, September 15, 2026 9:12 AM
+To: mom.demo@example.com <mom.demo@example.com>
+Subject: Your Amazon.com order #112-3456789-0123456
+
+Hello,
+
+Thank you for your order. We'll send a confirmation when your item ships.
+
+Order #112-3456789-0123456
+Kirkland Signature Green Tea, 100 count  $18.99
+Arriving: Thursday, September 18
+
+View or manage your order: https://www.amazon.com/gp/css/order-history<https://www.amazon.com/gp/css/order-history>
+
+Amazon.com
+
+
+------=_Part_amazonorderoutlook
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body dir="ltr">
+<div class="elementToProof" style="font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 11pt; color: rgb(0, 0, 0);">
+Did I order this?</div>
+<div style="font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 11pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+<div id="appendonsend" style="color: inherit;"></div>
+<hr style="display: inline-block; width: 98%;">
+<div id="divRplyFwdMsg" dir="ltr" style="color: inherit;"><span style="font-family: Calibri, sans-serif; font-size: 11pt; color: rgb(0, 0, 0);"><b>From:</b> Amazon.com &lt;auto-confirm@amazon.com&gt;<br>
+<b>Sent:</b> Tuesday, September 15, 2026 9:12 AM<br>
+<b>To:</b> mom.demo@example.com &lt;mom.demo@example.com&gt;<br>
+<b>Subject:</b> Your Amazon.com order #112-3456789-0123456</span>
+<div>&nbsp;</div>
+</div>
+<div class="elementToProof" style="direction: ltr; font-family: Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);">
+<p>Hello,</p><p>Thank you for your order. We'll send a confirmation when your item ships.</p><p>Order #112-3456789-0123456<br>Kirkland Signature Green Tea, 100 count &nbsp; $18.99<br>Arriving: Thursday, September 18</p><p><a href="https://www.amazon.com/gp/css/order-history">View or manage your order</a></p><p>Amazon.com</p></div>
+</body></html>
+
+------=_Part_amazonorderoutlook--

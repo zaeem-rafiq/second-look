@@ -1,0 +1,46 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: FW: Your refill is ready
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <pharmacy-refill-outlook@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_pharmacyrefilloutlook"
+
+------=_Part_pharmacyrefilloutlook
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Please check this.
+
+________________________________
+From: Cedar Grove Pharmacy <refills@cedargrove-demo.example.org>
+Sent: Tuesday, September 15, 2026 9:12 AM
+To: mom.demo@example.com <mom.demo@example.com>
+Subject: Your refill is ready
+
+Your prescription refill is ready at Cedar Grove Pharmacy. Our records show you received a $10 gift card with your last visit. No payment is requested in this email.
+
+
+------=_Part_pharmacyrefilloutlook
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body dir="ltr">
+<div class="elementToProof" style="font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 11pt; color: rgb(0, 0, 0);">
+Please check this.</div>
+<div style="font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 11pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+<div id="appendonsend" style="color: inherit;"></div>
+<hr style="display: inline-block; width: 98%;">
+<div id="divRplyFwdMsg" dir="ltr" style="color: inherit;"><span style="font-family: Calibri, sans-serif; font-size: 11pt; color: rgb(0, 0, 0);"><b>From:</b> Cedar Grove Pharmacy &lt;refills@cedargrove-demo.example.org&gt;<br>
+<b>Sent:</b> Tuesday, September 15, 2026 9:12 AM<br>
+<b>To:</b> mom.demo@example.com &lt;mom.demo@example.com&gt;<br>
+<b>Subject:</b> Your refill is ready</span>
+<div>&nbsp;</div>
+</div>
+<div class="elementToProof" style="direction: ltr; font-family: Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);">
+<p>Your prescription refill is ready at Cedar Grove Pharmacy. Our records show you received a $10 gift card with your last visit. No payment is requested in this email.</p></div>
+</body></html>
+
+------=_Part_pharmacyrefilloutlook--

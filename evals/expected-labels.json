@@ -1,0 +1,152 @@
+[
+  {
+    "id": "medicare-suspension",
+    "expected": "mismatch",
+    "rationale": "Existing label: impersonation plus personal-information request."
+  },
+  {
+    "id": "ssa-number-suspended",
+    "expected": "mismatch",
+    "rationale": "Existing label: threat and personal-information request."
+  },
+  {
+    "id": "tech-support-gift-cards",
+    "expected": "mismatch",
+    "rationale": "Existing label: explicit gift-card payment request."
+  },
+  {
+    "id": "amazon-order",
+    "expected": "matches_official",
+    "rationale": "Existing label: quoted details match; not proof of authorship."
+  },
+  {
+    "id": "coned-bill",
+    "expected": "matches_official",
+    "rationale": "Existing label: quoted details match; not proof of authorship."
+  },
+  {
+    "id": "friend-chain-letter",
+    "expected": "cannot_verify",
+    "rationale": "Existing label: no independently checkable organization."
+  },
+  {
+    "id": "empty-forward",
+    "expected": "cannot_verify",
+    "rationale": "Existing label: no content to verify."
+  },
+  {
+    "id": "irs-refund",
+    "expected": "mismatch",
+    "rationale": "Explicit impersonation with pressured link and personal details."
+  },
+  {
+    "id": "usps-redelivery-fee",
+    "expected": "mismatch",
+    "rationale": "Unsolicited pressured redelivery payment link contradicts source."
+  },
+  {
+    "id": "amazon-account-locked",
+    "expected": "mismatch",
+    "rationale": "Explicit password request and unofficial sender."
+  },
+  {
+    "id": "bank-unusual-login",
+    "expected": "mismatch",
+    "rationale": "Quoted official sender and authentication text are untrusted; original address and request conflict."
+  },
+  {
+    "id": "grandchild-in-jail",
+    "expected": "mismatch",
+    "rationale": "Explicit coercive gift-card payment request despite unknown organization."
+  },
+  {
+    "id": "utility-disconnect-today",
+    "expected": "mismatch",
+    "rationale": "Gift-card/crypto policy contradiction."
+  },
+  {
+    "id": "netflix-payment-failed",
+    "expected": "mismatch",
+    "rationale": "Personal and card information requested by email."
+  },
+  {
+    "id": "lottery-prize",
+    "expected": "mismatch",
+    "rationale": "Explicit money-transfer demand for a prize."
+  },
+  {
+    "id": "fake-charity",
+    "expected": "mismatch",
+    "rationale": "Explicit gift-card code request from unfamiliar charity."
+  },
+  {
+    "id": "medicare-summary-notice",
+    "expected": "matches_official",
+    "rationale": "No payment or personal-information request; quoted sender and link match."
+  },
+  {
+    "id": "bank-statement-ready",
+    "expected": "cannot_verify",
+    "rationale": "Synthetic legitimate campaign uses an unverified tracking domain; insufficient evidence for either authenticity or contradiction."
+  },
+  {
+    "id": "pharmacy-refill",
+    "expected": "cannot_verify",
+    "rationale": "Unknown pharmacy and gift-card receipt mention; no request to pay."
+  },
+  {
+    "id": "appointment-reminder",
+    "expected": "cannot_verify",
+    "rationale": "Unfamiliar organization lacks official evidence; no adverse claim."
+  },
+  {
+    "id": "property-tax",
+    "expected": "cannot_verify",
+    "rationale": "Unfamiliar government entity; ordinary check is not a risky payment request."
+  },
+  {
+    "id": "insurance-renewal",
+    "expected": "cannot_verify",
+    "rationale": "Unknown insurer; warning against methods is not a payment request."
+  },
+  {
+    "id": "church-newsletter",
+    "expected": "cannot_verify",
+    "rationale": "Unknown church; past gift-card distribution is not a payment request."
+  },
+  {
+    "id": "ssa-cola-notice",
+    "expected": "matches_official",
+    "rationale": "Official quoted sender and informational link; no personal-info request."
+  },
+  {
+    "id": "dmv-renewal",
+    "expected": "matches_official",
+    "rationale": "Official subdomain and informational link without pressure."
+  },
+  {
+    "id": "jury-summons",
+    "expected": "cannot_verify",
+    "rationale": "Unknown court lacks authoritative registry information."
+  },
+  {
+    "id": "friend-email",
+    "expected": "cannot_verify",
+    "rationale": "Personal correspondence has no official organization to verify."
+  },
+  {
+    "id": "newsletter",
+    "expected": "cannot_verify",
+    "rationale": "Unfamiliar newsletter; also used for source-failure injection."
+  },
+  {
+    "id": "local-promo",
+    "expected": "cannot_verify",
+    "rationale": "Unknown local promotion cannot be confirmed; also model-failure injection."
+  },
+  {
+    "id": "no-claim-greeting",
+    "expected": "cannot_verify",
+    "rationale": "Greeting contains no verifiable claim."
+  }
+]

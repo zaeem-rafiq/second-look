@@ -1,0 +1,157 @@
+{
+  "reviewer": "coordinator",
+  "method": "Read input/category/truth and registry identities before inspecting proposed expected labels or executing 90-fixture results. Model wording fix identified independently before this review. Challenge content exposed to label reviewer; do not claim blind prompt-development holdout for coordinator.",
+  "rows": [
+    {
+      "id": "medicare-suspension",
+      "expected": "mismatch",
+      "rationale": "Explicit conflicting organization details or prohibited payment request; mismatch is about claims, not authenticated origin."
+    },
+    {
+      "id": "ssa-number-suspended",
+      "expected": "mismatch",
+      "rationale": "Explicit conflicting organization details or prohibited payment request; mismatch is about claims, not authenticated origin."
+    },
+    {
+      "id": "tech-support-gift-cards",
+      "expected": "mismatch",
+      "rationale": "Explicit conflicting organization details or prohibited payment request; mismatch is about claims, not authenticated origin."
+    },
+    {
+      "id": "amazon-order",
+      "expected": "matches_official",
+      "rationale": "Quoted domain and checked details agree with the known official registry; sender authenticity remains unproven."
+    },
+    {
+      "id": "coned-bill",
+      "expected": "matches_official",
+      "rationale": "Quoted domain and checked details agree with the known official registry; sender authenticity remains unproven."
+    },
+    {
+      "id": "friend-chain-letter",
+      "expected": "cannot_verify",
+      "rationale": "No established official source for these details; no contradictory payment request. Bound conclusion to cannot_verify."
+    },
+    {
+      "id": "empty-forward",
+      "expected": "cannot_verify",
+      "rationale": "No established official source for these details; no contradictory payment request. Bound conclusion to cannot_verify."
+    },
+    {
+      "id": "irs-refund",
+      "expected": "mismatch",
+      "rationale": "Explicit conflicting organization details or prohibited payment request; mismatch is about claims, not authenticated origin."
+    },
+    {
+      "id": "usps-redelivery-fee",
+      "expected": "mismatch",
+      "rationale": "Explicit conflicting organization details or prohibited payment request; mismatch is about claims, not authenticated origin."
+    },
+    {
+      "id": "amazon-account-locked",
+      "expected": "mismatch",
+      "rationale": "Explicit conflicting organization details or prohibited payment request; mismatch is about claims, not authenticated origin."
+    },
+    {
+      "id": "bank-unusual-login",
+      "expected": "mismatch",
+      "rationale": "Explicit conflicting organization details or prohibited payment request; mismatch is about claims, not authenticated origin."
+    },
+    {
+      "id": "grandchild-in-jail",
+      "expected": "mismatch",
+      "rationale": "Explicit conflicting organization details or prohibited payment request; mismatch is about claims, not authenticated origin."
+    },
+    {
+      "id": "utility-disconnect-today",
+      "expected": "mismatch",
+      "rationale": "Explicit conflicting organization details or prohibited payment request; mismatch is about claims, not authenticated origin."
+    },
+    {
+      "id": "netflix-payment-failed",
+      "expected": "mismatch",
+      "rationale": "Explicit conflicting organization details or prohibited payment request; mismatch is about claims, not authenticated origin."
+    },
+    {
+      "id": "lottery-prize",
+      "expected": "mismatch",
+      "rationale": "Explicit conflicting organization details or prohibited payment request; mismatch is about claims, not authenticated origin."
+    },
+    {
+      "id": "fake-charity",
+      "expected": "mismatch",
+      "rationale": "Explicit conflicting organization details or prohibited payment request; mismatch is about claims, not authenticated origin."
+    },
+    {
+      "id": "medicare-summary-notice",
+      "expected": "matches_official",
+      "rationale": "Quoted domain and checked details agree with the known official registry; sender authenticity remains unproven."
+    },
+    {
+      "id": "bank-statement-ready",
+      "expected": "cannot_verify",
+      "rationale": "Tracking link is independently unspecified. It does not establish a contradiction or authenticity; cannot_verify until official attribution is available."
+    },
+    {
+      "id": "pharmacy-refill",
+      "expected": "cannot_verify",
+      "rationale": "No established official source for these details; no contradictory payment request. Bound conclusion to cannot_verify."
+    },
+    {
+      "id": "appointment-reminder",
+      "expected": "cannot_verify",
+      "rationale": "No established official source for these details; no contradictory payment request. Bound conclusion to cannot_verify."
+    },
+    {
+      "id": "property-tax",
+      "expected": "cannot_verify",
+      "rationale": "No established official source for these details; no contradictory payment request. Bound conclusion to cannot_verify."
+    },
+    {
+      "id": "insurance-renewal",
+      "expected": "cannot_verify",
+      "rationale": "No established official source for these details; no contradictory payment request. Bound conclusion to cannot_verify."
+    },
+    {
+      "id": "church-newsletter",
+      "expected": "cannot_verify",
+      "rationale": "No established official source for these details; no contradictory payment request. Bound conclusion to cannot_verify."
+    },
+    {
+      "id": "ssa-cola-notice",
+      "expected": "matches_official",
+      "rationale": "Quoted domain and checked details agree with the known official registry; sender authenticity remains unproven."
+    },
+    {
+      "id": "dmv-renewal",
+      "expected": "matches_official",
+      "rationale": "Quoted domain and checked details agree with the known official registry; sender authenticity remains unproven."
+    },
+    {
+      "id": "jury-summons",
+      "expected": "cannot_verify",
+      "rationale": "No established official source for these details; no contradictory payment request. Bound conclusion to cannot_verify."
+    },
+    {
+      "id": "friend-email",
+      "expected": "cannot_verify",
+      "rationale": "No established official source for these details; no contradictory payment request. Bound conclusion to cannot_verify."
+    },
+    {
+      "id": "newsletter",
+      "expected": "cannot_verify",
+      "rationale": "No established official source for these details; no contradictory payment request. Bound conclusion to cannot_verify."
+    },
+    {
+      "id": "local-promo",
+      "expected": "cannot_verify",
+      "rationale": "No established official source for these details; no contradictory payment request. Bound conclusion to cannot_verify."
+    },
+    {
+      "id": "no-claim-greeting",
+      "expected": "cannot_verify",
+      "rationale": "No established official source for these details; no contradictory payment request. Bound conclusion to cannot_verify."
+    }
+  ],
+  "reviewInputSha256": "878aa6bcfde12d67d055651bb8450045c12f9be93493a6b42195cbc11419ddec"
+}

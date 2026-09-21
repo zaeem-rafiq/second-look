@@ -1,0 +1,32 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: Fwd: Property tax statement ready
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <property-tax-gmail@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_propertytaxgmail"
+
+------=_Part_propertytaxgmail
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Please check this.
+
+---------- Forwarded message ---------
+From: Cedar County Treasurer <tax@cedarcounty-demo.example.org>
+Date: Tue, Sep 15, 2026 at 9:12 AM
+Subject: Property tax statement ready
+To: <mom.demo@example.com>
+
+
+Your annual property tax statement is ready. Amount due: $850.00. Payment is accepted by check at the county office by November 1.
+
+
+------=_Part_propertytaxgmail
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<div dir="ltr">Please check this.<br><div><br><div class="gmail_quote gmail_quote_container"><div dir="ltr" class="gmail_attr">---------- Forwarded message ---------<br>From: <b class="gmail_sendername" dir="auto">Cedar County Treasurer</b> <span dir="auto">&lt;<a href="mailto:tax@cedarcounty-demo.example.org">tax@cedarcounty-demo.example.org</a>&gt;</span><br>Date: Tue, Sep 15, 2026 at 9:12 AM<br>Subject: Property tax statement ready<br>To:  &lt;<a href="mailto:mom.demo@example.com">mom.demo@example.com</a>&gt;<br></div><br><br><p>Your annual property tax statement is ready. Amount due: $850.00. Payment is accepted by check at the county office by November 1.</p>
+</div></div></div>
+
+------=_Part_propertytaxgmail--

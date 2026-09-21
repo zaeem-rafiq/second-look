@@ -1,0 +1,32 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: Fwd: USPS redelivery fee
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <usps-redelivery-fee-gmail@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_uspsredeliveryfeegmail"
+
+------=_Part_uspsredeliveryfeegmail
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Please check this.
+
+---------- Forwarded message ---------
+From: USPS <delivery@usps-redelivery.example.net>
+Date: Tue, Sep 15, 2026 at 9:12 AM
+Subject: USPS redelivery fee
+To: <mom.demo@example.com>
+
+
+USPS could not deliver your parcel. Pay the $1.20 redelivery fee today only at https://usps-redelivery.example.net/pay.
+
+
+------=_Part_uspsredeliveryfeegmail
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<div dir="ltr">Please check this.<br><div><br><div class="gmail_quote gmail_quote_container"><div dir="ltr" class="gmail_attr">---------- Forwarded message ---------<br>From: <b class="gmail_sendername" dir="auto">USPS</b> <span dir="auto">&lt;<a href="mailto:delivery@usps-redelivery.example.net">delivery@usps-redelivery.example.net</a>&gt;</span><br>Date: Tue, Sep 15, 2026 at 9:12 AM<br>Subject: USPS redelivery fee<br>To:  &lt;<a href="mailto:mom.demo@example.com">mom.demo@example.com</a>&gt;<br></div><br><br><p>USPS could not deliver your parcel. Pay the $1.20 redelivery fee today only at https://usps-redelivery.example.net/pay.</p>
+</div></div></div>
+
+------=_Part_uspsredeliveryfeegmail--

@@ -1,0 +1,32 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: Fwd: Amazon account locked
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <amazon-account-locked-gmail@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_amazonaccountlockedgmail"
+
+------=_Part_amazonaccountlockedgmail
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Please check this.
+
+---------- Forwarded message ---------
+From: Amazon <account@amazon-help.example.net>
+Date: Tue, Sep 15, 2026 at 9:12 AM
+Subject: Amazon account locked
+To: <mom.demo@example.com>
+
+
+Your Amazon account is locked. Reply with your password to restore access.
+
+
+------=_Part_amazonaccountlockedgmail
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<div dir="ltr">Please check this.<br><div><br><div class="gmail_quote gmail_quote_container"><div dir="ltr" class="gmail_attr">---------- Forwarded message ---------<br>From: <b class="gmail_sendername" dir="auto">Amazon</b> <span dir="auto">&lt;<a href="mailto:account@amazon-help.example.net">account@amazon-help.example.net</a>&gt;</span><br>Date: Tue, Sep 15, 2026 at 9:12 AM<br>Subject: Amazon account locked<br>To:  &lt;<a href="mailto:mom.demo@example.com">mom.demo@example.com</a>&gt;<br></div><br><br><p>Your Amazon account is locked. Reply with your password to restore access.</p>
+</div></div></div>
+
+------=_Part_amazonaccountlockedgmail--

@@ -1,0 +1,41 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: Fwd: Your Amazon.com order #112-3456789-0123456
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <amazon-order-apple@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_amazonorderapple"
+
+------=_Part_amazonorderapple
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Did I order this?
+
+> Begin forwarded message:
+>
+> From: Amazon.com <auto-confirm@amazon.com>
+> Subject: Your Amazon.com order #112-3456789-0123456
+> Date: September 15, 2026 at 9:12:07 AM EDT
+> To: mom.demo@example.com
+>
+> Hello,
+>
+> Thank you for your order. We'll send a confirmation when your item ships.
+>
+> Order #112-3456789-0123456
+> Kirkland Signature Green Tea, 100 count  $18.99
+> Arriving: Thursday, September 18
+>
+> View or manage your order: https://www.amazon.com/gp/css/order-history
+>
+> Amazon.com
+
+
+------=_Part_amazonorderapple
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; line-break: after-white-space;" class=""><div class="">Did I order this?</div><br class=""><blockquote type="cite" class=""><div class="">Begin forwarded message:</div><br class="Apple-interchange-newline"><div class="" style="margin: 0px;"><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">From: </b></span><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;">Amazon.com &lt;<a href="mailto:auto-confirm@amazon.com" class="">auto-confirm@amazon.com</a>&gt;<br class=""></span></div><div class="" style="margin: 0px;"><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">Subject: </b></span><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">Your Amazon.com order #112-3456789-0123456</b><br class=""></span></div><div class="" style="margin: 0px;"><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">Date: </b></span><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;">September 15, 2026 at 9:12:07 AM EDT<br class=""></span></div><div class="" style="margin: 0px;"><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">To: </b></span><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;">mom.demo@example.com<br class=""></span></div><br class=""><div class=""><p>Hello,</p><p>Thank you for your order. We'll send a confirmation when your item ships.</p><p>Order #112-3456789-0123456<br>Kirkland Signature Green Tea, 100 count &nbsp; $18.99<br>Arriving: Thursday, September 18</p><p><a href="https://www.amazon.com/gp/css/order-history">View or manage your order</a></p><p>Amazon.com</p></div></blockquote></body></html>
+
+------=_Part_amazonorderapple--

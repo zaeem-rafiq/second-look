@@ -1,0 +1,46 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: FW: Property tax statement ready
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <property-tax-outlook@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_propertytaxoutlook"
+
+------=_Part_propertytaxoutlook
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Please check this.
+
+________________________________
+From: Cedar County Treasurer <tax@cedarcounty-demo.example.org>
+Sent: Tuesday, September 15, 2026 9:12 AM
+To: mom.demo@example.com <mom.demo@example.com>
+Subject: Property tax statement ready
+
+Your annual property tax statement is ready. Amount due: $850.00. Payment is accepted by check at the county office by November 1.
+
+
+------=_Part_propertytaxoutlook
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body dir="ltr">
+<div class="elementToProof" style="font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 11pt; color: rgb(0, 0, 0);">
+Please check this.</div>
+<div style="font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 11pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+<div id="appendonsend" style="color: inherit;"></div>
+<hr style="display: inline-block; width: 98%;">
+<div id="divRplyFwdMsg" dir="ltr" style="color: inherit;"><span style="font-family: Calibri, sans-serif; font-size: 11pt; color: rgb(0, 0, 0);"><b>From:</b> Cedar County Treasurer &lt;tax@cedarcounty-demo.example.org&gt;<br>
+<b>Sent:</b> Tuesday, September 15, 2026 9:12 AM<br>
+<b>To:</b> mom.demo@example.com &lt;mom.demo@example.com&gt;<br>
+<b>Subject:</b> Property tax statement ready</span>
+<div>&nbsp;</div>
+</div>
+<div class="elementToProof" style="direction: ltr; font-family: Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);">
+<p>Your annual property tax statement is ready. Amount due: $850.00. Payment is accepted by check at the county office by November 1.</p></div>
+</body></html>
+
+------=_Part_propertytaxoutlook--

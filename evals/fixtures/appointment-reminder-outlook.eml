@@ -1,0 +1,46 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: FW: Appointment reminder
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <appointment-reminder-outlook@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_appointmentreminderoutlook"
+
+------=_Part_appointmentreminderoutlook
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Please check this.
+
+________________________________
+From: Oak Clinic <appointments@oakclinic-demo.example.org>
+Sent: Tuesday, September 15, 2026 9:12 AM
+To: mom.demo@example.com <mom.demo@example.com>
+Subject: Appointment reminder
+
+Your appointment at Oak Clinic is September 24 at 10 AM. This is a reminder only.
+
+
+------=_Part_appointmentreminderoutlook
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body dir="ltr">
+<div class="elementToProof" style="font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 11pt; color: rgb(0, 0, 0);">
+Please check this.</div>
+<div style="font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 11pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+<div id="appendonsend" style="color: inherit;"></div>
+<hr style="display: inline-block; width: 98%;">
+<div id="divRplyFwdMsg" dir="ltr" style="color: inherit;"><span style="font-family: Calibri, sans-serif; font-size: 11pt; color: rgb(0, 0, 0);"><b>From:</b> Oak Clinic &lt;appointments@oakclinic-demo.example.org&gt;<br>
+<b>Sent:</b> Tuesday, September 15, 2026 9:12 AM<br>
+<b>To:</b> mom.demo@example.com &lt;mom.demo@example.com&gt;<br>
+<b>Subject:</b> Appointment reminder</span>
+<div>&nbsp;</div>
+</div>
+<div class="elementToProof" style="direction: ltr; font-family: Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);">
+<p>Your appointment at Oak Clinic is September 24 at 10 AM. This is a reminder only.</p></div>
+</body></html>
+
+------=_Part_appointmentreminderoutlook--

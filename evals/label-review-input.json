@@ -1,0 +1,569 @@
+[
+  {
+    "id": "medicare-suspension",
+    "category": "scam",
+    "original": {
+      "fromName": "Medicare Benefits Center",
+      "fromAddress": "alerts@medicare-benefits-center.com",
+      "subject": "Your Medicare benefits are suspended",
+      "note": "Is this real?",
+      "textBody": "Your Medicare benefits have been *SUSPENDED* due to a billing error.\n\nYou must reactivate *within 24 hours* or coverage will be terminated.\n\nCall *1-800-555-0199* now or visit\nhttps://medicare-benefits-center.com/reactivate and confirm your Medicare Number.\n\nMedicare Benefits Center",
+      "htmlBody": "<p>Your Medicare benefits have been <b>SUSPENDED</b> due to a billing error.</p><p>You must reactivate <b>within 24 hours</b> or coverage will be terminated.</p><p>Call <b>1-800-555-0199</b> now or visit <a href=\"https://medicare-benefits-center.com/reactivate\" target=\"_blank\">https://medicare-benefits-center.com/reactivate</a> and confirm your Medicare Number.</p><p>Medicare Benefits Center</p>"
+    },
+    "truth": {
+      "senderAddress": "alerts@medicare-benefits-center.com",
+      "urlDomains": [
+        "medicare-benefits-center.com"
+      ],
+      "phones": [
+        "+18005550199"
+      ]
+    },
+    "split": "development"
+  },
+  {
+    "id": "ssa-number-suspended",
+    "category": "scam",
+    "original": {
+      "fromName": "Social Security Administration",
+      "fromAddress": "ssa.notice.4471@gmail.com",
+      "subject": "Your Social Security number has been suspended",
+      "note": "Should I call them?",
+      "textBody": "Dear Citizen,\n\nYour Social Security number has been suspended because of suspicious activity linked to a crime in Texas. A warrant for your arrest will be issued unless you contact our officer immediately at 1-800-555-0142 and confirm your Social Security number.\n\nOfficer Daniel Reyes\nSocial Security Administration",
+      "htmlBody": "<p>Dear Citizen,</p><p>Your Social Security number has been suspended because of suspicious activity linked to a crime in Texas. A warrant for your arrest will be issued unless you contact our officer immediately at <b>1-800-555-0142</b> and confirm your Social Security number.</p><p>Officer Daniel Reyes<br>Social Security Administration</p>"
+    },
+    "truth": {
+      "senderAddress": "ssa.notice.4471@gmail.com",
+      "urlDomains": [],
+      "phones": [
+        "+18005550142"
+      ]
+    },
+    "split": "development"
+  },
+  {
+    "id": "tech-support-gift-cards",
+    "category": "scam",
+    "original": {
+      "fromName": "PC Support Desk",
+      "fromAddress": "support@pc-helpdesk-alerts.net",
+      "subject": "Your computer license has expired",
+      "note": "They want me to buy gift cards??",
+      "textBody": "Your Windows security license expired today. To avoid permanent data loss, renew now for $299 using Google Play gift cards and reply with the card codes. Our technicians are standing by.\n\nPC Support Desk",
+      "htmlBody": "<p>Your Windows security license expired today. To avoid permanent data loss, renew now for $299 using <b>Google Play gift cards</b> and reply with the card codes. Our technicians are standing by.</p><p>PC Support Desk</p>"
+    },
+    "truth": {
+      "senderAddress": "support@pc-helpdesk-alerts.net",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "amazon-order",
+    "category": "legit",
+    "original": {
+      "fromName": "Amazon.com",
+      "fromAddress": "auto-confirm@amazon.com",
+      "subject": "Your Amazon.com order #112-3456789-0123456",
+      "note": "Did I order this?",
+      "textBody": "Hello,\n\nThank you for your order. We'll send a confirmation when your item ships.\n\nOrder #112-3456789-0123456\nKirkland Signature Green Tea, 100 count  $18.99\nArriving: Thursday, September 18\n\nView or manage your order: https://www.amazon.com/gp/css/order-history\n\nAmazon.com",
+      "htmlBody": "<p>Hello,</p><p>Thank you for your order. We'll send a confirmation when your item ships.</p><p>Order #112-3456789-0123456<br>Kirkland Signature Green Tea, 100 count &nbsp; $18.99<br>Arriving: Thursday, September 18</p><p><a href=\"https://www.amazon.com/gp/css/order-history\">View or manage your order</a></p><p>Amazon.com</p>"
+    },
+    "truth": {
+      "senderAddress": "auto-confirm@amazon.com",
+      "urlDomains": [
+        "amazon.com"
+      ],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "coned-bill",
+    "category": "legit",
+    "original": {
+      "fromName": "Con Edison",
+      "fromAddress": "customerservice@coned.com",
+      "subject": "Your Con Edison bill is ready",
+      "note": "How much do I owe?",
+      "textBody": "Your Con Edison bill for August is ready.\n\nAmount due: $84.20\nDue date: October 3, 2026\n\nView your bill: https://www.coned.com/en/accounts-billing\nQuestions? Call 1-800-752-6633.\n\nCon Edison",
+      "htmlBody": "<p>Your Con Edison bill for August is ready.</p><p>Amount due: <b>$84.20</b><br>Due date: <b>October 3, 2026</b></p><p><a href=\"https://www.coned.com/en/accounts-billing\">View your bill</a><br>Questions? Call 1-800-752-6633.</p><p>Con Edison</p>"
+    },
+    "truth": {
+      "senderAddress": "customerservice@coned.com",
+      "urlDomains": [
+        "coned.com"
+      ],
+      "phones": [
+        "+18007526633"
+      ]
+    },
+    "split": "development"
+  },
+  {
+    "id": "friend-chain-letter",
+    "category": "unverifiable",
+    "original": {
+      "fromName": "Barbara",
+      "fromAddress": "barb.knits.demo@gmail.com",
+      "subject": "Fw: You have to read this!!",
+      "note": "Is this true?",
+      "textBody": "Sending this to everyone I love. Forward to 10 friends and something wonderful will happen tomorrow. Bill Gates is giving away money to everyone who shares this!\n\nHugs, Barb",
+      "htmlBody": "<p>Sending this to everyone I love. Forward to 10 friends and something wonderful will happen tomorrow. Bill Gates is giving away money to everyone who shares this!</p><p>Hugs, Barb</p>"
+    },
+    "truth": {
+      "senderAddress": "barb.knits.demo@gmail.com",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "empty-forward",
+    "category": "unverifiable",
+    "original": {
+      "fromName": "Newsletter",
+      "fromAddress": "hello@gardenclub-demo.org",
+      "subject": "(no subject)",
+      "note": "",
+      "textBody": "",
+      "htmlBody": ""
+    },
+    "truth": {
+      "senderAddress": "hello@gardenclub-demo.org",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "irs-refund",
+    "category": "scam",
+    "original": {
+      "fromName": "Internal Revenue Service",
+      "fromAddress": "refund@irs-rebate.example.net",
+      "subject": "IRS refund available",
+      "textBody": "Your IRS refund is ready. Visit https://irs-rebate.example.net/claim within 24 hours and confirm your account number.",
+      "htmlBody": "<p>Your IRS refund is ready. Visit https://irs-rebate.example.net/claim within 24 hours and confirm your account number.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "refund@irs-rebate.example.net",
+      "urlDomains": [
+        "example.net"
+      ],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "usps-redelivery-fee",
+    "category": "scam",
+    "original": {
+      "fromName": "USPS",
+      "fromAddress": "delivery@usps-redelivery.example.net",
+      "subject": "USPS redelivery fee",
+      "textBody": "USPS could not deliver your parcel. Pay the $1.20 redelivery fee today only at https://usps-redelivery.example.net/pay.",
+      "htmlBody": "<p>USPS could not deliver your parcel. Pay the $1.20 redelivery fee today only at https://usps-redelivery.example.net/pay.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "delivery@usps-redelivery.example.net",
+      "urlDomains": [
+        "example.net"
+      ],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "amazon-account-locked",
+    "category": "scam",
+    "original": {
+      "fromName": "Amazon",
+      "fromAddress": "account@amazon-help.example.net",
+      "subject": "Amazon account locked",
+      "textBody": "Your Amazon account is locked. Reply with your password to restore access.",
+      "htmlBody": "<p>Your Amazon account is locked. Reply with your password to restore access.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "account@amazon-help.example.net",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "bank-unusual-login",
+    "category": "scam",
+    "original": {
+      "fromName": "Chase Security alerts@chase.com",
+      "fromAddress": "alerts@chase-alerts.example.net",
+      "subject": "Chase unusual login",
+      "textBody": "Chase detected an unusual login. Visit https://chase-alerts.example.net/verify immediately and confirm your account number.\n\nQuoted security footer:\nFrom: Chase <alerts@chase.com>\nAuthentication-Results: spf=pass; dkim=pass",
+      "htmlBody": "<p>Chase detected an unusual login. Visit https://chase-alerts.example.net/verify immediately and confirm your account number.<br><br>Quoted security footer:<br>From: Chase &lt;alerts@chase.com&gt;<br>Authentication-Results: spf=pass; dkim=pass</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "alerts@chase-alerts.example.net",
+      "urlDomains": [
+        "example.net"
+      ],
+      "phones": []
+    },
+    "split": "challenge"
+  },
+  {
+    "id": "grandchild-in-jail",
+    "category": "scam",
+    "original": {
+      "fromName": "Daniel",
+      "fromAddress": "daniel.family.demo@example.com",
+      "subject": "Grandma I need bail",
+      "textBody": "Grandma, I am in jail. Buy $500 in Google Play gift cards and reply with the codes so my lawyer can arrange bail.",
+      "htmlBody": "<p>Grandma, I am in jail. Buy $500 in Google Play gift cards and reply with the codes so my lawyer can arrange bail.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "daniel.family.demo@example.com",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "utility-disconnect-today",
+    "category": "scam",
+    "original": {
+      "fromName": "Con Edison",
+      "fromAddress": "disconnect@coned-billing.example.net",
+      "subject": "Con Edison disconnection today",
+      "textBody": "Your Con Edison service will be disconnected today. Pay $450 using Bitcoin to prevent termination.",
+      "htmlBody": "<p>Your Con Edison service will be disconnected today. Pay $450 using Bitcoin to prevent termination.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "disconnect@coned-billing.example.net",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "netflix-payment-failed",
+    "category": "scam",
+    "original": {
+      "fromName": "Netflix",
+      "fromAddress": "billing@netflix-payment.example.net",
+      "subject": "Netflix payment failed",
+      "textBody": "Your Netflix payment failed. Reply with your card number and security code to keep watching.",
+      "htmlBody": "<p>Your Netflix payment failed. Reply with your card number and security code to keep watching.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "billing@netflix-payment.example.net",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "lottery-prize",
+    "category": "scam",
+    "original": {
+      "fromName": "Prize Desk",
+      "fromAddress": "winner@lottery-demo.example.com",
+      "subject": "Your lottery prize",
+      "textBody": "You won $100000 in our lottery. Send a $200 processing payment by Western Union to release your prize.",
+      "htmlBody": "<p>You won $100000 in our lottery. Send a $200 processing payment by Western Union to release your prize.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "winner@lottery-demo.example.com",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "fake-charity",
+    "category": "scam",
+    "original": {
+      "fromName": "Hope Harbor Relief",
+      "fromAddress": "donate@hopeharbor-demo.example.com",
+      "subject": "Disaster relief donation",
+      "textBody": "Hope Harbor Relief needs your donation. Buy a $100 Steam gift card and email us the card codes as your donation.",
+      "htmlBody": "<p>Hope Harbor Relief needs your donation. Buy a $100 Steam gift card and email us the card codes as your donation.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "donate@hopeharbor-demo.example.com",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "challenge"
+  },
+  {
+    "id": "medicare-summary-notice",
+    "category": "legit",
+    "original": {
+      "fromName": "Medicare",
+      "fromAddress": "notice@medicare.gov",
+      "subject": "Your Medicare Summary Notice",
+      "textBody": "Your Medicare Summary Notice is available. View it at https://www.medicare.gov/account. This is not a bill.",
+      "htmlBody": "<p>Your Medicare Summary Notice is available. View it at https://www.medicare.gov/account. This is not a bill.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "notice@medicare.gov",
+      "urlDomains": [
+        "medicare.gov"
+      ],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "bank-statement-ready",
+    "category": "legit",
+    "original": {
+      "fromName": "Chase",
+      "fromAddress": "statements@chase.com",
+      "subject": "Your Chase statement is ready",
+      "textBody": "Your monthly Chase statement is available. Our mailing service tracking link is https://click.statements-demo.example.net/r/123. You can also use https://www.chase.com.",
+      "htmlBody": "<p>Your monthly Chase statement is available. Our mailing service tracking link is https://click.statements-demo.example.net/r/123. You can also use https://www.chase.com.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "statements@chase.com",
+      "urlDomains": [
+        "example.net",
+        "chase.com"
+      ],
+      "phones": []
+    },
+    "split": "challenge"
+  },
+  {
+    "id": "pharmacy-refill",
+    "category": "legit",
+    "original": {
+      "fromName": "Cedar Grove Pharmacy",
+      "fromAddress": "refills@cedargrove-demo.example.org",
+      "subject": "Your refill is ready",
+      "textBody": "Your prescription refill is ready at Cedar Grove Pharmacy. Our records show you received a $10 gift card with your last visit. No payment is requested in this email.",
+      "htmlBody": "<p>Your prescription refill is ready at Cedar Grove Pharmacy. Our records show you received a $10 gift card with your last visit. No payment is requested in this email.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "refills@cedargrove-demo.example.org",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "appointment-reminder",
+    "category": "legit",
+    "original": {
+      "fromName": "Oak Clinic",
+      "fromAddress": "appointments@oakclinic-demo.example.org",
+      "subject": "Appointment reminder",
+      "textBody": "Your appointment at Oak Clinic is September 24 at 10 AM. This is a reminder only.",
+      "htmlBody": "<p>Your appointment at Oak Clinic is September 24 at 10 AM. This is a reminder only.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "appointments@oakclinic-demo.example.org",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "property-tax",
+    "category": "legit",
+    "original": {
+      "fromName": "Cedar County Treasurer",
+      "fromAddress": "tax@cedarcounty-demo.example.org",
+      "subject": "Property tax statement ready",
+      "textBody": "Your annual property tax statement is ready. Amount due: $850.00. Payment is accepted by check at the county office by November 1.",
+      "htmlBody": "<p>Your annual property tax statement is ready. Amount due: $850.00. Payment is accepted by check at the county office by November 1.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "tax@cedarcounty-demo.example.org",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "insurance-renewal",
+    "category": "legit",
+    "original": {
+      "fromName": "Pine Insurance",
+      "fromAddress": "renewals@pineinsurance-demo.example.org",
+      "subject": "Policy renewal notice",
+      "textBody": "Your Pine Insurance policy renews October 15. Premium: $240.00. This notice does not request payment. Our office does not accept Bitcoin or gift cards.",
+      "htmlBody": "<p>Your Pine Insurance policy renews October 15. Premium: $240.00. This notice does not request payment. Our office does not accept Bitcoin or gift cards.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "renewals@pineinsurance-demo.example.org",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "church-newsletter",
+    "category": "legit",
+    "original": {
+      "fromName": "Elm Street Church",
+      "fromAddress": "news@elmchurch-demo.example.org",
+      "subject": "Sunday church newsletter",
+      "textBody": "Our food drive distributed gift cards to families last week. We do not need donations this week. Sunday gathering starts at 10 AM.",
+      "htmlBody": "<p>Our food drive distributed gift cards to families last week. We do not need donations this week. Sunday gathering starts at 10 AM.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "news@elmchurch-demo.example.org",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "challenge"
+  },
+  {
+    "id": "ssa-cola-notice",
+    "category": "legit",
+    "original": {
+      "fromName": "Social Security Administration",
+      "fromAddress": "notice@ssa.gov",
+      "subject": "Social Security COLA notice",
+      "textBody": "Your Social Security cost-of-living adjustment notice is available. Read general information at https://www.ssa.gov/cola/. There is nothing to pay.",
+      "htmlBody": "<p>Your Social Security cost-of-living adjustment notice is available. Read general information at https://www.ssa.gov/cola/. There is nothing to pay.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "notice@ssa.gov",
+      "urlDomains": [
+        "ssa.gov"
+      ],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "dmv-renewal",
+    "category": "legit",
+    "original": {
+      "fromName": "California DMV",
+      "fromAddress": "notice@dmv.ca.gov",
+      "subject": "Vehicle registration renewal",
+      "textBody": "Your vehicle registration renewal notice is available. View information at https://www.dmv.ca.gov/portal/vehicle-registration/.",
+      "htmlBody": "<p>Your vehicle registration renewal notice is available. View information at https://www.dmv.ca.gov/portal/vehicle-registration/.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "notice@dmv.ca.gov",
+      "urlDomains": [
+        "ca.gov"
+      ],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "jury-summons",
+    "category": "legit",
+    "original": {
+      "fromName": "Cedar County Court",
+      "fromAddress": "jury@cedarcourt-demo.example.org",
+      "subject": "Jury service reminder",
+      "textBody": "Your previously mailed jury summons lists October 6 as your reporting date. This email requests no money or personal information.",
+      "htmlBody": "<p>Your previously mailed jury summons lists October 6 as your reporting date. This email requests no money or personal information.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "jury@cedarcourt-demo.example.org",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "friend-email",
+    "category": "unverifiable",
+    "original": {
+      "fromName": "Martha",
+      "fromAddress": "martha.demo@example.com",
+      "subject": "Lunch next week",
+      "textBody": "Are you free for lunch on Tuesday? I will bring photos from our trip.",
+      "htmlBody": "<p>Are you free for lunch on Tuesday? I will bring photos from our trip.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "martha.demo@example.com",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "development"
+  },
+  {
+    "id": "newsletter",
+    "category": "unverifiable",
+    "original": {
+      "fromName": "Cedar Garden Club",
+      "fromAddress": "editor@cedargarden-demo.example.org",
+      "subject": "Autumn gardening news",
+      "textBody": "Our garden club is discussing autumn planting and soil preparation this month.",
+      "htmlBody": "<p>Our garden club is discussing autumn planting and soil preparation this month.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "editor@cedargarden-demo.example.org",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "challenge"
+  },
+  {
+    "id": "local-promo",
+    "category": "unverifiable",
+    "original": {
+      "fromName": "North Corner Books",
+      "fromAddress": "offers@northbooks-demo.example.org",
+      "subject": "Weekend book display",
+      "textBody": "Our new book display is open this weekend. Browse titles when you are nearby.",
+      "htmlBody": "<p>Our new book display is open this weekend. Browse titles when you are nearby.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "offers@northbooks-demo.example.org",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "challenge"
+  },
+  {
+    "id": "no-claim-greeting",
+    "category": "unverifiable",
+    "original": {
+      "fromName": "A Neighbor",
+      "fromAddress": "neighbor.demo@example.com",
+      "subject": "Good morning",
+      "textBody": "Wishing you a pleasant day.",
+      "htmlBody": "<p>Wishing you a pleasant day.</p>",
+      "note": "Please check this."
+    },
+    "truth": {
+      "senderAddress": "neighbor.demo@example.com",
+      "urlDomains": [],
+      "phones": []
+    },
+    "split": "development"
+  }
+]

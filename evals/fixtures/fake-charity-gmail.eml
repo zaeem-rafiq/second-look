@@ -1,0 +1,32 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: Fwd: Disaster relief donation
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <fake-charity-gmail@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_fakecharitygmail"
+
+------=_Part_fakecharitygmail
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Please check this.
+
+---------- Forwarded message ---------
+From: Hope Harbor Relief <donate@hopeharbor-demo.example.com>
+Date: Tue, Sep 15, 2026 at 9:12 AM
+Subject: Disaster relief donation
+To: <mom.demo@example.com>
+
+
+Hope Harbor Relief needs your donation. Buy a $100 Steam gift card and email us the card codes as your donation.
+
+
+------=_Part_fakecharitygmail
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<div dir="ltr">Please check this.<br><div><br><div class="gmail_quote gmail_quote_container"><div dir="ltr" class="gmail_attr">---------- Forwarded message ---------<br>From: <b class="gmail_sendername" dir="auto">Hope Harbor Relief</b> <span dir="auto">&lt;<a href="mailto:donate@hopeharbor-demo.example.com">donate@hopeharbor-demo.example.com</a>&gt;</span><br>Date: Tue, Sep 15, 2026 at 9:12 AM<br>Subject: Disaster relief donation<br>To:  &lt;<a href="mailto:mom.demo@example.com">mom.demo@example.com</a>&gt;<br></div><br><br><p>Hope Harbor Relief needs your donation. Buy a $100 Steam gift card and email us the card codes as your donation.</p>
+</div></div></div>
+
+------=_Part_fakecharitygmail--

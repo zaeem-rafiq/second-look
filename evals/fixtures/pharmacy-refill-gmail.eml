@@ -1,0 +1,32 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: Fwd: Your refill is ready
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <pharmacy-refill-gmail@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_pharmacyrefillgmail"
+
+------=_Part_pharmacyrefillgmail
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Please check this.
+
+---------- Forwarded message ---------
+From: Cedar Grove Pharmacy <refills@cedargrove-demo.example.org>
+Date: Tue, Sep 15, 2026 at 9:12 AM
+Subject: Your refill is ready
+To: <mom.demo@example.com>
+
+
+Your prescription refill is ready at Cedar Grove Pharmacy. Our records show you received a $10 gift card with your last visit. No payment is requested in this email.
+
+
+------=_Part_pharmacyrefillgmail
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<div dir="ltr">Please check this.<br><div><br><div class="gmail_quote gmail_quote_container"><div dir="ltr" class="gmail_attr">---------- Forwarded message ---------<br>From: <b class="gmail_sendername" dir="auto">Cedar Grove Pharmacy</b> <span dir="auto">&lt;<a href="mailto:refills@cedargrove-demo.example.org">refills@cedargrove-demo.example.org</a>&gt;</span><br>Date: Tue, Sep 15, 2026 at 9:12 AM<br>Subject: Your refill is ready<br>To:  &lt;<a href="mailto:mom.demo@example.com">mom.demo@example.com</a>&gt;<br></div><br><br><p>Your prescription refill is ready at Cedar Grove Pharmacy. Our records show you received a $10 gift card with your last visit. No payment is requested in this email.</p>
+</div></div></div>
+
+------=_Part_pharmacyrefillgmail--

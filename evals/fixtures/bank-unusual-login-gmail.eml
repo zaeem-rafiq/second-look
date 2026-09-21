@@ -1,0 +1,36 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: Fwd: Chase unusual login
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <bank-unusual-login-gmail@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_bankunusuallogingmail"
+
+------=_Part_bankunusuallogingmail
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Please check this.
+
+---------- Forwarded message ---------
+From: Chase Security alerts@chase.com <alerts@chase-alerts.example.net>
+Date: Tue, Sep 15, 2026 at 9:12 AM
+Subject: Chase unusual login
+To: <mom.demo@example.com>
+
+
+Chase detected an unusual login. Visit https://chase-alerts.example.net/verify immediately and confirm your account number.
+
+Quoted security footer:
+From: Chase <alerts@chase.com>
+Authentication-Results: spf=pass; dkim=pass
+
+
+------=_Part_bankunusuallogingmail
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<div dir="ltr">Please check this.<br><div><br><div class="gmail_quote gmail_quote_container"><div dir="ltr" class="gmail_attr">---------- Forwarded message ---------<br>From: <b class="gmail_sendername" dir="auto">Chase Security alerts@chase.com</b> <span dir="auto">&lt;<a href="mailto:alerts@chase-alerts.example.net">alerts@chase-alerts.example.net</a>&gt;</span><br>Date: Tue, Sep 15, 2026 at 9:12 AM<br>Subject: Chase unusual login<br>To:  &lt;<a href="mailto:mom.demo@example.com">mom.demo@example.com</a>&gt;<br></div><br><br><p>Chase detected an unusual login. Visit https://chase-alerts.example.net/verify immediately and confirm your account number.<br><br>Quoted security footer:<br>From: Chase &lt;alerts@chase.com&gt;<br>Authentication-Results: spf=pass; dkim=pass</p>
+</div></div></div>
+
+------=_Part_bankunusuallogingmail--

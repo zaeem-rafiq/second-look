@@ -1,203 +1,182 @@
-// Eval runner: replays every fixture through the same pure pipeline the deployment uses.
-// Offline by default (deterministic extraction). With OPENAI_API_KEY the model extraction
-// is merged in, exactly as in production. With EVAL_ONLINE=1 evidence URLs are fetched
-// and each cited quote is checked verbatim against the page text.
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+// Synthetic, read-only replay. Never imports AgentMail or sends mail.
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 import PostalMime from "postal-mime";
-import { FIXTURES } from "./fixtures/index";
-import { parseForwardedEmail } from "../lib/forwardParser";
+import { zodTextFormat } from "openai/helpers/zod";
+import { FIXTURES, SCENARIOS } from "./fixtures/index";
+import { parseForwardedEmail, htmlToText } from "../lib/forwardParser";
 import { deterministicExtract, mergeExtraction, buildModelInput, ExtractionSchema, EXTRACTION_SYSTEM_PROMPT, type LlmExtraction } from "../lib/extract";
-import { normalizePhone } from "../lib/phones";
-import { findOrg } from "../lib/registry";
+import { normalizePhone, extractPhones } from "../lib/phones";
+import { findOrg, pickOfficialCandidate } from "../lib/registry";
 import { runChecks } from "../lib/checks";
 import { decideVerdict } from "../lib/verdict";
 import { SEED_ORGS, FALLBACK_ORG_KEY } from "../lib/registrySeed";
 import { normalizeQuoteText } from "../lib/quotes";
-import { formatPhoneForHumans, templateReply, validateReply } from "../lib/replyTemplates";
-import { urlDomain } from "../lib/domains";
-import { htmlToText } from "../lib/forwardParser";
-import type { CheckResult, Verdict } from "../lib/types";
+import { composeReply, explanationReasons, formatPhoneForHumans, templateReply, validateReply } from "../lib/replyTemplates";
+import { EXPLANATION_SYSTEM_PROMPT, Explanation, explanationUserInput } from "../lib/replyPrompt";
+import { urlDomain, hostOf, registrableDomain } from "../lib/domains";
+import { paymentGateMode, gateEmailFromParsed } from "../lib/paymentGate";
+import { applyPaymentGateFlag, parseCutoff } from "../lib/paymentGateClient";
+import { EXTRACT_MODEL, REPLY_MODEL, openaiClient, openaiConfigured } from "../convex/clients/openai";
+import { firecrawlConfigured, scrape, search } from "../convex/clients/firecrawl";
+import type { CheckResult, OfficialOrg, Verdict } from "../lib/types";
 
-type Result = {
-  id: string;
-  category: string;
-  expected: Verdict;
-  got: Verdict;
-  org: string | null;
-  senderOk: boolean;
-  urlsOk: boolean;
-  phonesOk: boolean;
-  evidenceOk: boolean | null;
-  replyOk: boolean;
-  notes: string[];
-};
-
-const fallback = SEED_ORGS.find((o) => o.key === FALLBACK_ORG_KEY) ?? null;
 const online = process.env.EVAL_ONLINE === "1";
-const useLlm = !!process.env.OPENAI_API_KEY;
+const useLlm = openaiConfigured();
+const gateMode = paymentGateMode(process.env.PAYMENT_GATE_MODE);
+const split = process.env.EVAL_SPLIT ?? "all";
+if (!["all", "development", "challenge"].includes(split)) throw new Error("EVAL_SPLIT must be all, development, or challenge");
+const startedAt = new Date().toISOString();
+const selected = FIXTURES.filter((f) => split === "all" || f.split === split);
+const fallback = SEED_ORGS.find((o) => o.key === FALLBACK_ORG_KEY) ?? null;
+const hash = (s: string) => createHash("sha256").update(s).digest("hex");
+const datasetHash = hash(JSON.stringify(SCENARIOS) + FIXTURES.map((f) => readFileSync(`evals/fixtures/${f.id}.eml`, "utf8")).join(""));
+const frozenLabels: Array<{ id: string; expected: string }> = JSON.parse(readFileSync("evals/expected-labels.json", "utf8"));
+const labelReview: { reviewInputSha256: string; rows: Array<{ id: string; expected: string }> } = JSON.parse(readFileSync("evals/independent-label-review.json", "utf8"));
+const reviewInput = SCENARIOS.map(({ id, category, original, truth, split }) => ({ id, category, original, truth, split }));
+const labelsReviewed = hash(JSON.stringify(reviewInput, null, 2) + "\n") === labelReview.reviewInputSha256 && frozenLabels.length === 30 && labelReview.rows.length === 30 && SCENARIOS.every((s) => frozenLabels.find((l) => l.id === s.id)?.expected === s.expected && labelReview.rows.find((l) => l.id === s.id)?.expected === s.expected);
+const paymentGateDecisions: Array<{ id: string; outcome: Record<string, unknown> }> = [];
+const modelCounts = { extractionAccepted: 0, extractionFailed: 0, replyAttempted: 0, replyCompleted: 0, replyIncomplete: 0, replyAccepted: 0, replyRejected: 0, replyFailed: 0, paymentGateInvoked: 0, resolutionAttempted: 0, resolutionFailed: 0 };
+const pageCache = new Map<string, { text: string | null; status: number | null; error: string | null; hash: string | null }>();
+const resolutionCache = new Map<string, OfficialOrg | null>();
 
-async function llmExtract(input: string): Promise<LlmExtraction | null> {
-  const { default: OpenAI } = await import("openai");
-  const { zodTextFormat } = await import("openai/helpers/zod");
-  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, timeout: 45_000 });
-  const response = await client.responses.parse({
-    model: process.env.OPENAI_EXTRACT_MODEL ?? "gpt-5.4-nano",
-    reasoning: { effort: "none" },
-    input: [
-      { role: "system", content: EXTRACTION_SYSTEM_PROMPT },
-      { role: "user", content: input },
-    ],
-    text: { format: zodTextFormat(ExtractionSchema, "email_extraction") },
-  });
-  return response.output_parsed ?? null;
-}
-
-const normalize = normalizeQuoteText;
-
-const pageCache = new Map<string, string | null>();
-async function fetchPageText(url: string): Promise<string | null> {
-  if (pageCache.has(url)) return pageCache.get(url)!;
-  let text: string | null = null;
+// Same unknown-org selection and source rules as resolveForCase, without registry writes.
+async function resolve(claim: string | null, sender: string | null): Promise<OfficialOrg | null> {
+  const found = findOrg(SEED_ORGS, { claimedOrganization: claim, senderAddress: sender });
+  if (found || !claim?.trim() || !online || !firecrawlConfigured()) return found;
+  if (resolutionCache.has(claim)) return resolutionCache.get(claim)!;
+  modelCounts.resolutionAttempted++;
+  let org: OfficialOrg | null = null;
   try {
-    if (process.env.FIRECRAWL_API_KEY) {
-      const res = await fetch("https://api.firecrawl.dev/v2/scrape", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${process.env.FIRECRAWL_API_KEY}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ url, formats: ["markdown"], onlyMainContent: false }),
-      });
-      const json = (await res.json()) as { success?: boolean; data?: { markdown?: string; metadata?: { statusCode?: number } } };
-      if (json.success && json.data?.markdown) text = json.data.markdown;
-    } else {
-      const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/128.0 Safari/537.36" } });
-      if (res.ok) text = htmlToText(await res.text());
+    const candidate = pickOfficialCandidate(claim, await search(`${claim} official website contact us`, { limit: 3 }));
+    if (candidate) {
+      const page = await scrape(candidate.url, { timeoutMs: 20_000 });
+      if ((page.statusCode === null || (page.statusCode >= 200 && page.statusCode < 400)) && page.markdown) {
+        org = { name: claim, aliases: [claim], domains: [registrableDomain(hostOf(candidate.url)!)!], phones: extractPhones(page.markdown).slice(0, 10), policyQuotes: [], sourceUrls: [page.finalUrl ?? candidate.url], contactEmail: null, lastCrawledAt: null };
+      }
     }
-  } catch {
-    text = null;
-  }
-  pageCache.set(url, text);
-  return text;
+  } catch { modelCounts.resolutionFailed++; }
+  resolutionCache.set(claim, org);
+  return org;
 }
 
-async function evidenceVerified(rows: CheckResult[]): Promise<{ ok: boolean; notes: string[] }> {
-  const notes: string[] = [];
-  const cited = rows.filter((r) => r.applicable && !r.matched && r.severity === "hard" && r.quote && r.sourceUrl);
-  if (cited.length === 0) return { ok: false, notes: ["no cited quote on a mismatch"] };
-  for (const r of cited) {
-    const page = await fetchPageText(r.sourceUrl);
-    if (page === null) {
-      notes.push(`could not fetch ${r.sourceUrl}`);
-      continue;
+async function fetchPage(url: string) {
+  if (pageCache.has(url)) return pageCache.get(url)!;
+  let text: string | null = null, status: number | null = null, error: string | null = null;
+  try {
+    if (firecrawlConfigured()) {
+      const page = await scrape(url, { maxAgeMs: 0, timeoutMs: 20_000 });
+      status = page.statusCode;
+      if (status === null || (status >= 200 && status < 400)) text = page.markdown;
+    } else {
+      const response = await fetch(url, { signal: AbortSignal.timeout(20_000), headers: { "User-Agent": "SecondLookSyntheticEvaluation/1.0" } });
+      status = response.status;
+      if (response.ok) text = htmlToText(await response.text());
     }
-    if (normalize(page).includes(normalize(r.quote))) return { ok: true, notes };
-    notes.push(`quote not found verbatim on ${r.sourceUrl}`);
+    if (!text) error = "source unavailable or empty";
+  } catch { error = "source request failed"; }
+  const result = { text, status, error, hash: text === null ? null : hash(text) };
+  pageCache.set(url, result);
+  return result;
+}
+
+async function evidenceVerified(rows: CheckResult[]) {
+  const cited = rows.filter((r) => r.applicable && !r.matched && r.severity === "hard" && r.quote && r.sourceUrl);
+  const citations = [];
+  for (const r of cited) {
+    const page = online ? await fetchPage(r.sourceUrl) : null;
+    citations.push({ sourceUrl: r.sourceUrl, quote: r.quote, verified: page ? page.text !== null && normalizeQuoteText(page.text).includes(normalizeQuoteText(r.quote)) : null });
   }
-  return { ok: false, notes };
+  return { ok: online ? citations.some((c) => c.verified) : cited.length > 0, citations };
 }
 
 async function main() {
-  const dir = join(process.cwd(), "evals", "fixtures");
-  const files = readdirSync(dir).filter((f) => f.endsWith(".eml"));
-  const results: Result[] = [];
-
-  for (const file of files) {
-    const id = file.replace(/\.eml$/, "");
-    const fx = FIXTURES.find((f) => f.id === id);
-    if (!fx) continue;
-    const raw = readFileSync(join(dir, file), "utf8");
-    const mail = await PostalMime.parse(raw);
-    const text = mail.text ?? "";
-    const html = mail.html ?? "";
-
+  const results: Array<{ id: string; scenarioId: string; category: string; split: string; expected: Verdict; got: Verdict; org: string | null; senderOk: boolean; urlsOk: boolean; phonesOk: boolean; evidence: Awaited<ReturnType<typeof evidenceVerified>> | null; replyOk: boolean; boundedReply: boolean; reply: string; notes: string[] }> = [];
+  for (const fx of selected) {
+    const mail = await PostalMime.parse(readFileSync(`evals/fixtures/${fx.id}.eml`, "utf8"));
+    const text = mail.text ?? "", html = mail.html ?? "";
     const parsed = parseForwardedEmail(text, html);
     const det = deterministicExtract(parsed, text, html, SEED_ORGS);
     let llm: LlmExtraction | null = null;
+    const notes: string[] = [];
     if (useLlm) {
       try {
-        llm = await llmExtract(buildModelInput(parsed, text, html));
-      } catch (err) {
-        console.warn(`  llm extraction failed for ${id}: ${String(err).slice(0, 120)}`);
-      }
+        const response = await openaiClient().responses.parse({ model: EXTRACT_MODEL, reasoning: { effort: "none" }, input: [{ role: "system", content: EXTRACTION_SYSTEM_PROMPT }, { role: "user", content: buildModelInput(parsed, text, html) }], text: { format: zodTextFormat(ExtractionSchema, "email_extraction") } });
+        llm = response.status === "incomplete" ? null : response.output_parsed ?? null;
+        if (llm) modelCounts.extractionAccepted++; else modelCounts.extractionFailed++;
+      } catch { modelCounts.extractionFailed++; notes.push("extraction model failed; deterministic fallback observed"); }
+    }
+    if (llm && gateMode !== "off") {
+      modelCounts.paymentGateInvoked++;
+      // The production helper reports only decision metadata; preserve it without email bodies.
+      const originalLog = console.log;
+      console.log = (...args: unknown[]) => {
+        if (args[0] === "payment gate" && typeof args[1] === "string") paymentGateDecisions.push({ id: fx.id, outcome: JSON.parse(args[1]) as Record<string, unknown> });
+        originalLog(...args);
+      };
+      try { llm = await applyPaymentGateFlag(gateMode, llm, gateEmailFromParsed(parsed, text || htmlToText(html))); }
+      finally { console.log = originalLog; }
     }
     const extracted = mergeExtraction(det, llm, normalizePhone);
-    const org = findOrg(SEED_ORGS, { claimedOrganization: extracted.claimedOrganization, senderAddress: extracted.originalSender.address });
+    const org = await resolve(extracted.claimedOrganization, extracted.originalSender.address);
     const rows = runChecks(extracted, org, fallback);
     const got = decideVerdict({ orgResolved: org !== null, results: rows });
-
-    const notes: string[] = [];
-    const senderOk = fx.truth.senderAddress === null ? extracted.originalSender.address === null : extracted.originalSender.address === fx.truth.senderAddress;
-    if (!senderOk) notes.push(`sender ${extracted.originalSender.address} != ${fx.truth.senderAddress}`);
-    const gotDomains = extracted.urls.map((u) => urlDomain(u)).filter(Boolean);
+    const senderOk = extracted.originalSender.address === fx.truth.senderAddress;
+    const gotDomains = extracted.urls.map(urlDomain);
     const urlsOk = fx.truth.urlDomains.every((d) => gotDomains.includes(d));
-    if (!urlsOk) notes.push(`urls ${JSON.stringify(gotDomains)} missing ${JSON.stringify(fx.truth.urlDomains)}`);
     const phonesOk = fx.truth.phones.every((p) => extracted.phones.includes(p));
-    if (!phonesOk) notes.push(`phones ${JSON.stringify(extracted.phones)} missing ${JSON.stringify(fx.truth.phones)}`);
-
-    let evidenceOk: boolean | null = null;
-    if (got === "mismatch") {
-      const hasCited = rows.some((r) => r.applicable && !r.matched && r.severity === "hard" && r.quote && r.sourceUrl);
-      if (online) {
-        const v = await evidenceVerified(rows);
-        evidenceOk = v.ok;
-        notes.push(...v.notes);
-      } else {
-        evidenceOk = hasCited;
-        if (!hasCited) notes.push("mismatch without a cited quote");
-      }
+    const evidence = got === "mismatch" ? await evidenceVerified(rows) : null;
+    const facts = { verdict: got, orgName: org?.name ?? null, officialPhone: org?.phones[0] ? formatPhoneForHumans(org.phones[0]) : null, deadlineText: extracted.deadline ? new Date(`${extracted.deadline}T12:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" }) : null, amountText: extracted.moneyAmounts[0] ?? null, helperSignature: "— The Demo Family's helper (Second Look)" };
+    let reply = templateReply(facts);
+    if (useLlm) {
+      modelCounts.replyAttempted++;
+      try {
+        const reasons = explanationReasons(got, facts.orgName, rows);
+        const response = await openaiClient().responses.parse({ model: REPLY_MODEL, reasoning: { effort: "low" }, input: [{ role: "system", content: EXPLANATION_SYSTEM_PROMPT }, { role: "user", content: explanationUserInput(got, facts.orgName, reasons) }], text: { format: zodTextFormat(Explanation, "reply_explanation") } });
+        if (response.status === "completed" && response.output_parsed?.explanation) modelCounts.replyCompleted++;
+        else modelCounts.replyIncomplete++;
+        const candidate = composeReply(facts, response.output_parsed?.explanation ?? null, { reasons, orgName: facts.orgName, knownOrgNames: SEED_ORGS.flatMap((o) => [o.name, ...o.aliases]) });
+        if (candidate !== reply) modelCounts.replyAccepted++; else modelCounts.replyRejected++;
+        reply = candidate;
+      } catch { modelCounts.replyFailed++; notes.push("reply model failed; template fallback observed"); }
     }
-
-    const officialPhone = org?.phones[0] ? formatPhoneForHumans(org.phones[0]) : null;
-    const reply = templateReply({
-      verdict: got,
-      orgName: org?.name ?? null,
-      officialPhone,
-      deadlineText: extracted.deadline,
-      amountText: extracted.moneyAmounts[0] ?? null,
-      helperSignature: "— The Demo Family's helper (Second Look)",
-    });
-    const rv = validateReply(reply, { verdict: got, officialPhone });
-    if (!rv.ok) notes.push(`reply: ${rv.reasons.join(", ")}`);
-
-    results.push({ id, category: fx.category, expected: fx.expected, got, org: org?.name ?? null, senderOk, urlsOk, phonesOk, evidenceOk, replyOk: rv.ok, notes });
+    const validation = validateReply(reply, facts);
+    // Forwarded header text cannot establish authentication in either direction.
+    const boundedReply = !/\b(this one checks out|(?:didn't|did not|doesn't|does not|definitely) come from|(?:is|it's|was) (?:genuine|authentic|verified))\b/i.test(reply);
+    if (!validation.ok) notes.push(...validation.reasons);
+    if (!boundedReply) notes.push("reply asserts sender authentication from quoted details");
+    if (!senderOk || !urlsOk || !phonesOk) notes.push("incomplete extraction");
+    results.push({ id: fx.id, scenarioId: fx.scenarioId, category: fx.category, split: fx.split, expected: fx.expected, got, org: org?.name ?? null, senderOk, urlsOk, phonesOk, evidence, replyOk: validation.ok, boundedReply, reply, notes });
+    console.log(`${fx.id}: ${got}${got === fx.expected && senderOk && urlsOk && phonesOk && validation.ok && boundedReply && evidence?.ok !== false ? "" : " FAIL"}`);
   }
-
-  // ---- Assertions (spec §6) ----
-  const scams = results.filter((r) => r.category === "scam");
-  const legit = results.filter((r) => r.category === "legit");
-  const unver = results.filter((r) => r.category === "unverifiable");
-  const safetyFailures = scams.filter((r) => r.got === "matches_official");
-  const precisionFailures = legit.filter((r) => r.got === "mismatch");
-  const unverFailures = unver.filter((r) => r.got !== "cannot_verify");
-  const extractionFailures = results.filter((r) => !r.senderOk || !r.urlsOk || !r.phonesOk);
-  const evidenceFailures = results.filter((r) => r.got === "mismatch" && r.evidenceOk === false);
-  const replyFailures = results.filter((r) => !r.replyOk);
-  const labelMismatches = results.filter((r) => r.got !== r.expected);
-
-  const pad = (s: string, n: number) => (s + " ".repeat(n)).slice(0, n);
-  console.log(`\nSecond Look evals  (mode: ${useLlm ? "model+code" : "code only"}${online ? ", online evidence" : ""})\n`);
-  console.log(pad("fixture", 34) + pad("expected", 18) + pad("got", 18) + pad("org", 22) + "extract  evidence  reply");
-  for (const r of results) {
-    const ext = r.senderOk && r.urlsOk && r.phonesOk ? "ok" : "FAIL";
-    const ev = r.evidenceOk === null ? "-" : r.evidenceOk ? "ok" : "FAIL";
-    const flag = r.got === r.expected ? " " : "!";
-    console.log(`${flag}${pad(r.id, 33)}${pad(r.expected, 18)}${pad(r.got, 18)}${pad(r.org ?? "-", 22)}${pad(ext, 9)}${pad(ev, 10)}${r.replyOk ? "ok" : "FAIL"}`);
-    for (const n of r.notes) console.log(`     · ${n}`);
-  }
-  console.log("");
-  const line = (name: string, ok: boolean, detail: string) => console.log(`${ok ? "PASS" : "FAIL"}  ${name}: ${detail}`);
-  line("Safety (zero scams labeled matches_official)", safetyFailures.length === 0, `${safetyFailures.length} of ${scams.length} scams labeled matches_official`);
-  line("Precision (≤1 legit labeled mismatch)", precisionFailures.length <= 1, `${precisionFailures.length} of ${legit.length} legit labeled mismatch`);
-  line("Unverifiable → cannot_verify", unverFailures.length === 0, `${unverFailures.length} of ${unver.length} mislabeled`);
-  line("Extraction (sender, url domains, phones recovered)", extractionFailures.length === 0, `${extractionFailures.length} of ${results.length} failed`);
-  line(online ? "Evidence (quote verbatim on cited page)" : "Evidence (mismatch cites a quote + URL; run EVAL_ONLINE=1 to verify pages)", evidenceFailures.length === 0, `${evidenceFailures.length} failures`);
-  line("Reply (≤80 words, one action, no forbidden words, official phone on mismatch)", replyFailures.length === 0, `${replyFailures.length} failures`);
-  line("Expected labels", labelMismatches.length === 0, `${labelMismatches.length} of ${results.length} differ from the fixture's expected verdict`);
-
-  const hardFail = safetyFailures.length > 0 || precisionFailures.length > 1 || unverFailures.length > 0 || extractionFailures.length > 0 || evidenceFailures.length > 0 || replyFailures.length > 0 || labelMismatches.length > 0;
-  process.exit(hardFail ? 1 : 0);
+  const count = (rows: typeof results) => ({ fixtures: rows.length, scenarios: new Set(rows.map((r) => r.scenarioId)).size, ids: rows.map((r) => r.id) });
+  const failures = {
+    safety: count(results.filter((r) => r.category === "scam" && r.got === "matches_official")),
+    precision: count(results.filter((r) => r.category === "legit" && r.got === "mismatch")),
+    unverifiable: count(results.filter((r) => r.category === "unverifiable" && r.got !== "cannot_verify")),
+    extraction: count(results.filter((r) => !r.senderOk || !r.urlsOk || !r.phonesOk)),
+    evidence: count(results.filter((r) => r.evidence?.ok === false)),
+    reply: count(results.filter((r) => !r.replyOk)),
+    authenticationWording: count(results.filter((r) => !r.boundedReply)),
+    expectedLabels: count(results.filter((r) => r.got !== r.expected)),
+  };
+  const counts = Object.fromEntries(["scam", "legit", "unverifiable"].map((c) => [c, count(results.filter((r) => r.category === c))]));
+  const datasetComplete = FIXTURES.length === 90 && SCENARIOS.length === 30 && ["scam", "legit", "unverifiable"].every((c, i) => SCENARIOS.filter((s) => s.category === c).length === [12, 12, 6][i]) && new Set(FIXTURES.map((f) => f.id)).size === 90 && SCENARIOS.every((s) => new Set(FIXTURES.filter((f) => f.scenarioId === s.id).map((f) => f.format)).size === 3) && readdirSync("evals/fixtures").filter((f) => f.endsWith(".eml")).length === 90;
+  const passed = datasetComplete && labelsReviewed && Object.entries(failures).every(([k, v]) => k === "precision" ? v.scenarios <= 1 : v.fixtures === 0);
+  const sourceFiles = [...readdirSync("lib").filter((f) => f.endsWith(".ts")).map((f) => `lib/${f}`), "convex/extract.ts", "convex/registry.ts", "convex/reply.ts", "convex/clients/openai.ts", "convex/clients/firecrawl.ts", "evals/run.ts"].sort();
+  const report = {
+    startedAt, finishedAt: new Date().toISOString(), commit: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), datasetHash, sourceHash: hash(sourceFiles.map((p) => p + readFileSync(p, "utf8")).join("")), sourceFiles,
+    command: process.env.EVAL_COMMAND ?? "node --import tsx evals/run.ts", config: { split, online, extractionModel: useLlm ? EXTRACT_MODEL : null, replyModel: useLlm ? REPLY_MODEL : null, paymentGateMode: gateMode, paymentGateCutoff: parseCutoff(process.env.PAYMENT_GATE_CUTOFF), openaiConfigured: useLlm, firecrawlConfigured: firecrawlConfigured(), typesafeConfigured: !!process.env.TYPESAFE_API_KEY, registry: "local SEED_ORGS, optional read-only unknown-org search; not deployed registry" },
+    datasetComplete, labelsReviewed, counts, heldOut: count(results.filter((r) => r.split === "challenge")), modelCounts, paymentGateDecisions, failures, passed,
+    publicationReady: passed && split === "all" && online && useLlm && modelCounts.extractionAccepted === selected.length && modelCounts.replyCompleted === selected.length && modelCounts.replyFailed === 0 && (gateMode === "off" || paymentGateDecisions.length === selected.length),
+    limitations: ["Synthetic labels measure this contract, not real-world sender authentication or safety.", "Precision counts distinct scenarios with any mislabeled format: at most 1 of 12; all 90 expected labels remain mandatory.", "Code-only evidence checks citation presence; live quote verification requires EVAL_ONLINE=1.", "No Convex deployment, registry mutation, webhook, email send or delivery was exercised. Production rate-limit and database persistence behavior of unknown-org resolution are not exercised by this read-only replay.", "The 6-scenario/18-format challenge set is reserved from prompt development, but content was exposed to the independent label reviewer; it is synthetic, not an unseen real-mail sample.", "Injected production-action source/model failures are covered by tests/evalFailurePaths.test.ts; not represented as live provider outages.", "Independent label review and subjective reply readability review are recorded separately; publicationReady is only the executable gate."],
+    sources: [...pageCache].map(([url, p]) => ({ url, status: p.status, textHash: p.hash, error: p.error })), results,
+  };
+  const output = process.env.EVAL_OUTPUT ?? `evals/results/${useLlm ? "model" : "code-only"}${online ? "-online" : ""}-${split}.json`;
+  mkdirSync(dirname(output), { recursive: true }); writeFileSync(output, JSON.stringify(report, null, 2) + "\n");
+  console.log(JSON.stringify({ datasetHash, failures, passed, publicationReady: report.publicationReady, output }, null, 2));
+  process.exitCode = passed ? 0 : 1;
 }
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(2);
-});
+main().catch(() => { console.error("Evaluation failed before completion; no passing report produced."); process.exitCode = 2; });

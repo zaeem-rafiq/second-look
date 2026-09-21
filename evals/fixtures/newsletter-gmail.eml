@@ -1,0 +1,32 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: Fwd: Autumn gardening news
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <newsletter-gmail@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_newslettergmail"
+
+------=_Part_newslettergmail
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Please check this.
+
+---------- Forwarded message ---------
+From: Cedar Garden Club <editor@cedargarden-demo.example.org>
+Date: Tue, Sep 15, 2026 at 9:12 AM
+Subject: Autumn gardening news
+To: <mom.demo@example.com>
+
+
+Our garden club is discussing autumn planting and soil preparation this month.
+
+
+------=_Part_newslettergmail
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<div dir="ltr">Please check this.<br><div><br><div class="gmail_quote gmail_quote_container"><div dir="ltr" class="gmail_attr">---------- Forwarded message ---------<br>From: <b class="gmail_sendername" dir="auto">Cedar Garden Club</b> <span dir="auto">&lt;<a href="mailto:editor@cedargarden-demo.example.org">editor@cedargarden-demo.example.org</a>&gt;</span><br>Date: Tue, Sep 15, 2026 at 9:12 AM<br>Subject: Autumn gardening news<br>To:  &lt;<a href="mailto:mom.demo@example.com">mom.demo@example.com</a>&gt;<br></div><br><br><p>Our garden club is discussing autumn planting and soil preparation this month.</p>
+</div></div></div>
+
+------=_Part_newslettergmail--

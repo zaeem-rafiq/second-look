@@ -1,0 +1,46 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: FW: Your Medicare Summary Notice
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <medicare-summary-notice-outlook@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_medicaresummarynoticeoutlook"
+
+------=_Part_medicaresummarynoticeoutlook
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Please check this.
+
+________________________________
+From: Medicare <notice@medicare.gov>
+Sent: Tuesday, September 15, 2026 9:12 AM
+To: mom.demo@example.com <mom.demo@example.com>
+Subject: Your Medicare Summary Notice
+
+Your Medicare Summary Notice is available. View it at https://www.medicare.gov/account.<https://www.medicare.gov/account.> This is not a bill.
+
+
+------=_Part_medicaresummarynoticeoutlook
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body dir="ltr">
+<div class="elementToProof" style="font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 11pt; color: rgb(0, 0, 0);">
+Please check this.</div>
+<div style="font-family: Aptos, Aptos_EmbeddedFont, Aptos_MSFontService, Calibri, Helvetica, sans-serif; font-size: 11pt; color: rgb(0, 0, 0);">
+<br>
+</div>
+<div id="appendonsend" style="color: inherit;"></div>
+<hr style="display: inline-block; width: 98%;">
+<div id="divRplyFwdMsg" dir="ltr" style="color: inherit;"><span style="font-family: Calibri, sans-serif; font-size: 11pt; color: rgb(0, 0, 0);"><b>From:</b> Medicare &lt;notice@medicare.gov&gt;<br>
+<b>Sent:</b> Tuesday, September 15, 2026 9:12 AM<br>
+<b>To:</b> mom.demo@example.com &lt;mom.demo@example.com&gt;<br>
+<b>Subject:</b> Your Medicare Summary Notice</span>
+<div>&nbsp;</div>
+</div>
+<div class="elementToProof" style="direction: ltr; font-family: Calibri, Helvetica, sans-serif; font-size: 12pt; color: rgb(0, 0, 0);">
+<p>Your Medicare Summary Notice is available. View it at https://www.medicare.gov/account. This is not a bill.</p></div>
+</body></html>
+
+------=_Part_medicaresummarynoticeoutlook--

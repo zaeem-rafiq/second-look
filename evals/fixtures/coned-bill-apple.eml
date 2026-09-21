@@ -1,0 +1,39 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: Fwd: Your Con Edison bill is ready
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <coned-bill-apple@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_conedbillapple"
+
+------=_Part_conedbillapple
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+How much do I owe?
+
+> Begin forwarded message:
+>
+> From: Con Edison <customerservice@coned.com>
+> Subject: Your Con Edison bill is ready
+> Date: September 15, 2026 at 9:12:07 AM EDT
+> To: mom.demo@example.com
+>
+> Your Con Edison bill for August is ready.
+>
+> Amount due: $84.20
+> Due date: October 3, 2026
+>
+> View your bill: https://www.coned.com/en/accounts-billing
+> Questions? Call 1-800-752-6633.
+>
+> Con Edison
+
+
+------=_Part_conedbillapple
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; line-break: after-white-space;" class=""><div class="">How much do I owe?</div><br class=""><blockquote type="cite" class=""><div class="">Begin forwarded message:</div><br class="Apple-interchange-newline"><div class="" style="margin: 0px;"><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">From: </b></span><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;">Con Edison &lt;<a href="mailto:customerservice@coned.com" class="">customerservice@coned.com</a>&gt;<br class=""></span></div><div class="" style="margin: 0px;"><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">Subject: </b></span><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">Your Con Edison bill is ready</b><br class=""></span></div><div class="" style="margin: 0px;"><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">Date: </b></span><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;">September 15, 2026 at 9:12:07 AM EDT<br class=""></span></div><div class="" style="margin: 0px;"><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">To: </b></span><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;">mom.demo@example.com<br class=""></span></div><br class=""><div class=""><p>Your Con Edison bill for August is ready.</p><p>Amount due: <b>$84.20</b><br>Due date: <b>October 3, 2026</b></p><p><a href="https://www.coned.com/en/accounts-billing">View your bill</a><br>Questions? Call 1-800-752-6633.</p><p>Con Edison</p></div></blockquote></body></html>
+
+------=_Part_conedbillapple--

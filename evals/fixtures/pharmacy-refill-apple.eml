@@ -1,0 +1,31 @@
+From: Mom <mom.demo@example.com>
+To: <helper@example.agentmail.to>
+Subject: Fwd: Your refill is ready
+Date: Tue, 15 Sep 2026 09:20:11 -0400
+Message-ID: <pharmacy-refill-apple@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="----=_Part_pharmacyrefillapple"
+
+------=_Part_pharmacyrefillapple
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Please check this.
+
+> Begin forwarded message:
+>
+> From: Cedar Grove Pharmacy <refills@cedargrove-demo.example.org>
+> Subject: Your refill is ready
+> Date: September 15, 2026 at 9:12:07 AM EDT
+> To: mom.demo@example.com
+>
+> Your prescription refill is ready at Cedar Grove Pharmacy. Our records show you received a $10 gift card with your last visit. No payment is requested in this email.
+
+
+------=_Part_pharmacyrefillapple
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"></head><body style="word-wrap: break-word; -webkit-nbsp-mode: space; line-break: after-white-space;" class=""><div class="">Please check this.</div><br class=""><blockquote type="cite" class=""><div class="">Begin forwarded message:</div><br class="Apple-interchange-newline"><div class="" style="margin: 0px;"><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">From: </b></span><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;">Cedar Grove Pharmacy &lt;<a href="mailto:refills@cedargrove-demo.example.org" class="">refills@cedargrove-demo.example.org</a>&gt;<br class=""></span></div><div class="" style="margin: 0px;"><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">Subject: </b></span><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">Your refill is ready</b><br class=""></span></div><div class="" style="margin: 0px;"><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">Date: </b></span><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;">September 15, 2026 at 9:12:07 AM EDT<br class=""></span></div><div class="" style="margin: 0px;"><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;"><b class="">To: </b></span><span class="" style="font-family: -webkit-system-font, &quot;Helvetica Neue&quot;, Helvetica, sans-serif;">mom.demo@example.com<br class=""></span></div><br class=""><div class=""><p>Your prescription refill is ready at Cedar Grove Pharmacy. Our records show you received a $10 gift card with your last visit. No payment is requested in this email.</p></div></blockquote></body></html>
+
+------=_Part_pharmacyrefillapple--
