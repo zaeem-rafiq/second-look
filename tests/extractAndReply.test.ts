@@ -220,17 +220,14 @@ describe("explanation grounding", () => {
     { check: "sender_domain", applicable: true, matched: false, severity: "hard" as const, claimValue: "medicare-benefits-center.com" },
     { check: "link_domains", applicable: true, matched: false, severity: "hard" as const, claimValue: "medicare-benefits-center.com" },
     { check: "phone", applicable: true, matched: false, severity: "hard" as const, claimValue: "+18005550199" },
-    { check: "policy_contradiction", applicable: true, matched: false, severity: "hard" as const, claimValue: "email asks for personal or account information" },
+    { check: "policy_contradiction", applicable: true, matched: false, severity: "hard" as const, claimValue: "email asks for personal or account information", sourceUrl: "https://example.org/policy", quote: "Synthetic quoted policy for this test." },
     { check: "urgency_pressure", applicable: true, matched: false, severity: "soft" as const, claimValue: "within 24 hours" },
   ];
 
-  it("turns evidence into plain reasons without numbers or domains", async () => {
+  it("uses only the cited policy when uncited domain and phone differences accompany it", async () => {
     const { explanationReasons } = await import("../lib/replyTemplates");
     const reasons = explanationReasons(facts.verdict, facts.orgName, evidence);
     expect(reasons).toEqual([
-      "the quoted sender address does not match Medicare's published information",
-      "the links go to a website that is not Medicare's",
-      "the phone number in it is not one Medicare lists",
       "it asks for personal or account information, which does not match Medicare's published policy",
     ]);
     expect(reasons.join(" ")).not.toMatch(/\d{3}|\.com/);
@@ -240,8 +237,25 @@ describe("explanation grounding", () => {
     const reasons = explanationReasons(facts.verdict, facts.orgName, evidence);
     const invented = "It isn't really from Medicare. Its claim about suspended benefits conflicts with Medicare policy.";
     expect(composeReply(facts, invented, { reasons })).toBe(templateReply(facts));
-    const grounded = "The quoted sender address does not match Medicare's published information.";
+    const grounded = "It asks for personal or account information, which does not match Medicare's published policy.";
     expect(composeReply(facts, grounded, { reasons })).toContain(grounded);
+    expect(composeReply(facts, "The links go to a website that is not Medicare's.", { reasons })).toBe(templateReply(facts));
+  });
+  it("requires a nonempty quote and source as well as an applicable failed hard row", async () => {
+    const { explanationReasons } = await import("../lib/replyTemplates");
+    const policy = evidence[3];
+    for (const override of [
+      { quote: undefined }, { quote: " \n " }, { sourceUrl: undefined }, { sourceUrl: "  " },
+      { applicable: false }, { matched: true }, { severity: "soft" as const },
+    ]) expect(explanationReasons("mismatch", "Medicare", [{ ...policy, ...override }])).toEqual([]);
+    expect(explanationReasons("matches_official", "Medicare", evidence)).toEqual(["the quoted sender and checked details match Medicare's official information"]);
+    expect(explanationReasons("cannot_verify", "Medicare", evidence)).toEqual(["the available details were not enough to confirm this"]);
+  });
+  it("describes a cited link difference as a comparison, without claiming website ownership", async () => {
+    const { explanationReasons } = await import("../lib/replyTemplates");
+    expect(explanationReasons("mismatch", "Medicare", [{ ...evidence[1], quote: "Synthetic published domain listing.", sourceUrl: "https://example.org/contact" }])).toEqual([
+      "the linked website does not match Medicare's published information",
+    ]);
   });
 });
 

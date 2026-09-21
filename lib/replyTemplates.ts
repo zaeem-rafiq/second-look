@@ -60,23 +60,23 @@ function fixedParts(f: ReplyFacts): { defaultExplanation: string; action: string
   }
 }
 
-export type EvidenceLike = { check: string; applicable: boolean; matched: boolean; severity: "hard" | "soft"; claimValue: string };
+export type EvidenceLike = { check: string; applicable: boolean; matched: boolean; severity: "hard" | "soft"; claimValue: string; quote?: string; sourceUrl?: string };
 
-/** Plain-language reasons the model may mention, derived only from failed hard checks. No numbers or domains. */
+/** Plain-language reasons from cited failed hard checks, matching the verdict's evidence requirement. */
 export function explanationReasons(verdict: Verdict, orgName: string | null, evidence: EvidenceLike[]): string[] {
   const org = orgName ?? "the organization";
   if (verdict === "matches_official") return [`the quoted sender and checked details match ${org}'s official information`];
   if (verdict === "cannot_verify") return ["the available details were not enough to confirm this"];
   const reasons: string[] = [];
   for (const e of evidence) {
-    if (!e.applicable || e.matched || e.severity !== "hard") continue;
+    if (!e.applicable || e.matched || e.severity !== "hard" || !e.quote?.trim() || !e.sourceUrl?.trim()) continue;
     let r: string | null = null;
     switch (e.check) {
       case "sender_domain":
         r = `the quoted sender address does not match ${org}'s published information`;
         break;
       case "link_domains":
-        r = `the links go to a website that is not ${org}'s`;
+        r = `the linked website does not match ${org}'s published information`;
         break;
       case "phone":
         r = `the phone number in it is not one ${org} lists`;
