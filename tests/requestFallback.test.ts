@@ -61,3 +61,17 @@ test("a successful model payment answer resolves fallback uncertainty", () => {
   expect(verdict(mergeExtraction(det, llm, normalizePhone))).toBe("matches_official");
   expect(verdict(mergeExtraction(det, { ...llm, paymentMethods: ["gift_card"], actionType: "pay" }, normalizePhone))).toBe("mismatch");
 });
+
+test("an unrelated excluded method cannot weaken a confirmed request or become requested evidence", () => {
+  const body = "Buy gift cards and send the codes.";
+  expect(verdict(extract(body))).toBe("mismatch");
+  for (const warning of ["We never accept Bitcoin.", "Do not send money by Western Union.", "Bitcoin and Zelle are not accepted."]) {
+    const result = extract(`${body} ${warning}`);
+    expect(result.paymentMethods, warning).toEqual(["gift_card"]);
+    expect(result.paymentRequestConfirmed, warning).toBe(true);
+    expect(verdict(result), warning).toBe("mismatch");
+  }
+  const multiple = extract("Pay with Bitcoin. Send money by Western Union. We never accept gift cards.");
+  expect(multiple.paymentMethods).toEqual(["crypto", "wire"]);
+  expect(multiple.paymentRequestConfirmed).toBe(true);
+});

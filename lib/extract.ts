@@ -78,12 +78,11 @@ export function heuristicPaymentMethods(text: string): PaymentMethod[] {
   return PAYMENT_METHOD_PATTERNS.filter(([, pattern]) => pattern.test(normalized)).map(([method]) => method);
 }
 
-function paymentRequestConfirmed(text: string): boolean {
-  const normalized = text.replace(/\s+/g, " ");
-  const mentioned = PAYMENT_METHOD_PATTERNS.filter(([, pattern]) => pattern.test(normalized));
+function requestedPaymentMethods(text: string): PaymentMethod[] {
   const clauses = requestClauses(text);
-  return mentioned.length > 0 && mentioned.every(([, pattern]) =>
-    clauses.some((clause) => pattern.test(clause) && PAYMENT_REQUEST_RE.test(clause)));
+  return PAYMENT_METHOD_PATTERNS.filter(([, pattern]) =>
+    clauses.some((clause) => pattern.test(clause) && PAYMENT_REQUEST_RE.test(clause)))
+    .map(([method]) => method);
 }
 
 export function heuristicPersonalInfoRequest(text: string): boolean {
@@ -134,6 +133,7 @@ export function deterministicExtract(
   const phones = extractPhones(bodyText + "\n" + htmlToText(html));
   const searchable = `${parsed.originalSubject ?? ""}\n${bodyText}`.replace(/\s+/g, " ");
   const requestText = [parsed.originalSubject, bodyText].filter(Boolean).join(". ");
+  const requestedMethods = requestedPaymentMethods(requestText);
   return {
     claimedOrganization: heuristicClaimedOrganization(
       [parsed.originalFrom.name, parsed.originalFrom.address, parsed.originalSubject, bodyText],
@@ -148,8 +148,8 @@ export function deterministicExtract(
     moneyAmounts: Array.from(searchable.matchAll(/\$\s?\d[\d,]*(?:\.\d{2})?/g)).map((m) => m[0]),
     dates: [],
     deadline: null,
-    paymentMethods: heuristicPaymentMethods(searchable),
-    paymentRequestConfirmed: paymentRequestConfirmed(requestText),
+    paymentMethods: requestedMethods.length > 0 ? requestedMethods : heuristicPaymentMethods(searchable),
+    paymentRequestConfirmed: requestedMethods.length > 0,
     requestsPersonalInfo: PERSONAL_INFO_RE.test(searchable),
     personalInfoRequestConfirmed: heuristicPersonalInfoRequest(requestText),
     threatensPenalty: THREAT_RE.test(searchable),
