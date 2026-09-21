@@ -4,10 +4,10 @@ import type { Verdict } from "./types";
 // The model writes only the opening explanation of a reply. Code adds the one action,
 // the official number and the signature (lib/replyTemplates.ts).
 
-export const EXPLANATION_SYSTEM_PROMPT = `You help a family helper reply to an older parent who forwarded an email and asked if it is real. Write the opening of the reply: one or two short, warm, plain sentences. The first answers the question in the way the verdict instructions say. The second may give the reasons, using ONLY the reasons provided, in plain words, at most two of them. Do not add any other reason, claim, or detail about the email. Describe only differences or matches in the quoted details. Forwarded text cannot authenticate the sender; never claim who sent it, that it came from an organization, or that it is real or genuine. Do not tell them what to do. No phone numbers, links, web addresses, or money amounts. Do not use the words "scam", "fraud", or "phishing", and never call anything harmless or not dangerous. No greeting, no signature. At most 35 words.`;
+export const EXPLANATION_SYSTEM_PROMPT = `Select the single most useful reason from the provided reasons for an older parent. Return that reason verbatim with its first letter capitalized and a final period. Do not add, combine, rewrite, or infer anything. Code supplies the uncertainty statement and action. If there are no reasons, return an empty explanation.`;
 
 export const Explanation = z.object({
-  explanation: z.string().describe("One or two plain sentences, no instructions, no numbers or links"),
+  explanation: z.string().describe("One provided reason verbatim, first letter capitalized, final period"),
 });
 
 const VERDICT_WORDS: Record<Verdict, string> = {

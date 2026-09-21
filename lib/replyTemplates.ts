@@ -37,7 +37,7 @@ function fixedParts(f: ReplyFacts): { defaultExplanation: string; action: string
   switch (f.verdict) {
     case "mismatch":
       return {
-        defaultExplanation: `Some details in this forward don't match the official source. Forwarded text cannot confirm who sent it.`,
+        defaultExplanation: `Some details in this forward don't match the official source.`,
         action: "Don't call or click anything in that email.",
         after: f.officialPhone
           ? `If you're worried, call ${org} at ${f.officialPhone}, the number on their official website.`
@@ -45,7 +45,7 @@ function fixedParts(f: ReplyFacts): { defaultExplanation: string; action: string
       };
     case "matches_official":
       return {
-        defaultExplanation: `The quoted sender and details match ${org}'s official information. Forwarded text cannot confirm who sent it.`,
+        defaultExplanation: `The quoted sender and details match ${org}'s official information.`,
         action: `Keep it with your other ${org} mail.`,
         after: [f.amountText ? `It mentions ${f.amountText}.` : null, f.deadlineText ? `The date to know is ${f.deadlineText}.` : null]
           .filter(Boolean)
@@ -66,7 +66,7 @@ export type EvidenceLike = { check: string; applicable: boolean; matched: boolea
 export function explanationReasons(verdict: Verdict, orgName: string | null, evidence: EvidenceLike[]): string[] {
   const org = orgName ?? "the organization";
   if (verdict === "matches_official") return [`the quoted sender and checked details match ${org}'s official information; this does not authenticate the sender`];
-  if (verdict === "cannot_verify") return ["there was no official source to check it against"];
+  if (verdict === "cannot_verify") return ["the available details were not enough to confirm this"];
   const reasons: string[] = [];
   for (const e of evidence) {
     if (!e.applicable || e.matched || e.severity !== "hard") continue;
@@ -138,8 +138,9 @@ export function acceptableExplanation(text: string | null | undefined, guard?: E
   if (LINKISH.test(t)) return null;
   if (/[$€£]|\bdollars?\b|\busd\b/i.test(t)) return null;
   if (FORBIDDEN.some((re) => re.test(t))) return null;
-  // A copied From header cannot establish message origin, in either direction.
-  if (/\b(came|come|comes|coming|sent|send|sends|sender|from|genuine|authentic|legitimate|real|checks out)\b/i.test(t)) return null;
+  // Model output may select a grounded reason, never invent prose about authenticity.
+  const allowed = guard?.reasons.map((reason) => reason.charAt(0).toUpperCase() + reason.slice(1) + ".") ?? [];
+  if (!allowed.includes(t)) return null;
   if (countImperativeSentences(t) > 0) return null;
   if (!/[.!?]$/.test(t)) return null;
   if (guard) {
@@ -161,7 +162,8 @@ export function acceptableExplanation(text: string | null | undefined, guard?: E
 export function composeReply(f: ReplyFacts, modelExplanation: string | null, guard?: ExplanationGuard): string {
   const parts = fixedParts(f);
   const explanation = acceptableExplanation(modelExplanation, guard) ?? parts.defaultExplanation;
-  const body = [explanation, parts.action, parts.after].filter(Boolean).join(" ");
+  const provenance = f.verdict === "cannot_verify" ? null : "Forwarded text cannot confirm who sent it.";
+  const body = [explanation, provenance, parts.action, parts.after].filter(Boolean).join(" ");
   return tidy(`${body}\n${f.helperSignature}`);
 }
 
