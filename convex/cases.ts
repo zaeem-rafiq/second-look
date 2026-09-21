@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
+import { internalMutation, internalQuery, mutation, query, type QueryCtx } from "./_generated/server";
 import { caseStatus, extracted as extractedValidator } from "./schema";
 import { familyMember, requireCaseMember } from "./model/auth";
 import { internal } from "./_generated/api";
@@ -100,6 +100,14 @@ export const beginReply = internalMutation({
     if (!c) throw new Error("case not found");
     if (hasSentReply(c)) return null;
     if (!c.replyDraft) throw new Error("reply draft missing");
+    // This guard stays in the shared send claim even if another internal caller bypasses the demo UI.
+    if (c.demoSessionId) {
+      await ctx.db.patch("cases", c._id, {
+        replyStatus: "unsent", replyError: "Synthetic demo: reply preview only. No email was sent.",
+        replyAttemptId: undefined, replyAttemptAt: undefined, status: "replying", error: undefined,
+      });
+      return null;
+    }
     // A pre-state-machine draft could already have been accepted before idempotency keys expired.
     if (hasUntrackedReply(c)) {
       await ctx.db.patch("cases", args.caseId, {
@@ -170,6 +178,7 @@ export const setReply = internalMutation({
     if (!args.replyMessageId.trim() || args.replyMessageId === "dry-run:not-sent") throw new Error("provider message ID required");
     const c = await ctx.db.get("cases", args.caseId);
     if (!c) throw new Error("case not found");
+    if (c.demoSessionId) throw new Error("synthetic demo cannot record a sent reply");
     if (hasSentReply(c)) return null;
     if (c.replyDraft !== args.replyText) throw new Error("reply does not match the saved draft");
     await ctx.db.patch("cases", args.caseId, {
@@ -217,6 +226,49 @@ const evidenceOut = v.object({
   quote: v.string(),
 });
 
+export async function boardCase(ctx: QueryCtx, c: Doc<"cases">) {
+  const family = await ctx.db.get("families", c.familyId);
+  const org = c.orgId ? await ctx.db.get("officialOrgs", c.orgId) : null;
+  const needsReview = sourceReviewRequired(c, org);
+  const evidence = await ctx.db.query("evidence").withIndex("by_case", (q) => q.eq("caseId", c._id)).collect();
+  return {
+    _id: c._id,
+    status: c.replyMessageId === "dry-run:not-sent" && c.status === "replied" ? "replying" as const : c.status,
+    verdict: needsReview ? "cannot_verify" as const : c.verdict ?? null,
+    sourceReviewRequired: needsReview,
+    summary: c.summary ?? null,
+    subject: c.subject,
+    forwardFormat: c.forwardFormat,
+    originalSender: c.originalSender,
+    orgName: needsReview ? null : c.orgName ?? null,
+    orgCrawledAt: needsReview ? null : c.orgCrawledAt ?? null,
+    deadlineAt: c.extracted?.deadlineAmbiguous === false ? c.deadlineAt ?? null : null,
+    ...(family ? await reminderBoard(ctx, c, family, needsReview) : {}),
+    receivedAt: c.receivedAt,
+    replySentAt: hasSentReply(c) ? c.replySentAt ?? null : null,
+    replyText: c.replyDraft ?? c.replyText ?? null,
+    replyStatus: hasSentReply(c) ? "sent" as const : hasUntrackedReply(c) ? "failed" as const : c.replyMessageId === "dry-run:not-sent" ? "unsent" as const : c.replyStatus ?? (c.replyDraft || c.replyText ? "unsent" as const : null),
+    replyError: hasUntrackedReply(c) ? UNTRACKED_REPLY_ERROR : c.replyError ?? null,
+    handledBy: c.handledBy ?? null,
+    handledAt: c.handledAt ?? null,
+    notes: c.notes,
+    error: c.error ?? null,
+    extracted: c.extracted
+      ? { urls: c.extracted.urls, phones: c.extracted.phones, actionRequested: c.extracted.actionRequested, deadline: c.extracted.deadline }
+      : null,
+    evidence: (needsReview ? [] : evidence).map((e) => ({
+      check: e.check,
+      applicable: e.applicable,
+      matched: e.matched,
+      severity: e.severity,
+      claimValue: e.claimValue,
+      officialValue: e.officialValue,
+      sourceUrl: e.sourceUrl,
+      quote: e.quote,
+    })),
+  };
+}
+
 export const listBoard = query({
   args: { familySlug: v.string() },
   handler: async (ctx, args) => {
@@ -230,48 +282,7 @@ export const listBoard = query({
       .withIndex("by_family", (q) => q.eq("familyId", family._id))
       .order("desc")
       .take(50);
-    const out = [];
-    for (const c of cases) {
-      const org = c.orgId ? await ctx.db.get("officialOrgs", c.orgId) : null;
-      const needsReview = sourceReviewRequired(c, org);
-      const evidence = await ctx.db.query("evidence").withIndex("by_case", (q) => q.eq("caseId", c._id)).collect();
-      out.push({
-        _id: c._id,
-        status: c.replyMessageId === "dry-run:not-sent" && c.status === "replied" ? "replying" as const : c.status,
-        verdict: needsReview ? "cannot_verify" as const : c.verdict ?? null,
-        sourceReviewRequired: needsReview,
-        summary: c.summary ?? null,
-        subject: c.subject,
-        forwardFormat: c.forwardFormat,
-        originalSender: c.originalSender,
-        orgName: needsReview ? null : c.orgName ?? null,
-        orgCrawledAt: needsReview ? null : c.orgCrawledAt ?? null,
-        deadlineAt: c.extracted?.deadlineAmbiguous === false ? c.deadlineAt ?? null : null,
-        ...await reminderBoard(ctx, c, family, needsReview),
-        receivedAt: c.receivedAt,
-        replySentAt: hasSentReply(c) ? c.replySentAt ?? null : null,
-        replyText: c.replyDraft ?? c.replyText ?? null,
-        replyStatus: hasSentReply(c) ? "sent" as const : hasUntrackedReply(c) ? "failed" as const : c.replyMessageId === "dry-run:not-sent" ? "unsent" as const : c.replyStatus ?? (c.replyDraft || c.replyText ? "unsent" as const : null),
-        replyError: hasUntrackedReply(c) ? UNTRACKED_REPLY_ERROR : c.replyError ?? null,
-        handledBy: c.handledBy ?? null,
-        handledAt: c.handledAt ?? null,
-        notes: c.notes,
-        error: c.error ?? null,
-        extracted: c.extracted
-          ? { urls: c.extracted.urls, phones: c.extracted.phones, actionRequested: c.extracted.actionRequested, deadline: c.extracted.deadline }
-          : null,
-        evidence: (needsReview ? [] : evidence).map((e) => ({
-          check: e.check,
-          applicable: e.applicable,
-          matched: e.matched,
-          severity: e.severity,
-          claimValue: e.claimValue,
-          officialValue: e.officialValue,
-          sourceUrl: e.sourceUrl,
-          quote: e.quote,
-        })),
-      });
-    }
+    const out = await Promise.all(cases.map((c) => boardCase(ctx, c)));
     return {
       viewer: { name: viewer.name, role: viewer.role },
       family: { name: family.name, slug: family.slug, ...({ familyId: family._id, timezone: family.timezone ?? null } as { familyId?: typeof family._id; timezone?: string | null }) },

@@ -15,6 +15,7 @@ import { htmlToText } from "../lib/forwardParser";
 import { normalizePhone } from "../lib/phones";
 import { EXTRACT_MODEL, openaiClient, openaiConfigured } from "./clients/openai";
 import { getMessage, type MessageReceivedEvent } from "./clients/agentmail";
+import { DEMO_SAMPLES } from "../lib/demoSamples";
 
 /**
  * Extract facts from the forwarded email. Code recovers identity facts (original
@@ -25,11 +26,19 @@ export const extractCase = internalAction({
   returns: v.null(),
   handler: async (ctx, args) => {
     const { case: c } = await ctx.runQuery(internal.cases.getForPipeline, { caseId: args.caseId });
-    const blob = await ctx.storage.get(c.rawStorageId);
-    if (!blob) throw new Error("raw delivery missing from storage");
-    const event = JSON.parse(await blob.text()) as MessageReceivedEvent;
-    let { text = "", html = "" } = event.message;
-    if (args.needsFetch || (!text && !html)) {
+    let text = "";
+    let html = "";
+    if (c.demoSessionId) {
+      if (!c.demoSample) throw new Error("synthetic sample missing");
+      text = DEMO_SAMPLES[c.demoSample].text;
+    } else {
+      if (!c.rawStorageId) throw new Error("raw delivery missing from storage");
+      const blob = await ctx.storage.get(c.rawStorageId);
+      if (!blob) throw new Error("raw delivery missing from storage");
+      const event = JSON.parse(await blob.text()) as MessageReceivedEvent;
+      ({ text = "", html = "" } = event.message);
+    }
+    if (!c.demoSessionId && (args.needsFetch || (!text && !html))) {
       const full = await getMessage(args.inboxId, c.agentmailMessageId);
       text = full.text ?? "";
       html = full.html ?? "";
@@ -40,7 +49,7 @@ export const extractCase = internalAction({
     const det = deterministicExtract(parsed, text, html, orgs);
 
     let llm: LlmExtraction | null = null;
-    if (openaiConfigured()) {
+    if (!c.demoSessionId && openaiConfigured()) {
       try {
         const response = await openaiClient().responses.parse({
           model: EXTRACT_MODEL,

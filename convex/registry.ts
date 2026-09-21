@@ -151,7 +151,7 @@ export const resolveForCase = internalAction({
     }
 
     const claim = c.extracted.claimedOrganization?.trim();
-    if (!claim || !firecrawlConfigured()) {
+    if (c.demoSessionId || !claim || !firecrawlConfigured()) {
       await ctx.runMutation(internal.cases.setOrg, { caseId: args.caseId, orgId: null });
       return null;
     }

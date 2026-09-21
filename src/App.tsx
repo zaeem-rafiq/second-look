@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useConvexAuth } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
-import { demoBoard } from "./demo";
+import { Demo } from "./Demo";
 import { FamilyHome, FamilySetup, LinkAcceptance } from "./FamilySetup";
 import type { FunctionReturnType } from "convex/server";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
 
 export type Board = NonNullable<FunctionReturnType<typeof api.cases.listBoard>>;
-type Case = Board["cases"][number];
+export type Case = Board["cases"][number];
 
 const STEPS: { key: Case["status"][]; label: (c: Case) => string }[] = [
   { key: ["received"], label: () => "Received" },
@@ -67,16 +67,16 @@ function fmtDate(ms: number | null): string {
 
 function fmtDay(ms: number | null): string {
   if (!ms) return "";
-  return new Date(ms).toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  return new Date(ms).toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
 }
 
 export function App() {
   const { isLoading, isAuthenticated } = useConvexAuth();
   const params = new URLSearchParams(window.location.search);
-  if (params.get("demo") === "1")
-    return <BoardView board={demoBoard} readOnly />;
   if (params.has("confirmParent"))
     return <LinkAcceptance kind="parent_email" />;
+  if (params.get("demo") === "1" || (!isLoading && !isAuthenticated && !params.has("signin") && !params.has("acceptInvite") && !params.has("family")))
+    return <Demo />;
   if (isLoading)
     return (
       <main className="shell">
@@ -403,16 +403,15 @@ function FamilyBoard({ familySlug }: { familySlug: string }) {
   return <BoardView board={board} />;
 }
 
-function BoardView({ board, readOnly = false }: { board: Board; readOnly?: boolean }) {
+function BoardView({ board }: { board: Board }) {
   return (
     <main className="shell">
-      {readOnly && <p className="demo-notice">Synthetic demo · Fictional messages, names, and addresses. <a href="?">Sign in to your family board</a></p>}
       <header className="masthead">
         <div>
           <p className="eyebrow">Second Look</p>
           <h1>{board.family.name}</h1>
           <p className="muted">
-            {readOnly ? "This fixed example shows how a family can review a message." : !board.helperAddress ? "The helper inbox has not been configured. Your family administrator can prepare the family setup." : !board.parents.some((parent) => parent.emails.length > 0) ? "A family administrator needs to add a parent and confirm their email address before forwarding can begin." : <>{board.parents.filter((parent) => parent.emails.length > 0).map((parent) => parent.name).join(", ")} can forward confusing emails from their confirmed addresses to{" "}
+            {!board.helperAddress ? "The helper inbox has not been configured. Your family administrator can prepare the family setup." : !board.parents.some((parent) => parent.emails.length > 0) ? "A family administrator needs to add a parent and confirm their email address before forwarding can begin." : <>{board.parents.filter((parent) => parent.emails.length > 0).map((parent) => parent.name).join(", ")} can forward confusing emails from their confirmed addresses to{" "}
             <code>{board.helperAddress}</code>. The board updates as messages are checked.</>}
           </p>
         </div>
@@ -431,7 +430,7 @@ function BoardView({ board, readOnly = false }: { board: Board; readOnly?: boole
       ) : (
         <section className="cards">
           {board.cases.map((c) => (
-            <CaseCard key={c._id} c={c} readOnly={readOnly} />
+            <CaseCard key={c._id} c={c} />
           ))}
         </section>
       )}
@@ -439,9 +438,15 @@ function BoardView({ board, readOnly = false }: { board: Board; readOnly?: boole
   );
 }
 
-function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
-  const markHandled = useMutation(api.cases.markHandled);
-  const addNote = useMutation(api.cases.addNote);
+export function CaseCard({ c, onAddNote, onMarkHandled }: {
+  c: Case;
+  onAddNote?: (args: { caseId: Id<"cases">; text: string }) => Promise<unknown>;
+  onMarkHandled?: (args: { caseId: Id<"cases"> }) => Promise<unknown>;
+}) {
+  const privateMarkHandled = useMutation(api.cases.markHandled);
+  const privateAddNote = useMutation(api.cases.addNote);
+  const markHandled = onMarkHandled ?? privateMarkHandled;
+  const addNote = onAddNote ?? privateAddNote;
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -469,7 +474,7 @@ function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
             {c.forwardFormat !== "unknown" ? ` via ${c.forwardFormat === "apple" ? "Apple Mail" : c.forwardFormat === "gmail" ? "Gmail" : "Outlook"}` : ""}
           </p>
         </div>
-        <ol className="steps" aria-label="Progress">
+        <ol className="steps" aria-label="Progress" aria-live="polite">
           {STEPS.map((s, i) => {
             const stopped = c.replyStatus === "unsent" || c.replyStatus === "failed";
             const state = done || i < stepIndex ? "done" : i === stepIndex && !stopped ? "active" : "todo";
@@ -492,7 +497,9 @@ function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
         </p>
       )}
 
-      {c.evidence.length > 0 && (
+      {c.verdict === "cannot_verify" && <p className="notice">There isn't enough verified information to confirm this message. Check through a contact you already trust.</p>}
+      {c.verdict === "matches_official" && <p className="muted small">The checked details match published information. This does not authenticate the sender.</p>}
+      {c.evidence.some((e) => e.applicable) && (
         <details className="evidence" open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
           <summary>
             {mismatches.length > 0 ? `${mismatches.length} thing${mismatches.length === 1 ? "" : "s"} didn't match` : `${matches.length} check${matches.length === 1 ? "" : "s"} matched`}
@@ -507,8 +514,10 @@ function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
                   <span className="ev-name">{CHECK_LABELS[e.check] ?? e.check}</span>
                   {e.matched ? (
                     <span className="ev-text">
-                      matches {e.officialValue ? <span className="mono">{e.officialValue}</span> : "the official source"}
+                      {e.check === "urgency_pressure" ? "No time pressure detected" : e.check === "policy_contradiction" ? "No contradiction found in the cited policy" : <>matches {e.officialValue ? <span className="mono">{e.officialValue}</span> : "published information"}</>}
                     </span>
+                  ) : e.check === "policy_contradiction" ? (
+                    <span className="ev-text">{e.claimValue}</span>
                   ) : e.check === "payment_method" ? (
                     <span className="ev-text">
                       {e.claimValue === "prize fee" ? "asks for a fee to receive a prize" : <>{e.severity === "soft" ? "mentions " : "asks for payment by "}<span className="claim">{paymentWords(e.claimValue)}</span>{e.severity === "soft" ? "; more information is needed" : ""}</>}
@@ -523,11 +532,11 @@ function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
                       )}
                     </span>
                   )}
-                  {e.quote && (
-                    <blockquote>
-                      “{e.quote}”{" "}
-                      {e.sourceUrl && (
+                  {e.quote && <blockquote>“{e.quote}”</blockquote>}
+                  {e.sourceUrl && (
+                    <p className="source-link">
                         <a href={e.sourceUrl} target="_blank" rel="noreferrer">
+                          Source: {" "}
                           {(() => {
                             try {
                               return new URL(e.sourceUrl).hostname.replace(/^www\./, "");
@@ -536,8 +545,7 @@ function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
                             }
                           })()}
                         </a>
-                      )}
-                    </blockquote>
+                    </p>
                   )}
                 </li>
               ))}
@@ -560,7 +568,7 @@ function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
             <strong>{n.by}</strong> {n.text} <span className="muted small">{fmtDate(n.at)}</span>
           </p>
         ))}
-        {!readOnly && <form
+        <form
           className="actions"
           onSubmit={async (e) => {
             e.preventDefault();
@@ -585,7 +593,7 @@ function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
               Mark handled
             </button>
           )}
-        </form>}
+        </form>
         {error && <p role="alert" className="error">{error}</p>}
       </footer>
     </article>

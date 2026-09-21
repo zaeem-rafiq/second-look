@@ -2,7 +2,7 @@
 
 Private boards require Convex Auth sign-in and a `members` row for the selected family. `?family=<slug>` is navigation, never a credential. Unknown and inaccessible slugs both return no board. Notes and handled actions verify the case's family membership server-side and derive the display author from the provisioned `users` row. Client-supplied author arguments are rejected.
 
-The public `?demo=1` route renders only `src/demo.ts`, a fixed fictional fixture. It does not call the family-board query and has no edit controls. A private family named `demo` has the same membership requirements as every other family.
+The public entry and `?demo=1` route render `src/Demo.tsx`. Three fixed synthetic messages run through the existing workflow in separate temporary families. Random Alex/Sam capabilities are hashed server-side, expire after 30 minutes and authorize only that demo session. Sam can add notes and mark handled, but cannot run/reset samples. No private memberships, parent routing addresses or allowed email recipients are created. Demo cases cannot invoke external providers or record a sent reply. Private boards, including a family named `demo`, retain the same membership requirements. See [HAC-71 contracts and verification](hac-71-checkpoint.md).
 
 ## Account setup
 

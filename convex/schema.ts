@@ -97,7 +97,21 @@ export default defineSchema({
     slug: v.string(),
     timezone: v.optional(v.string()),
     digestNextAt: v.optional(v.number()),
+    demoSessionId: v.optional(v.id("demoSessions")),
   }).index("by_slug", ["slug"]).index("by_createdBy", ["createdBy"]).index("by_digestNextAt", ["digestNextAt"]),
+
+  /** Public synthetic sessions have no memberships, routing addresses, or delivery recipients. */
+  demoSessions: defineTable({
+    familyId: v.id("families"),
+    parentId: v.id("parents"),
+    tokenHash: v.string(),
+    siblingTokenHash: v.string(),
+    expiresAt: v.number(),
+    active: v.boolean(),
+    runs: v.number(),
+    resets: v.number(),
+    lastResetAt: v.number(),
+  }).index("by_tokenHash", ["tokenHash"]).index("by_siblingTokenHash", ["siblingTokenHash"]),
 
   members: defineTable({
     familyId: v.id("families"),
@@ -177,6 +191,8 @@ export default defineSchema({
 
   cases: defineTable({
     familyId: v.id("families"),
+    demoSessionId: v.optional(v.id("demoSessions")),
+    demoSample: v.optional(v.union(v.literal("suspicious"), v.literal("legitimate"), v.literal("unverifiable"))),
     parentId: v.id("parents"),
     status: caseStatus,
     verdict: v.optional(verdict),
@@ -209,7 +225,8 @@ export default defineSchema({
     replyWithoutThreading: v.optional(v.boolean()),
     agentmailThreadId: v.string(),
     agentmailMessageId: v.string(),
-    rawStorageId: v.id("_storage"),
+    // Fixed synthetic samples do not upload an email. Private cases still require raw storage at use.
+    rawStorageId: v.optional(v.id("_storage")),
     workflowId: v.optional(v.string()),
     error: v.optional(v.string()),
     handledBy: v.optional(v.string()),

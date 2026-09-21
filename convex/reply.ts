@@ -42,7 +42,7 @@ export const sendReply = internalAction({
     let text = c.replyDraft ?? c.replyText ?? null;
     if (text === null) {
       text = templateReply(facts);
-      if (openaiConfigured()) {
+      if (!c.demoSessionId && openaiConfigured()) {
         try {
           const reasons = explanationReasons(c.verdict, facts.orgName, evidence);
           const known = await ctx.runQuery(internal.registry.listAliases, {});
@@ -76,6 +76,7 @@ export const sendReply = internalAction({
     try {
       const check = validateReply(text, facts);
       if (!check.ok) throw new Error(`reply failed validation: ${check.reasons.join("; ")}`);
+      if (!c.rawStorageId) throw new Error("raw delivery missing from storage");
       const blob = await ctx.storage.get(c.rawStorageId);
       if (!blob) throw new Error("raw delivery missing from storage");
       const forward = (JSON.parse(await blob.text()) as MessageReceivedEvent).message;
