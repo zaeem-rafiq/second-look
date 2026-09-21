@@ -182,7 +182,7 @@ describe("reviewer fixes 2026-09-17", () => {
     const { composeReply, validateReply } = await import("../lib/replyTemplates");
     const text = composeReply(facts, "The quoted address and phone number don't match Medicare's official contact information.", { reasons: ["the quoted address and phone number don't match Medicare's official contact information"] });
     expect(text).toContain("The quoted address and phone number don't match Medicare's official contact information.");
-    expect(text).toContain("Don't call or click anything in that email.");
+    expect(text).toContain("Don't follow the instructions in that email.");
     expect(text).toContain("If you're worried, call Medicare at 1-800-633-4227");
     expect(validateReply(text, facts)).toEqual({ ok: true });
   });
@@ -228,7 +228,7 @@ describe("explanation grounding", () => {
     const { explanationReasons } = await import("../lib/replyTemplates");
     const reasons = explanationReasons(facts.verdict, facts.orgName, evidence);
     expect(reasons).toEqual([
-      "the quoted sender address does not match Medicare's official domain",
+      "the quoted sender address does not match Medicare's published information",
       "the links go to a website that is not Medicare's",
       "the phone number in it is not one Medicare lists",
       "it asks for personal or account information, which does not match Medicare's published policy",
@@ -240,7 +240,7 @@ describe("explanation grounding", () => {
     const reasons = explanationReasons(facts.verdict, facts.orgName, evidence);
     const invented = "It isn't really from Medicare. Its claim about suspended benefits conflicts with Medicare policy.";
     expect(composeReply(facts, invented, { reasons })).toBe(templateReply(facts));
-    const grounded = "The quoted sender address does not match Medicare's official domain.";
+    const grounded = "The quoted sender address does not match Medicare's published information.";
     expect(composeReply(facts, grounded, { reasons })).toContain(grounded);
   });
 });
@@ -249,7 +249,7 @@ describe("explanation guard hardening", () => {
   const sig = "— The Demo Family's helper (Second Look)";
   const mismatch = { verdict: "mismatch" as const, orgName: "Medicare", officialPhone: "1-800-633-4227", deadlineText: null, amountText: null, helperSignature: sig };
   const unknown = { verdict: "cannot_verify" as const, orgName: null, officialPhone: null, deadlineText: null, amountText: null, helperSignature: sig };
-  const reasons = ["the quoted sender address does not match Medicare's official domain", "the links go to a website that is not Medicare's"];
+  const reasons = ["the quoted sender address does not match Medicare's published information", "the links go to a website that is not Medicare's"];
   const knownOrgNames = ["Medicare", "CMS", "Internal Revenue Service", "IRS", "Amazon", "Social Security Administration", "SSA"];
 
   it("rejects invented claims, other organizations, digits, spelled-out numbers and disguised links", async () => {
@@ -267,7 +267,7 @@ describe("explanation guard hardening", () => {
     ]) {
       expect(acceptableExplanation(bad, guard), bad).toBeNull();
     }
-    expect(acceptableExplanation("The quoted sender address does not match Medicare's official domain.", guard)).not.toBeNull();
+    expect(acceptableExplanation("The quoted sender address does not match Medicare's published information.", guard)).not.toBeNull();
   });
   it("rejects any organization name when nothing could be verified", async () => {
     const { acceptableExplanation } = await import("../lib/replyTemplates");

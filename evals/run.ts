@@ -8,7 +8,7 @@ import { zodTextFormat } from "openai/helpers/zod";
 import { FIXTURES, SCENARIOS } from "./fixtures/index";
 import { parseForwardedEmail, htmlToText } from "../lib/forwardParser";
 import { deterministicExtract, mergeExtraction, buildModelInput, ExtractionSchema, EXTRACTION_SYSTEM_PROMPT, type LlmExtraction } from "../lib/extract";
-import { normalizePhone, extractPhones } from "../lib/phones";
+import { normalizePhone } from "../lib/phones";
 import { findOrg, pickOfficialCandidate } from "../lib/registry";
 import { runChecks } from "../lib/checks";
 import { decideVerdict } from "../lib/verdict";
@@ -16,7 +16,7 @@ import { SEED_ORGS, FALLBACK_ORG_KEY } from "../lib/registrySeed";
 import { normalizeQuoteText } from "../lib/quotes";
 import { composeReply, explanationReasons, formatPhoneForHumans, templateReply, validateReply } from "../lib/replyTemplates";
 import { EXPLANATION_SYSTEM_PROMPT, Explanation, explanationUserInput } from "../lib/replyPrompt";
-import { urlDomain, hostOf, registrableDomain } from "../lib/domains";
+import { urlDomain } from "../lib/domains";
 import { paymentGateMode, gateEmailFromParsed } from "../lib/paymentGate";
 import { applyPaymentGateFlag, parseCutoff } from "../lib/paymentGateClient";
 import { EXTRACT_MODEL, REPLY_MODEL, openaiClient, openaiConfigured } from "../convex/clients/openai";
@@ -41,6 +41,7 @@ const paymentGateDecisions: Array<{ id: string; outcome: Record<string, unknown>
 const modelCounts = { extractionAccepted: 0, extractionFailed: 0, replyAttempted: 0, replyCompleted: 0, replyIncomplete: 0, replyAccepted: 0, replyRejected: 0, replyFailed: 0, paymentGateInvoked: 0, resolutionAttempted: 0, resolutionFailed: 0 };
 const pageCache = new Map<string, { text: string | null; status: number | null; error: string | null; hash: string | null }>();
 const resolutionCache = new Map<string, OfficialOrg | null>();
+const resolutionAttempts: Array<Record<string, unknown>> = [];
 
 // Same unknown-org selection and source rules as resolveForCase, without registry writes.
 async function resolve(claim: string | null, sender: string | null): Promise<OfficialOrg | null> {
@@ -48,18 +49,21 @@ async function resolve(claim: string | null, sender: string | null): Promise<Off
   if (found || !claim?.trim() || !online || !firecrawlConfigured()) return found;
   if (resolutionCache.has(claim)) return resolutionCache.get(claim)!;
   modelCounts.resolutionAttempted++;
-  let org: OfficialOrg | null = null;
+  const attempt: Record<string, unknown> = { claim, candidateUrl: null, trusted: false };
   try {
     const candidate = pickOfficialCandidate(claim, await search(`${claim} official website contact us`, { limit: 3 }));
     if (candidate) {
+      attempt.candidateUrl = candidate.url;
       const page = await scrape(candidate.url, { timeoutMs: 20_000 });
-      if ((page.statusCode === null || (page.statusCode >= 200 && page.statusCode < 400)) && page.markdown) {
-        org = { name: claim, aliases: [claim], domains: [registrableDomain(hostOf(candidate.url)!)!], phones: extractPhones(page.markdown).slice(0, 10), policyQuotes: [], sourceUrls: [page.finalUrl ?? candidate.url], contactEmail: null, lastCrawledAt: null };
-      }
-    }
-  } catch { modelCounts.resolutionFailed++; }
-  resolutionCache.set(claim, org);
-  return org;
+      attempt.finalUrl = page.finalUrl ?? candidate.url;
+      attempt.status = page.statusCode;
+      attempt.textHash = page.markdown ? hash(page.markdown) : null;
+      attempt.reason = "Search resemblance is not verified organization identity; candidate excluded from verdicts and replies.";
+    } else attempt.reason = "No plausible candidate.";
+  } catch { modelCounts.resolutionFailed++; attempt.error = "source search or scrape failed"; }
+  resolutionAttempts.push(attempt);
+  resolutionCache.set(claim, null);
+  return null;
 }
 
 async function fetchPage(url: string) {
@@ -93,7 +97,7 @@ async function evidenceVerified(rows: CheckResult[]) {
 }
 
 async function main() {
-  const results: Array<{ id: string; scenarioId: string; category: string; split: string; expected: Verdict; got: Verdict; org: string | null; senderOk: boolean; urlsOk: boolean; phonesOk: boolean; evidence: Awaited<ReturnType<typeof evidenceVerified>> | null; replyOk: boolean; boundedReply: boolean; reply: string; notes: string[] }> = [];
+  const results: Array<{ id: string; scenarioId: string; category: string; split: string; expected: Verdict; got: Verdict; org: string | null; senderOk: boolean; urlsOk: boolean; phonesOk: boolean; evidence: Awaited<ReturnType<typeof evidenceVerified>> | null; replyOk: boolean; boundedReply: boolean; reply: string; notes: string[]; extracted: ReturnType<typeof mergeExtraction>; checks: CheckResult[] }> = [];
   for (const fx of selected) {
     const mail = await PostalMime.parse(readFileSync(`evals/fixtures/${fx.id}.eml`, "utf8"));
     const text = mail.text ?? "", html = mail.html ?? "";
@@ -148,7 +152,7 @@ async function main() {
     if (!validation.ok) notes.push(...validation.reasons);
     if (!boundedReply) notes.push("reply asserts sender authentication from quoted details");
     if (!senderOk || !urlsOk || !phonesOk) notes.push("incomplete extraction");
-    results.push({ id: fx.id, scenarioId: fx.scenarioId, category: fx.category, split: fx.split, expected: fx.expected, got, org: org?.name ?? null, senderOk, urlsOk, phonesOk, evidence, replyOk: validation.ok, boundedReply, reply, notes });
+    results.push({ id: fx.id, scenarioId: fx.scenarioId, category: fx.category, split: fx.split, expected: fx.expected, got, org: org?.name ?? null, senderOk, urlsOk, phonesOk, evidence, replyOk: validation.ok, boundedReply, reply, notes, extracted, checks: rows });
     console.log(`${fx.id}: ${got}${got === fx.expected && senderOk && urlsOk && phonesOk && validation.ok && boundedReply && evidence?.ok !== false ? "" : " FAIL"}`);
   }
   const count = (rows: typeof results) => ({ fixtures: rows.length, scenarios: new Set(rows.map((r) => r.scenarioId)).size, ids: rows.map((r) => r.id) });
@@ -169,7 +173,7 @@ async function main() {
   const report = {
     startedAt, finishedAt: new Date().toISOString(), commit: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), datasetHash, sourceHash: hash(sourceFiles.map((p) => p + readFileSync(p, "utf8")).join("")), sourceFiles,
     command: process.env.EVAL_COMMAND ?? "node --import tsx evals/run.ts", config: { split, online, extractionModel: useLlm ? EXTRACT_MODEL : null, replyModel: useLlm ? REPLY_MODEL : null, paymentGateMode: gateMode, paymentGateCutoff: parseCutoff(process.env.PAYMENT_GATE_CUTOFF), openaiConfigured: useLlm, firecrawlConfigured: firecrawlConfigured(), typesafeConfigured: !!process.env.TYPESAFE_API_KEY, registry: "local SEED_ORGS, optional read-only unknown-org search; not deployed registry" },
-    datasetComplete, labelsReviewed, counts, heldOut: count(results.filter((r) => r.split === "challenge")), modelCounts, paymentGateDecisions, failures, passed,
+    datasetComplete, labelsReviewed, counts, heldOut: count(results.filter((r) => r.split === "challenge")), modelCounts, paymentGateDecisions, resolutionAttempts, failures, passed,
     publicationReady: passed && split === "all" && online && useLlm && modelCounts.extractionAccepted === selected.length && modelCounts.replyCompleted === selected.length && modelCounts.replyFailed === 0 && (gateMode === "off" || paymentGateDecisions.length === selected.length),
     limitations: ["Synthetic labels measure this contract, not real-world sender authentication or safety.", "Precision counts distinct scenarios with any mislabeled format: at most 1 of 12; all 90 expected labels remain mandatory.", "Code-only evidence checks citation presence; live quote verification requires EVAL_ONLINE=1.", "No Convex deployment, registry mutation, webhook, email send or delivery was exercised. Production rate-limit and database persistence behavior of unknown-org resolution are not exercised by this read-only replay.", "The 6-scenario/18-format challenge set is reserved from prompt development, but content was exposed to the independent label reviewer; it is synthetic, not an unseen real-mail sample.", "Injected production-action source/model failures are covered by tests/evalFailurePaths.test.ts; not represented as live provider outages.", "Independent label review and subjective reply readability review are recorded separately; publicationReady is only the executable gate."],
     sources: [...pageCache].map(([url, p]) => ({ url, status: p.status, textHash: p.hash, error: p.error })), results,

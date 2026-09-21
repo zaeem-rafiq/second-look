@@ -38,7 +38,7 @@ function fixedParts(f: ReplyFacts): { defaultExplanation: string; action: string
     case "mismatch":
       return {
         defaultExplanation: `Some details in this forward don't match the official source.`,
-        action: "Don't call or click anything in that email.",
+        action: "Don't follow the instructions in that email.",
         after: f.officialPhone
           ? `If you're worried, call ${org} at ${f.officialPhone}, the number on their official website.`
           : "If you're worried, use the number on your card or bill instead.",
@@ -65,7 +65,7 @@ export type EvidenceLike = { check: string; applicable: boolean; matched: boolea
 /** Plain-language reasons the model may mention, derived only from failed hard checks. No numbers or domains. */
 export function explanationReasons(verdict: Verdict, orgName: string | null, evidence: EvidenceLike[]): string[] {
   const org = orgName ?? "the organization";
-  if (verdict === "matches_official") return [`the quoted sender and checked details match ${org}'s official information; this does not authenticate the sender`];
+  if (verdict === "matches_official") return [`the quoted sender and checked details match ${org}'s official information`];
   if (verdict === "cannot_verify") return ["the available details were not enough to confirm this"];
   const reasons: string[] = [];
   for (const e of evidence) {
@@ -73,7 +73,7 @@ export function explanationReasons(verdict: Verdict, orgName: string | null, evi
     let r: string | null = null;
     switch (e.check) {
       case "sender_domain":
-        r = `the quoted sender address does not match ${org}'s official domain`;
+        r = `the quoted sender address does not match ${org}'s published information`;
         break;
       case "link_domains":
         r = `the links go to a website that is not ${org}'s`;
@@ -87,7 +87,7 @@ export function explanationReasons(verdict: Verdict, orgName: string | null, evi
         break;
       }
       case "payment_method":
-        r = `it asks for payment by ${e.claimValue.replace(/_/g, " ")}, which real organizations don't ask for`;
+        r = e.claimValue === "prize fee" ? "it asks for a payment to receive a prize" : `it asks for payment by ${e.claimValue.replace(/_/g, " ")}`;
         break;
     }
     if (r && !reasons.includes(r)) reasons.push(r);
