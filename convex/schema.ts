@@ -18,6 +18,8 @@ export const verdict = v.union(
   v.literal("cannot_verify"),
 );
 
+export const replyStatus = v.union(v.literal("unsent"), v.literal("sending"), v.literal("sent"), v.literal("failed"));
+
 export const policyTag = v.union(
   v.literal("never_calls_uninvited"),
   v.literal("never_emails_uninvited"),
@@ -164,6 +166,13 @@ export default defineSchema({
     replyThreadId: v.optional(v.string()),
     /** Composed reply saved before sending, so workflow retries resend byte-identical text. */
     replyDraft: v.optional(v.string()),
+    replyStatus: v.optional(replyStatus),
+    replyError: v.optional(v.string()),
+    /** A short lease prevents concurrent workers from sending the same draft. */
+    replyAttemptId: v.optional(v.string()),
+    replyAttemptAt: v.optional(v.number()),
+    /** Persist the fallback so retries never switch back to a different idempotency key. */
+    replyWithoutThreading: v.optional(v.boolean()),
     agentmailThreadId: v.string(),
     agentmailMessageId: v.string(),
     rawStorageId: v.id("_storage"),

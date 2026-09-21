@@ -70,11 +70,15 @@ export async function sendMessage(
   body: { to: string | string[]; subject: string; text: string; html?: string; headers?: Record<string, string> },
   idempotencyKey: string,
 ): Promise<{ message_id: string; thread_id: string }> {
-  return call(`/inboxes/${encodeURIComponent(inboxId)}/messages/send`, {
+  const sent = await call<{ message_id: string; thread_id: string }>(`/inboxes/${encodeURIComponent(inboxId)}/messages/send`, {
     method: "POST",
     body: JSON.stringify(body),
     idempotencyKey,
+    signal: AbortSignal.timeout(20_000),
   });
+  if (typeof sent.message_id !== "string" || !sent.message_id.trim() || sent.message_id === "dry-run:not-sent" ||
+      typeof sent.thread_id !== "string" || !sent.thread_id.trim()) throw new Error("AgentMail did not return message and thread IDs");
+  return sent;
 }
 
 export { parseFromHeader } from "../../lib/address";

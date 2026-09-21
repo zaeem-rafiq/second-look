@@ -38,6 +38,9 @@ export const onComplete = internalMutation({
   args: { workflowId: vWorkflowId, result: vResultValidator, context: v.object({ caseId: v.id("cases") }) },
   returns: v.null(),
   handler: async (ctx, args) => {
+    const c = await ctx.db.get("cases", args.context.caseId);
+    // A late workflow failure cannot undo independently recorded provider acceptance.
+    if (c?.replyMessageId && c.replyMessageId !== "dry-run:not-sent") return null;
     if (args.result.kind === "failed") {
       await ctx.db.patch("cases", args.context.caseId, { status: "failed", error: args.result.error });
     } else if (args.result.kind === "canceled") {

@@ -2,6 +2,11 @@ import { v } from "convex/values";
 import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { caseStatus, extracted as extractedValidator } from "./schema";
 import { familyMember, requireCaseMember } from "./model/auth";
+import { internal } from "./_generated/api";
+
+function hasSentReply(c: { replyMessageId?: string }): boolean {
+  return !!c.replyMessageId && c.replyMessageId !== "dry-run:not-sent";
+}
 
 export const setStatus = internalMutation({
   args: { caseId: v.id("cases"), status: caseStatus },
@@ -51,9 +56,68 @@ export const setReplyDraft = internalMutation({
     const c = await ctx.db.get("cases", args.caseId);
     if (!c) throw new Error("case not found");
     // First draft wins, so every retry sends exactly the same text under the same idempotency key.
-    if (c.replyDraft) return c.replyDraft;
-    await ctx.db.patch("cases", args.caseId, { replyDraft: args.replyDraft });
-    return args.replyDraft;
+    const replyDraft = c.replyDraft ?? c.replyText ?? args.replyDraft;
+    if (hasSentReply(c)) return replyDraft;
+    await ctx.db.patch("cases", args.caseId, {
+      replyDraft,
+      ...(c.replyMessageId === "dry-run:not-sent" ? {
+        replyMessageId: undefined, replyThreadId: undefined, replySentAt: undefined, replyText: undefined, status: "replying" as const,
+      } : {}),
+      replyStatus: c.replyMessageId === "dry-run:not-sent" ? "unsent" : c.replyStatus ?? "unsent",
+    });
+    return replyDraft;
+  },
+});
+
+export const beginReply = internalMutation({
+  args: { caseId: v.id("cases"), attemptId: v.string(), configured: v.boolean() },
+  returns: v.union(v.null(), v.object({ withoutThreading: v.boolean() })),
+  handler: async (ctx, args) => {
+    const c = await ctx.db.get("cases", args.caseId);
+    if (!c) throw new Error("case not found");
+    if (hasSentReply(c)) return null;
+    if (!c.replyDraft) throw new Error("reply draft missing");
+    // Both requests use the same provider idempotency key if recovery follows an ambiguous timeout.
+    if (c.replyAttemptId && (c.replyAttemptAt ?? 0) > Date.now() - 60_000) return null;
+    await ctx.db.patch("cases", args.caseId, {
+      replyStatus: args.configured ? "sending" : "unsent",
+      replyError: args.configured ? undefined : "Email sending is not configured. This draft has not been sent.",
+      replyAttemptId: args.configured ? args.attemptId : undefined,
+      replyAttemptAt: args.configured ? Date.now() : undefined,
+      status: "replying", error: undefined,
+    });
+    if (args.configured) {
+      await ctx.scheduler.runAfter(60_000, internal.cases.failReply, {
+        caseId: args.caseId, attemptId: args.attemptId, error: "Sending was interrupted. The saved draft can be retried.",
+      });
+    }
+    return args.configured ? { withoutThreading: c.replyWithoutThreading ?? false } : null;
+  },
+});
+
+export const omitReplyThreading = internalMutation({
+  args: { caseId: v.id("cases"), attemptId: v.string() },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const c = await ctx.db.get("cases", args.caseId);
+    if (!c || c.replyAttemptId !== args.attemptId || hasSentReply(c)) throw new Error("reply send ownership changed");
+    await ctx.db.patch("cases", args.caseId, { replyWithoutThreading: true });
+    return null;
+  },
+});
+
+export const failReply = internalMutation({
+  args: { caseId: v.id("cases"), attemptId: v.string(), error: v.string() },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const c = await ctx.db.get("cases", args.caseId);
+    if (c && !hasSentReply(c) && c.replyAttemptId === args.attemptId) {
+      await ctx.db.patch("cases", args.caseId, {
+        replyStatus: "failed", replyError: args.error,
+        replyAttemptId: undefined, replyAttemptAt: undefined,
+      });
+    }
+    return null;
   },
 });
 
@@ -61,11 +125,18 @@ export const setReply = internalMutation({
   args: { caseId: v.id("cases"), replyText: v.string(), replyMessageId: v.string(), replyThreadId: v.optional(v.string()) },
   returns: v.null(),
   handler: async (ctx, args) => {
+    if (!args.replyMessageId.trim() || args.replyMessageId === "dry-run:not-sent") throw new Error("provider message ID required");
+    const c = await ctx.db.get("cases", args.caseId);
+    if (!c) throw new Error("case not found");
+    if (hasSentReply(c)) return null;
+    if (c.replyDraft !== args.replyText) throw new Error("reply does not match the saved draft");
     await ctx.db.patch("cases", args.caseId, {
       replyText: args.replyText,
       replyMessageId: args.replyMessageId,
       ...(args.replyThreadId ? { replyThreadId: args.replyThreadId } : {}),
       replySentAt: Date.now(),
+      replyStatus: "sent", replyError: undefined,
+      replyAttemptId: undefined, replyAttemptAt: undefined, error: undefined,
       status: "replied",
     });
     return null;
@@ -117,7 +188,7 @@ export const listBoard = query({
       const evidence = await ctx.db.query("evidence").withIndex("by_case", (q) => q.eq("caseId", c._id)).collect();
       out.push({
         _id: c._id,
-        status: c.status,
+        status: c.replyMessageId === "dry-run:not-sent" && c.status === "replied" ? "replying" as const : c.status,
         verdict: c.verdict ?? null,
         summary: c.summary ?? null,
         subject: c.subject,
@@ -127,8 +198,10 @@ export const listBoard = query({
         orgCrawledAt: c.orgCrawledAt ?? null,
         deadlineAt: c.deadlineAt ?? null,
         receivedAt: c.receivedAt,
-        replySentAt: c.replySentAt ?? null,
-        replyText: c.replyText ?? null,
+        replySentAt: hasSentReply(c) ? c.replySentAt ?? null : null,
+        replyText: c.replyDraft ?? c.replyText ?? null,
+        replyStatus: hasSentReply(c) ? "sent" as const : c.replyMessageId === "dry-run:not-sent" ? "unsent" as const : c.replyStatus ?? (c.replyDraft || c.replyText ? "unsent" as const : null),
+        replyError: c.replyError ?? null,
         handledBy: c.handledBy ?? null,
         handledAt: c.handledAt ?? null,
         notes: c.notes,

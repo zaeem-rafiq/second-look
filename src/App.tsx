@@ -14,7 +14,7 @@ const STEPS: { key: Case["status"][]; label: (c: Case) => string }[] = [
   { key: ["extracting"], label: () => "Reading" },
   { key: ["resolving_org", "checking"], label: (c) => (c.orgName ? `Checking ${orgDomainLabel(c)}` : "Checking") },
   { key: ["replying"], label: () => "Verdict" },
-  { key: ["replied"], label: () => "Replied" },
+  { key: ["replied"], label: (c) => c.replyStatus === "unsent" ? "Unsent" : c.replyStatus === "sending" ? "Sending…" : c.replyStatus === "failed" ? "Send failed" : c.replyStatus === "sent" ? "Sent" : "Reply" },
 ];
 
 function orgDomainLabel(c: Case): string {
@@ -160,9 +160,9 @@ function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
     if (c.verdict === "mismatch") setOpen(true);
   }, [c.verdict]);
 
-  const stepIndex = STEPS.findIndex((s) => s.key.includes(c.status));
-  const done = c.status === "replied";
-  const failed = c.status === "failed";
+  const stepIndex = c.replyStatus ? STEPS.length - 1 : STEPS.findIndex((s) => s.key.includes(c.status));
+  const done = c.replyStatus === "sent";
+  const failed = c.status === "failed" && c.replyStatus !== "failed" && c.replyStatus !== "sent";
   const mismatches = c.evidence.filter((e) => e.applicable && !e.matched);
   const matches = c.evidence.filter((e) => e.applicable && e.matched);
 
@@ -180,7 +180,8 @@ function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
         </div>
         <ol className="steps" aria-label="Progress">
           {STEPS.map((s, i) => {
-            const state = done || i < stepIndex ? "done" : i === stepIndex ? "active" : "todo";
+            const stopped = c.replyStatus === "unsent" || c.replyStatus === "failed";
+            const state = done || i < stepIndex ? "done" : i === stepIndex && !stopped ? "active" : "todo";
             return (
               <li key={i} className={`step step-${state}`}>
                 {s.label(c)}
@@ -252,9 +253,11 @@ function CaseCard({ c, readOnly = false }: { c: Case; readOnly?: boolean }) {
         </details>
       )}
 
-      {c.replyText && c.replySentAt && (
-        <div className="reply">
-          <p className="eyebrow">Reply sent {fmtDate(c.replySentAt)}</p>
+      {c.replyText && c.replyStatus && (
+        <div className="reply" role="status">
+          <p className="eyebrow">{c.replyStatus === "sent" ? `Reply sent ${fmtDate(c.replySentAt)}` : c.replyStatus === "sending" ? "Sending reply…" : c.replyStatus === "failed" ? "Reply failed — draft saved" : "Unsent reply draft"}</p>
+          {c.replyError && <p className="muted small">{c.replyError}</p>}
+          {c.replyStatus === "sent" && <p className="muted small">Accepted by the email provider. Delivery has not been confirmed.</p>}
           <p>{c.replyText}</p>
         </div>
       )}
