@@ -37,7 +37,7 @@ function fixedParts(f: ReplyFacts): { defaultExplanation: string; action: string
   switch (f.verdict) {
     case "mismatch":
       return {
-        defaultExplanation: `This didn't come from ${org}. The sender and the details don't match ${org}'s official contact information.`,
+        defaultExplanation: `Some details in this forward don't match the official source. Forwarded text cannot confirm who sent it.`,
         action: "Don't call or click anything in that email.",
         after: f.officialPhone
           ? `If you're worried, call ${org} at ${f.officialPhone}, the number on their official website.`
@@ -45,7 +45,7 @@ function fixedParts(f: ReplyFacts): { defaultExplanation: string; action: string
       };
     case "matches_official":
       return {
-        defaultExplanation: `This one checks out. The sender and links match ${org}'s official contact information.`,
+        defaultExplanation: `The quoted sender and details match ${org}'s official information. Forwarded text cannot confirm who sent it.`,
         action: `Keep it with your other ${org} mail.`,
         after: [f.amountText ? `It mentions ${f.amountText}.` : null, f.deadlineText ? `The date to know is ${f.deadlineText}.` : null]
           .filter(Boolean)
@@ -65,7 +65,7 @@ export type EvidenceLike = { check: string; applicable: boolean; matched: boolea
 /** Plain-language reasons the model may mention, derived only from failed hard checks. No numbers or domains. */
 export function explanationReasons(verdict: Verdict, orgName: string | null, evidence: EvidenceLike[]): string[] {
   const org = orgName ?? "the organization";
-  if (verdict === "matches_official") return [`the sender and links match ${org}'s official contact information`];
+  if (verdict === "matches_official") return [`the quoted sender and checked details match ${org}'s official information; this does not authenticate the sender`];
   if (verdict === "cannot_verify") return ["there was no official source to check it against"];
   const reasons: string[] = [];
   for (const e of evidence) {
@@ -73,7 +73,7 @@ export function explanationReasons(verdict: Verdict, orgName: string | null, evi
     let r: string | null = null;
     switch (e.check) {
       case "sender_domain":
-        r = `the sender's email address is not an official ${org} address`;
+        r = `the quoted sender address does not match ${org}'s official domain`;
         break;
       case "link_domains":
         r = `the links go to a website that is not ${org}'s`;
@@ -138,6 +138,8 @@ export function acceptableExplanation(text: string | null | undefined, guard?: E
   if (LINKISH.test(t)) return null;
   if (/[$€£]|\bdollars?\b|\busd\b/i.test(t)) return null;
   if (FORBIDDEN.some((re) => re.test(t))) return null;
+  // A copied From header cannot establish message origin, in either direction.
+  if (/\b(came|come|comes|coming|sent|send|sends|sender|from|genuine|authentic|legitimate|real|checks out)\b/i.test(t)) return null;
   if (countImperativeSentences(t) > 0) return null;
   if (!/[.!?]$/.test(t)) return null;
   if (guard) {

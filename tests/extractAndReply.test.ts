@@ -178,8 +178,8 @@ describe("reviewer fixes 2026-09-17", () => {
 
   it("composeReply keeps code-owned action and number sentences and uses a clean model explanation", async () => {
     const { composeReply, validateReply } = await import("../lib/replyTemplates");
-    const text = composeReply(facts, "This didn't come from Medicare. The sender's address and the phone number don't match Medicare's official contact information.");
-    expect(text).toContain("This didn't come from Medicare.");
+    const text = composeReply(facts, "The quoted address and phone number don't match Medicare's official contact information.");
+    expect(text).toContain("The quoted address and phone number don't match Medicare's official contact information.");
     expect(text).toContain("Don't call or click anything in that email.");
     expect(text).toContain("If you're worried, call Medicare at 1-800-633-4227");
     expect(validateReply(text, facts)).toEqual({ ok: true });
@@ -226,7 +226,7 @@ describe("explanation grounding", () => {
     const { explanationReasons } = await import("../lib/replyTemplates");
     const reasons = explanationReasons(facts.verdict, facts.orgName, evidence);
     expect(reasons).toEqual([
-      "the sender's email address is not an official Medicare address",
+      "the quoted sender address does not match Medicare's official domain",
       "the links go to a website that is not Medicare's",
       "the phone number in it is not one Medicare lists",
       "it asks for personal or account information, which Medicare says it only does in limited situations",
@@ -238,7 +238,7 @@ describe("explanation grounding", () => {
     const reasons = explanationReasons(facts.verdict, facts.orgName, evidence);
     const invented = "It isn't really from Medicare. Its claim about suspended benefits conflicts with Medicare policy.";
     expect(composeReply(facts, invented, { reasons })).toBe(templateReply(facts));
-    const grounded = "This didn't come from Medicare. The sender's address and the links aren't Medicare's, and it asks for personal information.";
+    const grounded = "The quoted address and links do not match Medicare's, and it asks for personal information.";
     expect(composeReply(facts, grounded, { reasons })).toContain(grounded);
   });
 });
@@ -247,7 +247,7 @@ describe("explanation guard hardening", () => {
   const sig = "— The Demo Family's helper (Second Look)";
   const mismatch = { verdict: "mismatch" as const, orgName: "Medicare", officialPhone: "1-800-633-4227", deadlineText: null, amountText: null, helperSignature: sig };
   const unknown = { verdict: "cannot_verify" as const, orgName: null, officialPhone: null, deadlineText: null, amountText: null, helperSignature: sig };
-  const reasons = ["the sender's email address is not an official Medicare address", "the links go to a website that is not Medicare's"];
+  const reasons = ["the quoted sender address does not match Medicare's official domain", "the links go to a website that is not Medicare's"];
   const knownOrgNames = ["Medicare", "CMS", "Internal Revenue Service", "IRS", "Amazon", "Social Security Administration", "SSA"];
 
   it("rejects invented claims, other organizations, digits, spelled-out numbers and disguised links", async () => {
@@ -265,13 +265,13 @@ describe("explanation guard hardening", () => {
     ]) {
       expect(acceptableExplanation(bad, guard), bad).toBeNull();
     }
-    expect(acceptableExplanation("This didn't come from Medicare. The sender's address and the links aren't Medicare's.", guard)).not.toBeNull();
+    expect(acceptableExplanation("The quoted address and links do not match Medicare's.", guard)).not.toBeNull();
   });
   it("rejects any organization name when nothing could be verified", async () => {
     const { acceptableExplanation } = await import("../lib/replyTemplates");
     const guard = { reasons: ["there was no official source to check it against"], orgName: null, knownOrgNames };
     expect(acceptableExplanation("It seems to be from Medicare.", guard)).toBeNull();
-    expect(acceptableExplanation("I couldn't confirm who sent it because there was no official source to check it against.", guard)).not.toBeNull();
+    expect(acceptableExplanation("I couldn't check these details against an official source.", guard)).not.toBeNull();
   });
   it("still produces a valid reply through the template when the model is rejected", async () => {
     const { composeReply, templateReply, validateReply } = await import("../lib/replyTemplates");
@@ -313,5 +313,20 @@ To: <mom.demo@example.com>
     const parsed = parseForwardedEmail(receipt, "");
     const det = deterministicExtract(parsed, receipt, "", orgs);
     expect(mergeExtraction(det, aiAnswer(["gift_card", "gift_card", "wire"]), normalizePhone).paymentMethods).toEqual(["gift_card", "wire"]);
+  });
+});
+
+// HAC-69: copied sender details never establish authenticity.
+describe("forwarded sender evidence limits", () => {
+  it("bounds templates and rejects model claims about message origin", async () => {
+    const { acceptableExplanation, templateReply } = await import("../lib/replyTemplates");
+    for (const verdict of ["mismatch", "matches_official"] as const) {
+      const text = templateReply({ verdict, orgName: "Medicare", officialPhone: "1-800-633-4227", deadlineText: null, amountText: null, helperSignature: "— Family helper" });
+      expect(text).toContain("Forwarded text cannot confirm who sent it.");
+      expect(validateReply(text, { verdict, officialPhone: "1-800-633-4227" }).ok).toBe(true);
+    }
+    for (const claim of ["This didn't come from Medicare.", "Medicare sent this.", "This is genuine.", "This one checks out.", "The sender is verified."]) {
+      expect(acceptableExplanation(claim), claim).toBeNull();
+    }
   });
 });
