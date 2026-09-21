@@ -1,14 +1,14 @@
 # Trust evaluation (HAC-69)
 
-Current result: **not accepted for publication**. Final code-only and configured model runs at `436bac0` both exit 1: 84/90 fixed labels match; six Medicare/IRS outputs conservatively return cannot_verify. All other automated gates pass. Final independent output review is in `results/model-online-final-review.md`; it found no additional concrete grounding defect in its bounded scope.
+Active evaluation version: **v2**, approved by the owner on September 21. It changes only the Medicare suspension and IRS refund expectations to `cannot_verify` across their three formats. The original v1 labels, corpus and failure reports remain preserved. V2 code-only and configured-model verification at `5981578` both pass 90/90 labels and all executable gates. The retained v1 replay has 84/90 labels, with six expected-label failures and all other gates passing.
 
 The fixed corpus implements spec §6: **30 scenarios × 3 mail-client formats = 90 fixtures**. It contains 12 scam scenarios (36 fixtures), 12 legitimate scenarios (36), and 6 unverifiable scenarios (18). Gmail, Outlook, and Apple Mail all represent the same original message for each scenario. No real or private mail is included. Scam domains are fictional; official-looking details in synthetic messages are not authenticated sender evidence.
 
 ## Labels and challenge boundary
 
-`fixtures/index.ts` defines messages and truth. `build-fixtures.ts` deterministically writes the `.eml` files. `expected-labels.json` freezes intended verdicts independently of implementation results. The original nine fixtures retain their original labels and message content. The existing 50-case `jev/cases.json` dataset and its reviewed labels are unchanged.
+`fixtures/index.ts` defines unchanged messages, scenario truth and original v1 expectations. `build-fixtures.ts` deterministically writes the same `.eml` files. Original `expected-labels.json` and `independent-label-review.json` remain frozen. V2 uses separate snapshots under `v2/`; all 28 other scenario expectations are unchanged. The original nine messages and all v1 labels remain preserved. The existing 50-case `jev/cases.json` dataset and its reviewed labels are unchanged.
 
-The coordinator reviewed all 30 scenarios from `label-review-input.json`, without seeing the proposed verdicts or running the new corpus. `independent-label-review.json` retains that review and the SHA-256 of its input. All 30 proposed verdicts agreed before the first run. The runner verifies the input hash and label agreement on every run. This is an independent agent review of a synthetic contract, not real-world ground truth or owner acceptance.
+The coordinator reviewed all 30 scenarios from `label-review-input.json`, without seeing the proposed verdicts or running the new corpus. `independent-label-review.json` retains that review and the SHA-256 of its input. All 30 proposed verdicts agreed before the first run. The runner verifies the input hash and label agreement on every run. This is an independent agent review of a synthetic contract, not real-world ground truth or owner acceptance. This paragraph describes the original v1 review. V2 received a separate independent policy-context review, frozen before its first replay, after prior results were exposed; it is not a blind new label or holdout study. The two revised scenarios remain categorized as scams: the expected verdict describes what the supplied evidence establishes, rather than changing scenario truth.
 
 Six scenarios are reserved as `challenge`: bank unusual login, fake charity, bank statement, church newsletter, newsletter, and local promo. They are 2 scenarios per category, 18 format fixtures total. Development runs use only the other 24 scenarios/72 fixtures. Do not tune prompts from challenge content or failures; retain failures and freeze the implementation before its final challenge run. The coordinator necessarily saw challenge content to label it, so this is not a blind holdout for that reviewer. No production prompts were developed by this evaluation lane.
 
@@ -31,16 +31,18 @@ Run from the repository root after installing the existing lockfile dependencies
 node --import tsx evals/build-fixtures.ts
 # Development only, before freezing changes:
 env -u OPENAI_API_KEY -u FIRECRAWL_API_KEY EVAL_ONLINE=0 EVAL_SPLIT=development node --import tsx evals/run.ts
-# Required integrated code-only run, including the frozen challenge subset:
+# Active v2 code-only run, including the exposed challenge regression subset:
 env -u OPENAI_API_KEY -u FIRECRAWL_API_KEY EVAL_ONLINE=0 node --import tsx evals/run.ts
+# Original v1 replay; retains its six expected-label failures:
+env -u OPENAI_API_KEY -u FIRECRAWL_API_KEY EVAL_ONLINE=0 EVAL_VERSION=v1 node --import tsx evals/run.ts
 # Only with already configured, authorized provider keys in the environment:
-EVAL_ONLINE=1 PAYMENT_GATE_MODE=jev_cascade node --import tsx evals/run.ts
+EVAL_VERSION=v2 EVAL_ONLINE=1 EVAL_SPLIT=all PAYMENT_GATE_MODE=jev_cascade node --import tsx evals/run.ts
 npm test
 npm run typecheck
 npm run build
 ```
 
-Use `EVAL_OUTPUT` to retain runs under distinct filenames and `EVAL_COMMAND` to record the exact invocation (never include keys). `EVAL_SPLIT=challenge` is available for a frozen challenge-only replay, but never qualifies as a full publication run. Reports contain corpus and source hashes, Git commit, mode, model IDs, actual gate decision metadata, counts, per-fixture failures/replies, citation verification, source response status/text hashes, merged extraction and check rows, untrusted search candidates, and limitations. A nonzero exit is a retained failed gate, not permission to relabel fixtures.
+Use `EVAL_VERSION=v1` or `v2` (default v2). Console output and reports identify the selected version. Default outputs go to `results/v1/` or `results/v2/`, preserving older unversioned reports. `EVAL_OUTPUT` can retain a distinct filename, but cannot overwrite a historical or different-version report. Use `EVAL_COMMAND` to record the exact invocation (never include keys). `EVAL_SPLIT=challenge` is available for a frozen challenge-only replay, but never qualifies as a full publication run. Reports contain the version, original corpus identity, selected-label hash, versioned dataset hash, source hash, Git commit, mode, model IDs, actual gate decision metadata, counts, per-fixture failures/replies, citation verification, source response status/text hashes, merged extraction and check rows, untrusted search candidates, and limitations. A nonzero exit is a retained failed gate, not permission to relabel fixtures.
 
 ## Production parity and limits
 
@@ -50,7 +52,19 @@ Unknown-org resolution follows the production source selection without writing a
 
 `tests/evalFailurePaths.test.ts` invokes the actual registered extraction and resolution action bodies with in-memory persistence and provider stubs that throw. It observes model exception/incomplete-response fallbacks and source search/scrape exceptions becoming unknown/unverifiable. These are deliberate failure injections, not observations of live provider outages. End-to-end Convex/browser/delivery evidence is owned by the integration lane.
 
-## Retained failure analysis
+## Verified v2 result
+
+Implementation `598157852bbb1c2b389396ee7ed3c06789f5ef6e` adds evaluation versioning only; production behavior and prompts are unchanged from `436bac0`. Required checks exit 0: 258 tests across 24 files, typecheck, build and diff check. The default code-only command exits 0 with 90/90 labels. The explicit v1 command exits 1 with its original six label failures; every behavior/check/reply row is identical between code-only versions.
+
+The configured v2 command above completed on September 21, 12:28:51–12:34:27 UTC, exit 0. `results/v2/model-online-all.json` records 90 accepted extractions, 90 accepted replies, 90 payment-gate decisions, zero model failures/fallbacks, and all 33 displayed citation occurrences verified across eight HTTP-200 source pages. Thirteen unknown-organization resolution attempts remained untrusted. All eight failure categories are zero, including expected labels, and start/end source and dataset fingerprints match. Models are `gpt-5.4-nano` extraction and `gpt-5.6-luna` reply, with `jev_cascade` cutoff 0.8.
+
+V2 dataset identity is `9a4438e6b10097cca60733ac079441a3df537851de7e354cc7cde9fddd723a8c`; source hash is `73948336d15263d887439aaf5dbda3c9e9a083cd67621f36abe2d3824ea71eb3`; report SHA-256 is `c3d42e78027b1234c571d022585b342573d32bc9ad97797287e5447c742803ae`. The original corpus hash remains `6b89f1edefd7e6d39eed90146d70261ddd4de6bce7acf436f693a297525658cb`. V2 labels were independently approved before replay; both changed scenarios remain categorized as scams. The exposed 18-format challenge subset passes as regression evidence, not a new unbiased holdout.
+
+Independent final readback is in `results/v2/model-online-review.md`: all 90 replies, 33 citations, 13 untrusted resolution records and report identities were checked, with no material blocker found in that bounded review.
+
+`publicationReady: true` records the executable evaluation gate only. No deployment, webhook, email send/delivery, registry mutation, real-world safety study, or age-specific comprehension test occurred in this replay. Temporary provider credentials were removed after a zero-match exact-value scan of 189 task files/artifacts/logs against all three configured provider keys. The owner's existing unversioned terminal-run artifact remains unchanged and unstaged.
+
+## Retained v1 failure analysis
 
 The first development-only code run at starting commit `0aa0be11be7da6215b9dc320456654149e563312` exits 1; see `results/code-only-development.json`. No challenge results were inspected at that point.
 
