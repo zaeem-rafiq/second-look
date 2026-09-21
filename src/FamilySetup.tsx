@@ -251,6 +251,7 @@ export function FamilySetup({ familyId }: { familyId: Id<"families"> }) {
                         : deliveryText(invitation.deliveryStatus)}
                     </p>
                   )}
+                <RevokeRequest link={invitation} kind="invitation" />
               </li>
             ))}
           </ul>
@@ -316,6 +317,7 @@ function ParentCard({
                       {deliveryText(request.deliveryStatus)}
                     </p>
                   )}
+                <RevokeRequest link={request} kind="confirmation" />
               </li>
             ))}
         </ul>
@@ -352,6 +354,38 @@ function ParentCard({
         <ParentForm familyId={familyId} parent={parent} />
       </details>
     </section>
+  );
+}
+
+function RevokeRequest({ link, kind }: { link: Parent["pendingEmails"][number]; kind: "invitation" | "confirmation" }) {
+  const revoke = useMutation(api.families.revokeLink);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  if (link.status !== "pending" || link.expiresAt <= Date.now()) return null;
+  return (
+    <>
+      <button
+        type="button"
+        className="secondary"
+        aria-label={`Revoke ${kind} for ${link.email}`}
+        disabled={busy}
+        onClick={async () => {
+          if (busy) return;
+          setBusy(true);
+          setError("");
+          try {
+            await revoke({ linkId: link.id });
+          } catch (error) {
+            setError(errorText(error, "Could not revoke this request. Please try again."));
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        {busy ? "Revoking…" : `Revoke ${kind}`}
+      </button>
+      {error && <p className="error small" role="alert">{error}</p>}
+    </>
   );
 }
 

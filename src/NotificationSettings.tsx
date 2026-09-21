@@ -49,7 +49,7 @@ function SettingsForm({ familyId, settings }: { familyId: Id<"families">; settin
       <h3 id="parent-reminders-title">Parent reminder consent</h3>
       <p className="muted small">Forwarding consent does not enable reminders. Each parent must agree using a separate email link.</p>
       {!settings.parents.length && <p className="muted">Add a parent and confirm their email in Family setup first.</p>}
-      {settings.parents.map((parent) => <ParentReminders key={`${parent.id}:${parent.emails.join("|")}:${parent.reminderEmail ?? ""}`} parent={parent} hasTimezone={!!settings.timezone} />)}
+      {settings.parents.map((parent) => <ParentReminders key={`${parent.id}:${parent.emails.join("|")}`} parent={parent} hasTimezone={!!settings.timezone} />)}
     </section>}
     <h3>Recent delivery activity</h3>
     {!settings.recentDeliveries.length ? <p className="muted small">No delivery activity recorded yet.</p> : <ul className="request-list">

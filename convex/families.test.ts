@@ -170,6 +170,12 @@ test("invalid, expired and revoked links fail closed; reissue invalidates prior 
   const parentLink = (await linkFor(t, "parent@example.test"))!;
   await t.run((ctx) => ctx.db.patch("setupLinks", parentLink._id, { expiresAt: Date.now() - 1 }));
   await expect(t.action(api.families.confirmParentEmail, { token: parentToken })).rejects.toThrow("expired");
+  await owner.action(api.families.requestParentEmail, { parentId, email: "parent@example.test" });
+  const revokedParentToken = latestToken();
+  await owner.mutation(api.families.revokeLink, { linkId: parentLink._id });
+  await expect(t.action(api.families.previewLink, { token: revokedParentToken, kind: "parent_email" })).rejects.toThrow("revoked");
+  await expect(t.action(api.families.confirmParentEmail, { token: revokedParentToken })).rejects.toThrow("revoked");
+  expect((await owner.query(api.families.setup, { familyId: family.familyId })).parents[0].pendingEmails[0].status).toBe("revoked");
   expect(await t.run((ctx) => ctx.db.query("parentEmails").collect())).toEqual([]);
 });
 
