@@ -55,7 +55,7 @@ test("all three fixed samples use the durable shared pipeline and never contact 
     if (sample !== "unverifiable") expect(c.evidence.some((e) => e.applicable && e.sourceUrl.startsWith("https://"))).toBe(true);
     expect(await t.mutation(api.demo.runSample, { token: session.token, sample })).toBe(caseId);
     // Even a separate internal caller cannot claim or record a real send for a demo case.
-    expect(await t.mutation(internal.cases.beginReply, { caseId, attemptId: "unexpected", configured: true })).toBeNull();
+    expect(await t.mutation(internal.cases.beginReply, { caseId, attemptId: "unexpected", configured: true, sourceSnapshot: (await t.query(internal.cases.getForPipeline, { caseId })).sourceSnapshot })).toBeNull();
     await expect(t.mutation(internal.cases.setReply, { caseId, replyText: c.replyText!, replyMessageId: "provider-like-id" })).rejects.toThrow("synthetic demo");
   }
   expect(fetch).not.toHaveBeenCalled();

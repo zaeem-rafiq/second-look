@@ -25,7 +25,7 @@ export const sendReply = internalAction({
   args: { caseId: v.id("cases"), inboxId: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const { case: c, family, parent, org, evidence, sourceReviewRequired } = await ctx.runQuery(internal.cases.getForPipeline, { caseId: args.caseId });
+    const { case: c, family, parent, org, evidence, sourceReviewRequired, sourceSnapshot } = await ctx.runQuery(internal.cases.getForPipeline, { caseId: args.caseId });
     if (!c.verdict) throw new Error("case has no verdict");
     if (c.replyMessageId && c.replyMessageId !== "dry-run:not-sent") return null;
     if (sourceReviewRequired) throw new Error(SOURCE_REVIEW_ERROR);
@@ -39,7 +39,9 @@ export const sendReply = internalAction({
       helperSignature: `— ${family?.name ?? "Your family"}'s helper (Second Look)`,
     };
 
-    let text = c.replyDraft ?? c.replyText ?? null;
+    const savedDraft = c.replyDraft ?? c.replyText ?? null;
+    const uncertainDraft = c.replyFirstAttemptAt !== undefined || (savedDraft !== null && c.replyStatus !== "unsent" && c.replyMessageId !== "dry-run:not-sent");
+    let text = c.replySourceSnapshot === sourceSnapshot || uncertainDraft ? savedDraft : null;
     if (text === null) {
       text = templateReply(facts);
       if (!c.demoSessionId && openaiConfigured()) {
@@ -66,13 +68,12 @@ export const sendReply = internalAction({
       }
     }
     text = await ctx.runMutation(internal.cases.setReplyDraft, {
-      caseId: args.caseId, replyDraft: text,
-      sourceDeadline: c.extracted?.deadline ?? null, sourceDeadlineAmbiguous: c.extracted?.deadlineAmbiguous,
+      caseId: args.caseId, replyDraft: text, sourceSnapshot,
     });
 
     const attemptId = crypto.randomUUID();
     const claimed = await ctx.runMutation(internal.cases.beginReply, {
-      caseId: args.caseId, attemptId, configured: !!process.env.AGENTMAIL_API_KEY?.trim(),
+      caseId: args.caseId, attemptId, configured: !!process.env.AGENTMAIL_API_KEY?.trim(), sourceSnapshot,
     });
     if (!claimed) return null; // Unsent without credentials, already accepted, or another worker owns the send.
     text = claimed.replyDraft;

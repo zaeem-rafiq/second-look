@@ -139,15 +139,20 @@ test("late acceptance after a deadline change remains truthful without removing 
   expect(after.replyMessageId).toBe("late-receipt"); expect(after.replyError).toContain("saved date may be outdated");
 });
 
-test("a composer using an old deadline cannot commit a draft after extraction changed", async () => {
+test("a composer using old facts or a pending verdict cannot authorize a later reply", async () => {
   const { t, caseId, extracted } = await datedSetup();
+  const old = await t.query(internal.cases.getForPipeline, { caseId });
   await t.mutation(internal.cases.setExtracted, { caseId, extracted: { ...extracted, deadline: "2026-10-05" }, forwardFormat: "gmail" });
-  await expect(t.mutation(internal.cases.setReplyDraft, { caseId, replyDraft: "Old October 3 draft", sourceDeadline: "2026-10-03", sourceDeadlineAmbiguous: false })).rejects.toThrow("changed while this reply was being prepared");
+  await expect(t.mutation(internal.cases.setReplyDraft, { caseId, replyDraft: "Old October 3 draft", sourceSnapshot: old.sourceSnapshot })).rejects.toThrow("changed while this reply was being prepared");
   expect((await t.run((ctx) => ctx.db.get("cases", caseId)))?.replyDraft).toBeUndefined();
-  await t.mutation(internal.cases.setReplyDraft, { caseId, replyDraft: "New October 5 draft", sourceDeadline: "2026-10-05", sourceDeadlineAmbiguous: false });
-  expect(await t.mutation(internal.cases.beginReply, { caseId, attemptId: "before-verdict", configured: true })).toBeNull();
+  const pending = await t.query(internal.cases.getForPipeline, { caseId });
+  await t.mutation(internal.cases.setReplyDraft, { caseId, replyDraft: "Pending October 5 draft", sourceSnapshot: pending.sourceSnapshot });
+  expect(await t.mutation(internal.cases.beginReply, { caseId, attemptId: "before-verdict", configured: true, sourceSnapshot: pending.sourceSnapshot })).toBeNull();
   await t.mutation(internal.pipeline.checkAndDecide, { caseId });
-  expect(await t.mutation(internal.cases.beginReply, { caseId, attemptId: "latest-bytes", configured: true })).toMatchObject({ replyDraft: "New October 5 draft" });
+  await expect(t.mutation(internal.cases.beginReply, { caseId, attemptId: "stale-verdict", configured: true, sourceSnapshot: pending.sourceSnapshot })).rejects.toThrow("changed while this reply was being prepared");
+  const current = await t.query(internal.cases.getForPipeline, { caseId });
+  await t.mutation(internal.cases.setReplyDraft, { caseId, replyDraft: "New October 5 draft", sourceSnapshot: current.sourceSnapshot });
+  expect(await t.mutation(internal.cases.beginReply, { caseId, attemptId: "latest-bytes", configured: true, sourceSnapshot: current.sourceSnapshot })).toMatchObject({ replyDraft: "New October 5 draft" });
 });
 
 test("a deadline change blocks a new plain fallback after the first request rejects threading", async () => {
@@ -319,7 +324,7 @@ test("an interrupted worker expires to failed and a later attempt can send", asy
   vi.useFakeTimers();
   const { t, caseId, fetch } = await setup();
   await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
-  await t.mutation(internal.cases.beginReply, { caseId, attemptId: "interrupted", configured: true });
+  await t.mutation(internal.cases.beginReply, { caseId, attemptId: "interrupted", configured: true, sourceSnapshot: (await t.query(internal.cases.getForPipeline, { caseId })).sourceSnapshot });
   await t.finishAllScheduledFunctions(() => vi.runAllTimers());
   expect((await t.run((ctx) => ctx.db.get("cases", caseId)))?.replyStatus).toBe("failed");
   vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
@@ -364,7 +369,10 @@ test.each(["provider failure", "missing provider ID", "invalid recipient", "inva
     const c = await ctx.db.get("cases", caseId);
     await ctx.db.patch("parents", c!.parentId, { emails: ["different@example.test"] });
   });
-  if (failure === "invalid saved reply") await t.run((ctx) => ctx.db.patch("cases", caseId, { replyStatus: "unsent", replyDraft: "This is safe. Call 555-123-4567 now." }));
+  if (failure === "invalid saved reply") {
+    const { sourceSnapshot } = await t.query(internal.cases.getForPipeline, { caseId });
+    await t.run((ctx) => ctx.db.patch("cases", caseId, { replyStatus: "unsent", replyDraft: "This is safe. Call 555-123-4567 now.", replySourceSnapshot: sourceSnapshot }));
+  }
   await expect(t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" })).rejects.toThrow("confirmed acceptance");
   const failed = await t.run((ctx) => ctx.db.get("cases", caseId));
   expect(failed?.replyDraft).toBeTruthy();
@@ -372,4 +380,136 @@ test.each(["provider failure", "missing provider ID", "invalid recipient", "inva
   expect(failed?.replySentAt).toBeUndefined();
   expect(failed?.replyMessageId).toBeUndefined();
   if (failure === "invalid recipient" || failure === "invalid saved reply") expect(fetch).not.toHaveBeenCalled();
+});
+
+
+test("changed sender and organization with the same deadline recompose a provably unsent draft", async () => {
+  const { t, caseId, extracted, fetch } = await datedSetup();
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const before = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  expect(before.replyDraft).toContain("match Chase");
+  await t.mutation(internal.cases.setExtracted, { caseId, extracted: { ...extracted, claimedOrganization: null, originalSender: { name: null, address: null }, urls: [] }, forwardFormat: "unknown" });
+  await t.mutation(internal.cases.setOrg, { caseId, orgId: null });
+  await t.mutation(internal.pipeline.checkAndDecide, { caseId });
+  vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
+  fetch.mockResolvedValue(new Response(JSON.stringify({ message_id: "new-receipt", thread_id: "thread" })));
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const after = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  expect(after.verdict).toBe("cannot_verify");
+  expect(JSON.parse(fetch.mock.calls[0][1].body).text).toContain("couldn't confirm");
+  expect(after.replyText).not.toBe(before.replyDraft);
+  expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+test.each(["attempted", "accepted"] as const)("changed non-date facts preserve %s bytes and their stale warning", async (state) => {
+  const { t, caseId, extracted, fetch } = await datedSetup();
+  vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
+  fetch.mockImplementation(async () => {
+    if (state === "attempted") throw new Error("response lost");
+    return new Response(JSON.stringify({ message_id: "original-receipt", thread_id: "thread" }));
+  });
+  const first = t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  if (state === "attempted") await expect(first).rejects.toThrow("confirmed acceptance"); else await first;
+  const before = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  await t.mutation(internal.cases.setExtracted, { caseId, extracted: { ...extracted, moneyAmounts: ["$100"] }, forwardFormat: "gmail" });
+  await t.mutation(internal.pipeline.checkAndDecide, { caseId });
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const after = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  expect(after.replyDraft).toBe(before.replyDraft); expect(after.replySourceSnapshot).toBe(before.replySourceSnapshot);
+  expect(after.replyFirstAttemptAt).toBe(before.replyFirstAttemptAt); expect(after.replyMessageId).toBe(before.replyMessageId);
+  expect(after.replyError).toContain("saved advice may be outdated"); expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+test.each(["verdict", "evidence", "organization", "signature"] as const)("the compositor and send claim both reject changed %s", async (change) => {
+  const { t, caseId } = await datedSetup();
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const before = await t.query(internal.cases.getForPipeline, { caseId });
+  await t.run(async (ctx) => {
+    if (change === "verdict") await ctx.db.patch("cases", caseId, { verdict: "cannot_verify" });
+    if (change === "evidence") await ctx.db.insert("evidence", { caseId, check: "sender_domain", applicable: true, matched: false, severity: "hard", claimValue: "other.example", officialValue: "chase.com", sourceUrl: "https://chase.com", quote: "Published source" });
+    if (change === "organization") await ctx.db.patch("officialOrgs", before.case.orgId!, { phones: ["+18005550123"] });
+    if (change === "signature") await ctx.db.patch("families", before.case.familyId, { name: "Renamed family" });
+  });
+  await expect(t.mutation(internal.cases.setReplyDraft, { caseId, replyDraft: before.case.replyDraft!, sourceSnapshot: before.sourceSnapshot })).rejects.toThrow("changed while this reply was being prepared");
+  await expect(t.mutation(internal.cases.beginReply, { caseId, attemptId: "stale", configured: true, sourceSnapshot: before.sourceSnapshot })).rejects.toThrow("changed while this reply was being prepared");
+});
+
+test("an organization switch invalidates an unattempted draft without another extraction", async () => {
+  const { t, caseId } = await datedSetup();
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  await t.mutation(internal.cases.setOrg, { caseId, orgId: null });
+  expect((await t.run((ctx) => ctx.db.get("cases", caseId)))?.replyDraft).toBeUndefined();
+});
+
+test.each(["unsent", "attempted"] as const)("legacy %s drafts without a source snapshot are never silently stamped as current", async (state) => {
+  const { t, caseId, fetch } = await datedSetup();
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  await t.run((ctx) => ctx.db.patch("cases", caseId, { replySourceSnapshot: undefined, replyDraft: "Obsolete advice. Keep it.", ...(state === "attempted" ? { replyFirstAttemptAt: Date.now(), replyStatus: "failed" as const } : {}) }));
+  vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
+  fetch.mockResolvedValue(new Response(JSON.stringify({ message_id: "new-receipt", thread_id: "thread" })));
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const after = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  if (state === "unsent") {
+    expect(after.replyDraft).not.toContain("Obsolete"); expect(after.replySourceSnapshot).toMatch(/^[a-f0-9]{64}$/); expect(fetch).toHaveBeenCalledTimes(1);
+  } else {
+    expect(after.replyDraft).toBe("Obsolete advice. Keep it."); expect(after.replySourceSnapshot).toBeUndefined();
+    expect(after.replyError).toContain("saved advice may be outdated"); expect(fetch).not.toHaveBeenCalled();
+  }
+});
+
+test.each(["rejected", "accepted"] as const)("an in-flight request %s after registry changes cannot create another send", async (outcome) => {
+  const { t, caseId, fetch } = await datedSetup();
+  vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
+  let finish!: (response: Response) => void;
+  fetch.mockImplementation(() => new Promise<Response>((resolve) => { finish = resolve; }));
+  const action = t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const result = outcome === "rejected" ? expect(action).rejects.toThrow("confirmed acceptance") : action;
+  await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+  const before = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  await t.run((ctx) => ctx.db.patch("officialOrgs", before.orgId!, { phones: ["+18005550123"] }));
+  finish(outcome === "rejected" ? new Response("threading rejected", { status: 400 }) : new Response(JSON.stringify({ message_id: "late-receipt", thread_id: "thread" })));
+  await result;
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const after = (await t.run((ctx) => ctx.db.get("cases", caseId)))!;
+  expect(after.replyDraft).toBe(before.replyDraft); expect(after.replyError).toContain("saved advice may be outdated");
+  expect(after.replyStatus).toBe(outcome === "accepted" ? "sent" : "failed");
+  expect(after.replyMessageId).toBe(outcome === "accepted" ? "late-receipt" : undefined); expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+test("equivalent evidence replacement and registry refresh preserve the snapshot and retry bytes", async () => {
+  const { t, caseId, extracted, fetch } = await datedSetup();
+  await t.mutation(internal.pipeline.checkAndDecide, { caseId });
+  vi.stubEnv("AGENTMAIL_API_KEY", "synthetic-key");
+  fetch.mockRejectedValueOnce(new Error("response lost")).mockResolvedValue(new Response(JSON.stringify({ message_id: "same-receipt", thread_id: "thread" })));
+  await expect(t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" })).rejects.toThrow("confirmed acceptance");
+  const before = await t.query(internal.cases.getForPipeline, { caseId });
+  await t.run(async (ctx) => {
+    for (const { _id, _creationTime, ...row } of before.evidence) {
+      await ctx.db.delete("evidence", _id); await ctx.db.insert("evidence", row);
+    }
+    await ctx.db.patch("officialOrgs", before.case.orgId!, { lastCrawledAt: Date.now() });
+  });
+  await t.mutation(internal.cases.setExtracted, { caseId, extracted: Object.fromEntries(Object.entries(extracted).reverse()) as Extracted, forwardFormat: "gmail" });
+  await t.mutation(internal.pipeline.checkAndDecide, { caseId });
+  const current = await t.query(internal.cases.getForPipeline, { caseId });
+  expect(current.sourceSnapshot).toBe(before.sourceSnapshot);
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  expect(fetch.mock.calls[1][1].body).toBe(fetch.mock.calls[0][1].body);
+  expect(fetch.mock.calls[1][1].headers["Idempotency-Key"]).toBe(fetch.mock.calls[0][1].headers["Idempotency-Key"]);
+});
+
+
+test("an older composer cannot claim a replacement draft against its stale source context", async () => {
+  const { t, caseId, extracted, fetch } = await datedSetup();
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const old = await t.query(internal.cases.getForPipeline, { caseId });
+  await t.mutation(internal.cases.setExtracted, { caseId, extracted: { ...extracted, moneyAmounts: ["$100"] }, forwardFormat: "gmail" });
+  await t.mutation(internal.pipeline.checkAndDecide, { caseId });
+  await t.action(internal.reply.sendReply, { caseId, inboxId: "helper@example.test" });
+  const current = await t.query(internal.cases.getForPipeline, { caseId });
+  expect(current.case.replyDraft).toContain("$100");
+  expect(current.sourceSnapshot).not.toBe(old.sourceSnapshot);
+  await expect(t.mutation(internal.cases.beginReply, { caseId, attemptId: "old-composer", configured: true, sourceSnapshot: old.sourceSnapshot })).rejects.toThrow("changed while this reply was being prepared");
+  expect((await t.run((ctx) => ctx.db.get("cases", caseId)))?.replyFirstAttemptAt).toBeUndefined();
+  expect(fetch).not.toHaveBeenCalled();
 });

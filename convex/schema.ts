@@ -214,6 +214,8 @@ export default defineSchema({
     replyThreadId: v.optional(v.string()),
     /** Composed reply saved before sending, so workflow retries resend byte-identical text. */
     replyDraft: v.optional(v.string()),
+    /** SHA-256 of the source facts/evidence used to compose this draft. */
+    replySourceSnapshot: v.optional(v.string()),
     replyStatus: v.optional(replyStatus),
     replyError: v.optional(v.string()),
     /** A short lease prevents concurrent workers from sending the same draft. */
