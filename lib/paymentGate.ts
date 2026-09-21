@@ -1,6 +1,6 @@
 // Payment-method gate: "does this email ask the reader to pay with gift cards, crypto, or a
-// wire/money-transfer app?" Any yes forces a hard mismatch (lib/checks.ts paymentByGiftCardOrCrypto),
-// even with no recognized organization, so it is the most verdict-forcing bounded decision.
+// wire/money-transfer app?" A confirmed method can yield a hard mismatch only when lib/checks.ts
+// finds a published policy for that method; otherwise it remains an unresolved caution.
 //
 // Today the extraction LLM answers it inside ExtractionSchema.paymentMethods. This module adds a
 // TypeSafe Jev version (one yes/no question per method) with a confidence cutoff: confident Jev

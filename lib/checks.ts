@@ -13,6 +13,12 @@ const NEUTRAL_LINK_DOMAINS = new Set([
 ]);
 const NEUTRAL_LINK_HOSTS = new Set(["apps.apple.com", "play.google.com"]);
 
+const PAYMENT_POLICY_TAGS = {
+  gift_card: "never_asks_gift_card",
+  crypto: "never_asks_crypto",
+  wire: "never_asks_wire",
+} as const satisfies Record<string, PolicyTag>;
+
 function notApplicable(check: CheckResult["check"], severity: CheckResult["severity"]): CheckResult {
   return { check, applicable: false, matched: true, severity, claimValue: "", officialValue: "", sourceUrl: "", quote: "" };
 }
@@ -92,9 +98,13 @@ export function violatedTags(extracted: Extracted): Set<PolicyTag> {
   if (extracted.threatensPenalty) tags.add("never_threatens");
   if (extracted.claimsSuspension) tags.add("never_suspends");
   if (extracted.requestsPersonalInfo && extracted.personalInfoRequestConfirmed !== false) tags.add("never_asks_personal_info");
-  if (extracted.paymentRequestConfirmed !== false && extracted.paymentMethods.some((m) => m === "gift_card" || m === "crypto" || m === "wire")) {
-    tags.add("never_asks_gift_card");
+  if (extracted.paymentRequestConfirmed !== false) {
+    for (const method of extracted.paymentMethods) {
+      if (method === "gift_card" || method === "crypto" || method === "wire") tags.add(PAYMENT_POLICY_TAGS[method]);
+    }
   }
+  if (extracted.requestsPrizeFee) tags.add("never_requires_prize_fee");
+  if (extracted.requestsRedeliveryFee) tags.add("never_requires_redelivery_fee");
   if ((extracted.actionType === "pay" && extracted.paymentRequestConfirmed !== false) ||
       (extracted.actionType === "reply_with_info" && extracted.personalInfoRequestConfirmed !== false)) {
     tags.add("never_asks_payment_by_phone_or_email");
@@ -161,13 +171,21 @@ function describeTag(tag: PolicyTag, extracted: Extracted): string {
     case "never_asks_personal_info":
       return "email asks for personal or account information";
     case "never_asks_gift_card":
-      return `email asks for payment by ${extracted.paymentMethods.join(", ")}`;
+      return "email asks for payment by gift card";
+    case "never_asks_crypto":
+      return "email asks for payment by cryptocurrency";
+    case "never_asks_wire":
+      return "email asks for payment by wire or money transfer";
+    case "never_requires_prize_fee":
+      return "email asks for a payment to receive a prize";
     case "never_asks_payment_by_phone_or_email":
       return "email asks for payment or details by reply";
     case "never_calls_uninvited":
       return `email asks the reader to call ${extracted.phones.join(", ") || "a number"} urgently`;
     case "never_emails_uninvited":
       return "unsolicited email asks the reader to act on a link";
+    case "never_requires_redelivery_fee":
+      return "email asks for a redelivery fee";
   }
 }
 
@@ -185,26 +203,30 @@ export function urgencyPressure(extracted: Extracted): CheckResult {
   };
 }
 
-/** Confirmed payment requests are hard failures; unresolved fallback mentions only withhold a positive verdict. */
+/** A confirmed request is a hard failure only with a policy for that method or prize fee. */
 export function paymentByGiftCardOrCrypto(
   extracted: Extracted,
   org: OfficialOrg | null,
   fallback: OfficialOrg | null,
 ): CheckResult {
-  const flagged = extracted.paymentMethods.filter((m) => m === "gift_card" || m === "crypto" || m === "wire");
-  if (flagged.length === 0) return notApplicable("payment_method", "hard");
+  const flagged = extracted.paymentMethods.filter((m): m is keyof typeof PAYMENT_POLICY_TAGS =>
+    m === "gift_card" || m === "crypto" || m === "wire");
+  const prizeFee = extracted.requestsPrizeFee === true;
+  if (flagged.length === 0 && !prizeFee) return notApplicable("payment_method", "hard");
   const confirmed = extracted.paymentRequestConfirmed !== false;
-  const source = confirmed ? [org, fallback]
+  const source = (prizeFee || confirmed) ? [org, fallback]
     .filter((o): o is OfficialOrg => o !== null)
     .flatMap((o) => o.policyQuotes)
-    .find((q) => q.tags.includes("never_asks_gift_card")) : undefined;
+    .find((q) => prizeFee ? q.tags.includes("never_requires_prize_fee") :
+      flagged.some((method) => q.tags.includes(PAYMENT_POLICY_TAGS[method]))) : undefined;
+  const supportedMethods = source ? flagged.filter((method) => source.tags.includes(PAYMENT_POLICY_TAGS[method])) : flagged;
   return {
     check: "payment_method",
     applicable: true,
     matched: false,
-    severity: confirmed ? "hard" : "soft",
-    claimValue: flagged.join(", "),
-    officialValue: source ? "no legitimate organization asks for this" : "",
+    severity: source ? "hard" : "soft",
+    claimValue: prizeFee ? "prize fee" : supportedMethods.join(", "),
+    officialValue: source ? "published payment policy" : "",
     sourceUrl: source?.sourceUrl ?? "",
     quote: source?.quote ?? "",
   };

@@ -85,6 +85,24 @@ function requestedPaymentMethods(text: string): PaymentMethod[] {
     .map(([method]) => method);
 }
 
+// Deliberately narrow: the payment object must lead directly to receiving a prize,
+// optionally through a named payment method. Entry fees and unrelated actions do not qualify.
+const PRIZE_FEE_NOUN = String.raw`(?:(?:processing|shipping|handling|customs|release)\s+)?(?:fees?|payments?)`;
+const PRIZE_PAYMENT_OBJECT = String.raw`(?:(?:a|the|your)\s+)?(?:\$\s*\d[\d,]*(?:\.\d+)?(?:\s+${PRIZE_FEE_NOUN})?|${PRIZE_FEE_NOUN}|money)`;
+const PRIZE_PAYMENT_METHOD = [...PAYMENT_METHOD_PATTERNS.map(([, pattern]) => pattern.source), String.raw`\b(?:(?:credit|debit)\s+)?card\b|\b(?:check|cash)\b`].join("|");
+const PRIZE_FEE_REQUEST = new RegExp(String.raw`(?:^|[:,])\s*(?:please\s+)?(?:(?:pay|send|remit|transfer)\s+${PRIZE_PAYMENT_OBJECT}(?:\s+(?:by|via|using|with)\s+(?:${PRIZE_PAYMENT_METHOD}))?|(?:your\s+)?payment\s+(?:(?:is|must be)\s+)?required)\s+to\s+(?:claim|get|release|receive|collect)\s+(?:(?:your|the|a|cash|lottery|sweepstakes)\s+){0,3}(?:prize|winnings)\b`, "i");
+const REDELIVERY_FEE_REQUEST = /(?:^|[:,])\s*(?:please\s+)?(?:pay|send|remit|transfer)\s+(?:(?:a|the|your)\s+)?(?:\$\s*\d[\d,]*(?:\.\d+)?\s+)?redelivery\s+(?:fee|charge|payment)\b(?=\s+(?:today|within|now|immediately|at|using|via|by|to)\b|$|[.!?,])/i;
+
+/** Only an affirmative fee request establishes a policy contradiction; mentions and zero-dollar fees do not. */
+function requestsFee(text: string, pattern: RegExp): boolean {
+  return requestClauses(text).some((clause) => {
+    const request = clause.match(pattern)?.[0];
+    if (!request) return false;
+    const amount = request.match(/\$\s*([\d,]+(?:\.\d+)?)/)?.[1];
+    return amount === undefined || Number(amount.replace(/,/g, "")) > 0;
+  });
+}
+
 export function heuristicPersonalInfoRequest(text: string): boolean {
   return requestClauses(text).some((clause) =>
     /\b(?:provide|confirm|verify|enter|reply|respond|send|share|submit)\b/i.test(clause) && PERSONAL_INFO_RE.test(clause));
@@ -150,6 +168,8 @@ export function deterministicExtract(
     deadline: null,
     paymentMethods: requestedMethods.length > 0 ? requestedMethods : heuristicPaymentMethods(searchable),
     paymentRequestConfirmed: requestedMethods.length > 0,
+    requestsPrizeFee: requestsFee(requestText, PRIZE_FEE_REQUEST),
+    requestsRedeliveryFee: requestsFee(requestText, REDELIVERY_FEE_REQUEST),
     requestsPersonalInfo: PERSONAL_INFO_RE.test(searchable),
     personalInfoRequestConfirmed: heuristicPersonalInfoRequest(requestText),
     threatensPenalty: THREAT_RE.test(searchable),
@@ -198,6 +218,8 @@ export function mergeExtraction(det: Extracted, llm: LlmExtraction | null, norma
     deadline: llm.deadline,
     paymentMethods: payments,
     paymentRequestConfirmed: payments.length > 0 || llm.actionType === "pay",
+    requestsPrizeFee: det.requestsPrizeFee ?? false,
+    requestsRedeliveryFee: det.requestsRedeliveryFee ?? false,
     requestsPersonalInfo: det.requestsPersonalInfo || llm.requestsPersonalInfo,
     personalInfoRequestConfirmed: llm.requestsPersonalInfo || (det.requestsPersonalInfo && det.personalInfoRequestConfirmed !== false),
     threatensPenalty: det.threatensPenalty || llm.threatensPenalty,

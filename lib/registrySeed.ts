@@ -3,7 +3,8 @@ import type { OfficialOrg } from "./types";
 /**
  * Seed registry: the most-impersonated organizations plus a generic FTC entry used
  * for org-independent checks. Every quote was fetched from the cited page and
- * verified by exact substring on 2026-09-15; the weekly Firecrawl cron re-verifies.
+ * verified by exact substring on 2026-09-15; FTC/Chase and payment-method quotes were
+ * rechecked on 2026-09-21, along with USPS redelivery fees. The weekly Firecrawl cron re-verifies.
  * Phones are E.164. Curly apostrophes are preserved where the page uses them.
  */
 export type SeedOrg = OfficialOrg & { key: string };
@@ -106,10 +107,16 @@ export const SEED_ORGS: SeedOrg[] = [
         quote:
           "USPS will not send customers text messages or e-mails without a customer first requesting the service with a tracking number, and it will NOT contain a link.",
         sourceUrl: "https://www.uspis.gov/news/scam-article/smishing-package-tracking-text-scams",
-        tags: ["never_emails_uninvited"],
+        // This warning concerns package-tracking scams; legitimate Informed Delivery emails contain links.
+        tags: [],
+      },
+      {
+        quote: "Scheduling a Redelivery is free.",
+        sourceUrl: "https://faq.usps.com/articles/FAQ/Redelivery-The-Basics",
+        tags: ["never_requires_redelivery_fee"],
       },
     ],
-    sourceUrls: ["https://www.usps.com/help/contact-us.htm", "https://www.uspis.gov/news/scam-article/smishing-package-tracking-text-scams"],
+    sourceUrls: ["https://www.usps.com/help/contact-us.htm", "https://www.uspis.gov/news/scam-article/smishing-package-tracking-text-scams", "https://faq.usps.com/articles/FAQ/Redelivery-The-Basics"],
     lastCrawledAt: null,
   },
   {
@@ -144,7 +151,7 @@ export const SEED_ORGS: SeedOrg[] = [
       {
         quote: "Microsoft will never ask that you pay for support in the form of cryptocurrency like Bitcoin, or gift cards.",
         sourceUrl: "https://support.microsoft.com/en-us/office/protect-yourself-from-tech-support-scams",
-        tags: ["never_asks_gift_card"],
+        tags: ["never_asks_gift_card", "never_asks_crypto"],
       },
       {
         quote: "If you didn't ask us to, we won't call you to offer support.",
@@ -227,12 +234,12 @@ export const SEED_ORGS: SeedOrg[] = [
     contactEmail: "phishing@chase.com",
     policyQuotes: [
       {
-        quote: "We'll never ask you to send us personal or account information.",
-        sourceUrl: "https://www.chase.com/digital/resources/privacy-security/security/how-you-can-protect",
+        quote: "Legitimate companies will never ask you to provide your personal information via email",
+        sourceUrl: "https://www.chase.com/personal/credit-cards/education/basics/how-do-credit-card-numbers-get-stolen",
         tags: ["never_asks_personal_info"],
       },
     ],
-    sourceUrls: ["https://www.chase.com/digital/resources/privacy-security/security/how-you-can-protect", "https://www.chase.com/digital/customer-service"],
+    sourceUrls: ["https://www.chase.com/personal/credit-cards/education/basics/how-do-credit-card-numbers-get-stolen", "https://www.chase.com/digital/customer-service"],
     lastCrawledAt: null,
   },
   {
@@ -328,7 +335,7 @@ export const SEED_ORGS: SeedOrg[] = [
       {
         quote: "We do not accept payment via prepaid gift cards, cryptocurrency such as Bitcoin, wire transfers, or cash apps",
         sourceUrl: "https://www.coned.com/en/safety/energy-safety/beware-of-scammers",
-        tags: ["never_asks_gift_card"],
+        tags: ["never_asks_gift_card", "never_asks_crypto", "never_asks_wire"],
       },
       {
         quote: "An employee will gladly give you their supervisor’s name and ask you to call 1-800-75-CONED (1-800-752-6633) to verify their identity.",
@@ -340,7 +347,7 @@ export const SEED_ORGS: SeedOrg[] = [
     lastCrawledAt: null,
   },
   {
-    // Generic fallback for org-independent checks (gift cards, government impersonation).
+    // Generic fallback for org-independent checks (gift-card payments and prize fees).
     key: "federal-trade-commission",
     name: "Federal Trade Commission",
     aliases: ["FTC"],
@@ -349,12 +356,17 @@ export const SEED_ORGS: SeedOrg[] = [
     contactEmail: null,
     policyQuotes: [
       {
-        quote: "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+        quote: "Gift cards are for gifts. Only gifts. Not for payments.",
         sourceUrl: "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
         tags: ["never_asks_gift_card"],
       },
+      {
+        quote: "Real prizes are free.",
+        sourceUrl: "https://consumer.ftc.gov/articles/fake-prize-sweepstakes-and-lottery-scams",
+        tags: ["never_requires_prize_fee"],
+      },
     ],
-    sourceUrls: ["https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams"],
+    sourceUrls: ["https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams", "https://consumer.ftc.gov/articles/fake-prize-sweepstakes-and-lottery-scams"],
     lastCrawledAt: null,
   },
 ];

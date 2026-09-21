@@ -23,9 +23,13 @@ export const replyStatus = v.union(v.literal("unsent"), v.literal("sending"), v.
 export const policyTag = v.union(
   v.literal("never_calls_uninvited"),
   v.literal("never_emails_uninvited"),
+  v.literal("never_requires_redelivery_fee"),
   v.literal("never_threatens"),
   v.literal("never_suspends"),
   v.literal("never_asks_gift_card"),
+  v.literal("never_asks_crypto"),
+  v.literal("never_asks_wire"),
+  v.literal("never_requires_prize_fee"),
   v.literal("never_asks_personal_info"),
   v.literal("never_asks_payment_by_phone_or_email"),
 );
@@ -74,6 +78,8 @@ export const extracted = v.object({
     ),
   ),
   paymentRequestConfirmed: v.optional(v.boolean()),
+  requestsPrizeFee: v.optional(v.boolean()),
+  requestsRedeliveryFee: v.optional(v.boolean()),
   requestsPersonalInfo: v.boolean(),
   personalInfoRequestConfirmed: v.optional(v.boolean()),
   threatensPenalty: v.boolean(),

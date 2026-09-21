@@ -28,6 +28,10 @@ export type Extracted = {
   paymentMethods: PaymentMethod[];
   /** false means fallback mentions only; absent preserves existing stored extraction behavior. */
   paymentRequestConfirmed?: boolean;
+  /** Confirmed deterministic request for payment to receive a prize; absent in older rows. */
+  requestsPrizeFee?: boolean;
+  /** Explicit request for a redelivery fee, distinct from postage or an optional delivery upgrade. */
+  requestsRedeliveryFee?: boolean;
   requestsPersonalInfo: boolean;
   /** false retains an ambiguous field mention as caution, not a proven policy violation. */
   personalInfoRequestConfirmed?: boolean;
@@ -40,9 +44,13 @@ export type Extracted = {
 export type PolicyTag =
   | "never_calls_uninvited"
   | "never_emails_uninvited"
+  | "never_requires_redelivery_fee"
   | "never_threatens"
   | "never_suspends"
   | "never_asks_gift_card"
+  | "never_asks_crypto"
+  | "never_asks_wire"
+  | "never_requires_prize_fee"
   | "never_asks_personal_info"
   | "never_asks_payment_by_phone_or_email";
 
