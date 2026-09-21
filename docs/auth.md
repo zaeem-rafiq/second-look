@@ -19,6 +19,6 @@ An operator with deployment-admin access can call the internal `authAdmin:provis
 - `npm test -- convex/cases.auth.test.ts`: anonymous/other-family rejection, authorized reads and author derivation, stable identity across sessions, immediate membership revocation, rejection of forged author arguments, and blocked registration.
 - `npm test`, `npm run typecheck`, `npm run build` are required before integration.
 - Local backend verification used only fictional families/accounts: actual Password sign-in for two provisioned users, anonymous and other-family admin rejection of board/note/handled requests, and authorized board/note access with the provisioned author.
-- The coordinator must exercise the integrated browser flow and review the combined auth/reply changes. Unit tests use `convex-test`; they do not prove browser authentication or production configuration.
+- The coordinator exercised the integrated browser flow and obtained independent combined auth/reply review; see `trust-core-checkpoint.md`. Unit tests use `convex-test`; they do not prove browser authentication or production configuration.
 
 No cloud auth configuration or deployment was performed for HAC-67. The password provider's upstream dependencies include deprecated Lucia/Oslo packages; installation reported zero known audit vulnerabilities. This implementation follows the maintained Convex Auth integration rather than implementing password hashing or sessions locally.

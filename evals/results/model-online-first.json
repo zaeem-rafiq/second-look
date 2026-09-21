@@ -1,0 +1,3353 @@
+{
+  "startedAt": "2026-09-21T02:05:14.622Z",
+  "finishedAt": "2026-09-21T02:10:38.043Z",
+  "commit": "1af940eb076190c02615e2a24bdd810844c40b96",
+  "datasetHash": "6b89f1edefd7e6d39eed90146d70261ddd4de6bce7acf436f693a297525658cb",
+  "sourceHash": "0b186fc4685c0d7e8bb3b98dddbcf382d235cfb946935dc8d9652133bdd641d9",
+  "sourceFiles": [
+    "convex/clients/firecrawl.ts",
+    "convex/clients/openai.ts",
+    "convex/extract.ts",
+    "convex/registry.ts",
+    "convex/reply.ts",
+    "evals/run.ts",
+    "lib/address.ts",
+    "lib/checks.ts",
+    "lib/domains.ts",
+    "lib/extract.ts",
+    "lib/forwardParser.ts",
+    "lib/paymentDefinitions.ts",
+    "lib/paymentGate.ts",
+    "lib/paymentGateClient.ts",
+    "lib/phones.ts",
+    "lib/quotes.ts",
+    "lib/registry.ts",
+    "lib/registrySeed.ts",
+    "lib/replyEnvelope.ts",
+    "lib/replyPrompt.ts",
+    "lib/replyTemplates.ts",
+    "lib/svix.ts",
+    "lib/types.ts",
+    "lib/urls.ts",
+    "lib/verdict.ts"
+  ],
+  "command": "EVAL_ONLINE=1 EVAL_SPLIT=all PAYMENT_GATE_MODE=jev_cascade node --import tsx evals/run.ts (approved existing provider keys supplied through environment)",
+  "config": {
+    "split": "all",
+    "online": true,
+    "extractionModel": "gpt-5.4-nano",
+    "replyModel": "gpt-5.6-luna",
+    "paymentGateMode": "jev_cascade",
+    "paymentGateCutoff": 0.8,
+    "openaiConfigured": true,
+    "firecrawlConfigured": true,
+    "typesafeConfigured": true,
+    "registry": "local SEED_ORGS, optional read-only unknown-org search; not deployed registry"
+  },
+  "datasetComplete": true,
+  "labelsReviewed": true,
+  "counts": {
+    "scam": {
+      "fixtures": 36,
+      "scenarios": 12,
+      "ids": [
+        "medicare-suspension-gmail",
+        "medicare-suspension-outlook",
+        "medicare-suspension-apple",
+        "ssa-number-suspended-gmail",
+        "ssa-number-suspended-outlook",
+        "ssa-number-suspended-apple",
+        "tech-support-gift-cards-gmail",
+        "tech-support-gift-cards-outlook",
+        "tech-support-gift-cards-apple",
+        "irs-refund-gmail",
+        "irs-refund-outlook",
+        "irs-refund-apple",
+        "usps-redelivery-fee-gmail",
+        "usps-redelivery-fee-outlook",
+        "usps-redelivery-fee-apple",
+        "amazon-account-locked-gmail",
+        "amazon-account-locked-outlook",
+        "amazon-account-locked-apple",
+        "bank-unusual-login-gmail",
+        "bank-unusual-login-outlook",
+        "bank-unusual-login-apple",
+        "grandchild-in-jail-gmail",
+        "grandchild-in-jail-outlook",
+        "grandchild-in-jail-apple",
+        "utility-disconnect-today-gmail",
+        "utility-disconnect-today-outlook",
+        "utility-disconnect-today-apple",
+        "netflix-payment-failed-gmail",
+        "netflix-payment-failed-outlook",
+        "netflix-payment-failed-apple",
+        "lottery-prize-gmail",
+        "lottery-prize-outlook",
+        "lottery-prize-apple",
+        "fake-charity-gmail",
+        "fake-charity-outlook",
+        "fake-charity-apple"
+      ]
+    },
+    "legit": {
+      "fixtures": 36,
+      "scenarios": 12,
+      "ids": [
+        "amazon-order-gmail",
+        "amazon-order-outlook",
+        "amazon-order-apple",
+        "coned-bill-gmail",
+        "coned-bill-outlook",
+        "coned-bill-apple",
+        "medicare-summary-notice-gmail",
+        "medicare-summary-notice-outlook",
+        "medicare-summary-notice-apple",
+        "bank-statement-ready-gmail",
+        "bank-statement-ready-outlook",
+        "bank-statement-ready-apple",
+        "pharmacy-refill-gmail",
+        "pharmacy-refill-outlook",
+        "pharmacy-refill-apple",
+        "appointment-reminder-gmail",
+        "appointment-reminder-outlook",
+        "appointment-reminder-apple",
+        "property-tax-gmail",
+        "property-tax-outlook",
+        "property-tax-apple",
+        "insurance-renewal-gmail",
+        "insurance-renewal-outlook",
+        "insurance-renewal-apple",
+        "church-newsletter-gmail",
+        "church-newsletter-outlook",
+        "church-newsletter-apple",
+        "ssa-cola-notice-gmail",
+        "ssa-cola-notice-outlook",
+        "ssa-cola-notice-apple",
+        "dmv-renewal-gmail",
+        "dmv-renewal-outlook",
+        "dmv-renewal-apple",
+        "jury-summons-gmail",
+        "jury-summons-outlook",
+        "jury-summons-apple"
+      ]
+    },
+    "unverifiable": {
+      "fixtures": 18,
+      "scenarios": 6,
+      "ids": [
+        "friend-chain-letter-gmail",
+        "friend-chain-letter-outlook",
+        "friend-chain-letter-apple",
+        "empty-forward-gmail",
+        "empty-forward-outlook",
+        "empty-forward-apple",
+        "friend-email-gmail",
+        "friend-email-outlook",
+        "friend-email-apple",
+        "newsletter-gmail",
+        "newsletter-outlook",
+        "newsletter-apple",
+        "local-promo-gmail",
+        "local-promo-outlook",
+        "local-promo-apple",
+        "no-claim-greeting-gmail",
+        "no-claim-greeting-outlook",
+        "no-claim-greeting-apple"
+      ]
+    }
+  },
+  "heldOut": {
+    "fixtures": 18,
+    "scenarios": 6,
+    "ids": [
+      "bank-unusual-login-gmail",
+      "bank-unusual-login-outlook",
+      "bank-unusual-login-apple",
+      "fake-charity-gmail",
+      "fake-charity-outlook",
+      "fake-charity-apple",
+      "bank-statement-ready-gmail",
+      "bank-statement-ready-outlook",
+      "bank-statement-ready-apple",
+      "church-newsletter-gmail",
+      "church-newsletter-outlook",
+      "church-newsletter-apple",
+      "newsletter-gmail",
+      "newsletter-outlook",
+      "newsletter-apple",
+      "local-promo-gmail",
+      "local-promo-outlook",
+      "local-promo-apple"
+    ]
+  },
+  "modelCounts": {
+    "extractionAccepted": 90,
+    "extractionFailed": 0,
+    "replyAttempted": 90,
+    "replyCompleted": 90,
+    "replyIncomplete": 0,
+    "replyAccepted": 88,
+    "replyRejected": 2,
+    "replyFailed": 0,
+    "paymentGateInvoked": 90,
+    "resolutionAttempted": 13,
+    "resolutionFailed": 0
+  },
+  "paymentGateDecisions": [
+    {
+      "id": "medicare-suspension-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 349,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "medicare-suspension-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 340,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "medicare-suspension-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 198,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "ssa-number-suspended-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 175,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "ssa-number-suspended-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 451,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "ssa-number-suspended-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 246,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "tech-support-gift-cards-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 257,
+        "jev": "yes",
+        "maxP": 0.99,
+        "llm": true,
+        "final": true,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "tech-support-gift-cards-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 392,
+        "jev": "yes",
+        "maxP": 0.99,
+        "llm": true,
+        "final": true,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "tech-support-gift-cards-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 146,
+        "jev": "yes",
+        "maxP": 0.99,
+        "llm": true,
+        "final": true,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "amazon-order-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 194,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "amazon-order-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 143,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "amazon-order-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 228,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "coned-bill-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 158,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "coned-bill-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 139,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "coned-bill-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 157,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "friend-chain-letter-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 222,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "friend-chain-letter-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 183,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "friend-chain-letter-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 495,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "empty-forward-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 183,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "empty-forward-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 168,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "empty-forward-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 367,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "irs-refund-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 227,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "irs-refund-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 338,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "irs-refund-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 195,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "usps-redelivery-fee-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 180,
+        "jev": "no",
+        "maxP": 0.03,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "usps-redelivery-fee-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 166,
+        "jev": "no",
+        "maxP": 0.03,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "usps-redelivery-fee-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 181,
+        "jev": "no",
+        "maxP": 0.03,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "amazon-account-locked-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 200,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "amazon-account-locked-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 427,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "amazon-account-locked-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 252,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "bank-unusual-login-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 137,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "bank-unusual-login-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 342,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "bank-unusual-login-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 185,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "grandchild-in-jail-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 199,
+        "jev": "yes",
+        "maxP": 0.99,
+        "llm": true,
+        "final": true,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "grandchild-in-jail-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 199,
+        "jev": "yes",
+        "maxP": 0.99,
+        "llm": true,
+        "final": true,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "grandchild-in-jail-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 145,
+        "jev": "yes",
+        "maxP": 0.99,
+        "llm": true,
+        "final": true,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "utility-disconnect-today-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 185,
+        "jev": "yes",
+        "maxP": 0.99,
+        "llm": true,
+        "final": true,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "utility-disconnect-today-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 327,
+        "jev": "yes",
+        "maxP": 0.99,
+        "llm": true,
+        "final": true,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "utility-disconnect-today-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 198,
+        "jev": "yes",
+        "maxP": 0.99,
+        "llm": true,
+        "final": true,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "netflix-payment-failed-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 248,
+        "jev": "escalate",
+        "maxP": 0.41,
+        "llm": false,
+        "final": false,
+        "source": "llm"
+      }
+    },
+    {
+      "id": "netflix-payment-failed-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 359,
+        "jev": "escalate",
+        "maxP": 0.45,
+        "llm": false,
+        "final": false,
+        "source": "llm"
+      }
+    },
+    {
+      "id": "netflix-payment-failed-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 197,
+        "jev": "escalate",
+        "maxP": 0.45,
+        "llm": false,
+        "final": false,
+        "source": "llm"
+      }
+    },
+    {
+      "id": "lottery-prize-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 175,
+        "jev": "yes",
+        "maxP": 0.99,
+        "llm": true,
+        "final": true,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "lottery-prize-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 209,
+        "jev": "yes",
+        "maxP": 0.99,
+        "llm": true,
+        "final": true,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "lottery-prize-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 182,
+        "jev": "yes",
+        "maxP": 0.99,
+        "llm": true,
+        "final": true,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "fake-charity-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 166,
+        "jev": "yes",
+        "maxP": 0.99,
+        "llm": true,
+        "final": true,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "fake-charity-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 475,
+        "jev": "yes",
+        "maxP": 0.99,
+        "llm": true,
+        "final": true,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "fake-charity-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 229,
+        "jev": "yes",
+        "maxP": 0.99,
+        "llm": true,
+        "final": true,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "medicare-summary-notice-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 187,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "medicare-summary-notice-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 246,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "medicare-summary-notice-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 290,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "bank-statement-ready-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 128,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "bank-statement-ready-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 159,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "bank-statement-ready-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 142,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "pharmacy-refill-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 195,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "pharmacy-refill-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 154,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "pharmacy-refill-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 134,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "appointment-reminder-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 190,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "appointment-reminder-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 383,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "appointment-reminder-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 152,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "property-tax-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 192,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "property-tax-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 419,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "property-tax-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 189,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "insurance-renewal-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 165,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "insurance-renewal-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 365,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "insurance-renewal-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 185,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "church-newsletter-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 137,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "church-newsletter-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 454,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "church-newsletter-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 199,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "ssa-cola-notice-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 190,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "ssa-cola-notice-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 151,
+        "jev": "no",
+        "maxP": 0.02,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "ssa-cola-notice-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 140,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "dmv-renewal-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 165,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "dmv-renewal-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 146,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "dmv-renewal-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 191,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "jury-summons-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 147,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "jury-summons-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 348,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "jury-summons-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 171,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "friend-email-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 176,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "friend-email-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 148,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "friend-email-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 271,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "newsletter-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 174,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "newsletter-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 319,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "newsletter-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 174,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "local-promo-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 140,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "local-promo-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 175,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "local-promo-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 459,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "no-claim-greeting-gmail",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 184,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "no-claim-greeting-outlook",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 201,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    },
+    {
+      "id": "no-claim-greeting-apple",
+      "outcome": {
+        "mode": "jev_cascade",
+        "cutoff": 0.8,
+        "ms": 160,
+        "jev": "no",
+        "maxP": 0.01,
+        "llm": false,
+        "final": false,
+        "source": "jev"
+      }
+    }
+  ],
+  "failures": {
+    "safety": {
+      "fixtures": 0,
+      "scenarios": 0,
+      "ids": []
+    },
+    "precision": {
+      "fixtures": 0,
+      "scenarios": 0,
+      "ids": []
+    },
+    "unverifiable": {
+      "fixtures": 0,
+      "scenarios": 0,
+      "ids": []
+    },
+    "extraction": {
+      "fixtures": 0,
+      "scenarios": 0,
+      "ids": []
+    },
+    "evidence": {
+      "fixtures": 3,
+      "scenarios": 1,
+      "ids": [
+        "bank-unusual-login-gmail",
+        "bank-unusual-login-outlook",
+        "bank-unusual-login-apple"
+      ]
+    },
+    "reply": {
+      "fixtures": 0,
+      "scenarios": 0,
+      "ids": []
+    },
+    "authenticationWording": {
+      "fixtures": 0,
+      "scenarios": 0,
+      "ids": []
+    },
+    "expectedLabels": {
+      "fixtures": 3,
+      "scenarios": 1,
+      "ids": [
+        "usps-redelivery-fee-gmail",
+        "usps-redelivery-fee-outlook",
+        "usps-redelivery-fee-apple"
+      ]
+    }
+  },
+  "passed": false,
+  "publicationReady": false,
+  "limitations": [
+    "Synthetic labels measure this contract, not real-world sender authentication or safety.",
+    "Precision counts distinct scenarios with any mislabeled format: at most 1 of 12; all 90 expected labels remain mandatory.",
+    "Code-only evidence checks citation presence; live quote verification requires EVAL_ONLINE=1.",
+    "No Convex deployment, registry mutation, webhook, email send or delivery was exercised. Production rate-limit and database persistence behavior of unknown-org resolution are not exercised by this read-only replay.",
+    "The 6-scenario/18-format challenge set is reserved from prompt development, but content was exposed to the independent label reviewer; it is synthetic, not an unseen real-mail sample.",
+    "Injected production-action source/model failures are covered by tests/evalFailurePaths.test.ts; not represented as live provider outages.",
+    "Independent label review and subjective reply readability review are recorded separately; publicationReady is only the executable gate."
+  ],
+  "sources": [
+    {
+      "url": "https://www.medicare.gov/basics/reporting-medicare-fraud-and-abuse",
+      "status": 200,
+      "textHash": "6202d34514965e502a8f4f933a8a6c4b32c8fb24a1080e575ecf62d4cfba5cbb",
+      "error": null
+    },
+    {
+      "url": "https://www.ssa.gov/scam/",
+      "status": 200,
+      "textHash": "9e7f8d8c2a791a142b6cb3c61b85fd8eaed9d2bb44dc769aaa91a2f09f74c6bb",
+      "error": null
+    },
+    {
+      "url": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+      "status": 200,
+      "textHash": "9e9c0ee0d1b3eb46d476c31896315bdcd63615a782fc6348a67348235463a8ef",
+      "error": null
+    },
+    {
+      "url": "https://www.irs.gov/help/report-fraud/report-fake-irs-treasury-or-tax-related-emails-and-messages",
+      "status": 200,
+      "textHash": "e7816cebde5f322e7fb901d4aca470a93692ca0a655496a0f6f8c01b46029ef4",
+      "error": null
+    },
+    {
+      "url": "https://www.amazon.com/gp/help/customer/display.html?nodeId=T3rnIphp327SSKYl8e",
+      "status": 200,
+      "textHash": "6dbea700e06ec690e9335f0c6c7792b754d32bbe99c9873696d7f39a2e0bb5a6",
+      "error": null
+    },
+    {
+      "url": "https://www.chase.com/digital/resources/privacy-security/security/how-you-can-protect",
+      "status": 200,
+      "textHash": "9a21bff02306d31b564d5636e5a710e8019d4f39dd9ef746466e26d68ffdf916",
+      "error": null
+    },
+    {
+      "url": "https://www.coned.com/en/safety/energy-safety/beware-of-scammers",
+      "status": 200,
+      "textHash": "ad272696df24bd05be39c377895df248b72fdcb66dbba15004e91a74c5e00993",
+      "error": null
+    },
+    {
+      "url": "https://help.netflix.com/en/node/65674",
+      "status": 200,
+      "textHash": "689e1891683474d2bd8cfbdae750e88acdc93e55da0e3e5674bc4dd7eba3245a",
+      "error": null
+    }
+  ],
+  "results": [
+    {
+      "id": "medicare-suspension-gmail",
+      "scenarioId": "medicare-suspension",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Medicare",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.medicare.gov/basics/reporting-medicare-fraud-and-abuse",
+            "quote": "Medicare, or someone representing Medicare, will only call and ask for personal information in limited situations (like an agent or representative returning your call after you've joined a plan, reported fraud, or left a message for Medicare).",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender address does not match Medicare's official domain. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Medicare at 1-800-633-4227, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "medicare-suspension-outlook",
+      "scenarioId": "medicare-suspension",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Medicare",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.medicare.gov/basics/reporting-medicare-fraud-and-abuse",
+            "quote": "Medicare, or someone representing Medicare, will only call and ask for personal information in limited situations (like an agent or representative returning your call after you've joined a plan, reported fraud, or left a message for Medicare).",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The links go to a website that is not Medicare's. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Medicare at 1-800-633-4227, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "medicare-suspension-apple",
+      "scenarioId": "medicare-suspension",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Medicare",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.medicare.gov/basics/reporting-medicare-fraud-and-abuse",
+            "quote": "Medicare, or someone representing Medicare, will only call and ask for personal information in limited situations (like an agent or representative returning your call after you've joined a plan, reported fraud, or left a message for Medicare).",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The links go to a website that is not Medicare's. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Medicare at 1-800-633-4227, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "ssa-number-suspended-gmail",
+      "scenarioId": "ssa-number-suspended",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Social Security Administration",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.ssa.gov/scam/",
+            "quote": "Social Security will never ask for sensitive or personal information through social media, email, or text message.",
+            "verified": true
+          },
+          {
+            "sourceUrl": "https://www.ssa.gov/scam/",
+            "quote": "Threaten arrest or legal action unless you immediately pay.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for personal or account information, which does not match Social Security Administration's published policy. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Social Security Administration at 1-800-772-1213, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "ssa-number-suspended-outlook",
+      "scenarioId": "ssa-number-suspended",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Social Security Administration",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.ssa.gov/scam/",
+            "quote": "Social Security will never ask for sensitive or personal information through social media, email, or text message.",
+            "verified": true
+          },
+          {
+            "sourceUrl": "https://www.ssa.gov/scam/",
+            "quote": "Threaten arrest or legal action unless you immediately pay.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for personal or account information, which does not match Social Security Administration's published policy. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Social Security Administration at 1-800-772-1213, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "ssa-number-suspended-apple",
+      "scenarioId": "ssa-number-suspended",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Social Security Administration",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.ssa.gov/scam/",
+            "quote": "Social Security will never ask for sensitive or personal information through social media, email, or text message.",
+            "verified": true
+          },
+          {
+            "sourceUrl": "https://www.ssa.gov/scam/",
+            "quote": "Threaten arrest or legal action unless you immediately pay.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for personal or account information, which does not match Social Security Administration's published policy. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Social Security Administration at 1-800-772-1213, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "tech-support-gift-cards-gmail",
+      "scenarioId": "tech-support-gift-cards",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for payment by gift card, which real organizations don't ask for. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "tech-support-gift-cards-outlook",
+      "scenarioId": "tech-support-gift-cards",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for payment by gift card, which real organizations don't ask for. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "tech-support-gift-cards-apple",
+      "scenarioId": "tech-support-gift-cards",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for payment by gift card, which real organizations don't ask for. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "amazon-order-gmail",
+      "scenarioId": "amazon-order",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Amazon",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender and checked details match Amazon's official information; this does not authenticate the sender. Forwarded text cannot confirm who sent it. Keep it with your other Amazon mail. It mentions $18.99.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "amazon-order-outlook",
+      "scenarioId": "amazon-order",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Amazon",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender and checked details match Amazon's official information; this does not authenticate the sender. Forwarded text cannot confirm who sent it. Keep it with your other Amazon mail. It mentions $18.99.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "amazon-order-apple",
+      "scenarioId": "amazon-order",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Amazon",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender and details match Amazon's official information. Forwarded text cannot confirm who sent it. Keep it with your other Amazon mail. It mentions $18.99.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "coned-bill-gmail",
+      "scenarioId": "coned-bill",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Con Edison",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender and checked details match Con Edison's official information; this does not authenticate the sender. Forwarded text cannot confirm who sent it. Keep it with your other Con Edison mail. It mentions $84.20. The date to know is October 3.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "coned-bill-outlook",
+      "scenarioId": "coned-bill",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Con Edison",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender and checked details match Con Edison's official information; this does not authenticate the sender. Forwarded text cannot confirm who sent it. Keep it with your other Con Edison mail. It mentions $84.20. The date to know is October 3.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "coned-bill-apple",
+      "scenarioId": "coned-bill",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Con Edison",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender and checked details match Con Edison's official information; this does not authenticate the sender. Forwarded text cannot confirm who sent it. Keep it with your other Con Edison mail. It mentions $84.20. The date to know is October 3.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "friend-chain-letter-gmail",
+      "scenarioId": "friend-chain-letter",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "friend-chain-letter-outlook",
+      "scenarioId": "friend-chain-letter",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Bill Gates",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "friend-chain-letter-apple",
+      "scenarioId": "friend-chain-letter",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Bill Gates",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "empty-forward-gmail",
+      "scenarioId": "empty-forward",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "empty-forward-outlook",
+      "scenarioId": "empty-forward",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Newsletter <hello@gardenclub-demo.org>",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "empty-forward-apple",
+      "scenarioId": "empty-forward",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "irs-refund-gmail",
+      "scenarioId": "irs-refund",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Internal Revenue Service",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.irs.gov/help/report-fraud/report-fake-irs-treasury-or-tax-related-emails-and-messages",
+            "quote": "We never email without your permission.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The links go to a website that is not Internal Revenue Service's. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Internal Revenue Service at 1-800-829-1040, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "irs-refund-outlook",
+      "scenarioId": "irs-refund",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Internal Revenue Service",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.irs.gov/help/report-fraud/report-fake-irs-treasury-or-tax-related-emails-and-messages",
+            "quote": "We never email without your permission.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The links go to a website that is not Internal Revenue Service's. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Internal Revenue Service at 1-800-829-1040, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "irs-refund-apple",
+      "scenarioId": "irs-refund",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Internal Revenue Service",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.irs.gov/help/report-fraud/report-fake-irs-treasury-or-tax-related-emails-and-messages",
+            "quote": "We never email without your permission.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender address does not match Internal Revenue Service's official domain. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Internal Revenue Service at 1-800-829-1040, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "usps-redelivery-fee-gmail",
+      "scenarioId": "usps-redelivery-fee",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "cannot_verify",
+      "org": "United States Postal Service",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "usps-redelivery-fee-outlook",
+      "scenarioId": "usps-redelivery-fee",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "cannot_verify",
+      "org": "United States Postal Service",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "usps-redelivery-fee-apple",
+      "scenarioId": "usps-redelivery-fee",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "cannot_verify",
+      "org": "United States Postal Service",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "amazon-account-locked-gmail",
+      "scenarioId": "amazon-account-locked",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Amazon",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.amazon.com/gp/help/customer/display.html?nodeId=T3rnIphp327SSKYl8e",
+            "quote": "We will never ask for your password, OTP, gift card details, bank card details or any other confidential information over the phone.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for personal or account information, which does not match Amazon's published policy. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "amazon-account-locked-outlook",
+      "scenarioId": "amazon-account-locked",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Amazon",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.amazon.com/gp/help/customer/display.html?nodeId=T3rnIphp327SSKYl8e",
+            "quote": "We will never ask for your password, OTP, gift card details, bank card details or any other confidential information over the phone.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for personal or account information, which does not match Amazon's published policy. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "amazon-account-locked-apple",
+      "scenarioId": "amazon-account-locked",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Amazon",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.amazon.com/gp/help/customer/display.html?nodeId=T3rnIphp327SSKYl8e",
+            "quote": "We will never ask for your password, OTP, gift card details, bank card details or any other confidential information over the phone.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for personal or account information, which does not match Amazon's published policy. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "bank-unusual-login-gmail",
+      "scenarioId": "bank-unusual-login",
+      "category": "scam",
+      "split": "challenge",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Chase",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": false,
+        "citations": [
+          {
+            "sourceUrl": "https://www.chase.com/digital/resources/privacy-security/security/how-you-can-protect",
+            "quote": "We'll never ask you to send us personal or account information.",
+            "verified": false
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The links go to a website that is not Chase's. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Chase at 1-800-935-9935, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "bank-unusual-login-outlook",
+      "scenarioId": "bank-unusual-login",
+      "category": "scam",
+      "split": "challenge",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Chase",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": false,
+        "citations": [
+          {
+            "sourceUrl": "https://www.chase.com/digital/resources/privacy-security/security/how-you-can-protect",
+            "quote": "We'll never ask you to send us personal or account information.",
+            "verified": false
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The links go to a website that is not Chase's. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Chase at 1-800-935-9935, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "bank-unusual-login-apple",
+      "scenarioId": "bank-unusual-login",
+      "category": "scam",
+      "split": "challenge",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Chase",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": false,
+        "citations": [
+          {
+            "sourceUrl": "https://www.chase.com/digital/resources/privacy-security/security/how-you-can-protect",
+            "quote": "We'll never ask you to send us personal or account information.",
+            "verified": false
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender address does not match Chase's official domain. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Chase at 1-800-935-9935, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "grandchild-in-jail-gmail",
+      "scenarioId": "grandchild-in-jail",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for payment by gift card, which real organizations don't ask for. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "grandchild-in-jail-outlook",
+      "scenarioId": "grandchild-in-jail",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for payment by gift card, which real organizations don't ask for. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "grandchild-in-jail-apple",
+      "scenarioId": "grandchild-in-jail",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for payment by gift card, which real organizations don't ask for. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "utility-disconnect-today-gmail",
+      "scenarioId": "utility-disconnect-today",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Con Edison",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.coned.com/en/safety/energy-safety/beware-of-scammers",
+            "quote": "We do not accept payment via prepaid gift cards, cryptocurrency such as Bitcoin, wire transfers, or cash apps",
+            "verified": true
+          },
+          {
+            "sourceUrl": "https://www.coned.com/en/safety/energy-safety/beware-of-scammers",
+            "quote": "We do not accept payment via prepaid gift cards, cryptocurrency such as Bitcoin, wire transfers, or cash apps",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for payment by crypto, which does not match Con Edison's published policy. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Con Edison at 1-800-752-6633, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "utility-disconnect-today-outlook",
+      "scenarioId": "utility-disconnect-today",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Con Edison",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.coned.com/en/safety/energy-safety/beware-of-scammers",
+            "quote": "We do not accept payment via prepaid gift cards, cryptocurrency such as Bitcoin, wire transfers, or cash apps",
+            "verified": true
+          },
+          {
+            "sourceUrl": "https://www.coned.com/en/safety/energy-safety/beware-of-scammers",
+            "quote": "We do not accept payment via prepaid gift cards, cryptocurrency such as Bitcoin, wire transfers, or cash apps",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for payment by crypto, which does not match Con Edison's published policy. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Con Edison at 1-800-752-6633, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "utility-disconnect-today-apple",
+      "scenarioId": "utility-disconnect-today",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Con Edison",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://www.coned.com/en/safety/energy-safety/beware-of-scammers",
+            "quote": "We do not accept payment via prepaid gift cards, cryptocurrency such as Bitcoin, wire transfers, or cash apps",
+            "verified": true
+          },
+          {
+            "sourceUrl": "https://www.coned.com/en/safety/energy-safety/beware-of-scammers",
+            "quote": "We do not accept payment via prepaid gift cards, cryptocurrency such as Bitcoin, wire transfers, or cash apps",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for payment by crypto, which does not match Con Edison's published policy. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Con Edison at 1-800-752-6633, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "netflix-payment-failed-gmail",
+      "scenarioId": "netflix-payment-failed",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Netflix",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://help.netflix.com/en/node/65674",
+            "quote": "We'll never ask you to share your personal information in a text or email.",
+            "verified": true
+          },
+          {
+            "sourceUrl": "https://help.netflix.com/en/node/65674",
+            "quote": "We'll never ask for payment through a 3rd party vendor or website.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for payment or details by reply, which does not match Netflix's published policy. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "netflix-payment-failed-outlook",
+      "scenarioId": "netflix-payment-failed",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Netflix",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://help.netflix.com/en/node/65674",
+            "quote": "We'll never ask you to share your personal information in a text or email.",
+            "verified": true
+          },
+          {
+            "sourceUrl": "https://help.netflix.com/en/node/65674",
+            "quote": "We'll never ask for payment through a 3rd party vendor or website.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for personal or account information, which does not match Netflix's published policy. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "netflix-payment-failed-apple",
+      "scenarioId": "netflix-payment-failed",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Netflix",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://help.netflix.com/en/node/65674",
+            "quote": "We'll never ask you to share your personal information in a text or email.",
+            "verified": true
+          },
+          {
+            "sourceUrl": "https://help.netflix.com/en/node/65674",
+            "quote": "We'll never ask for payment through a 3rd party vendor or website.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender address does not match Netflix's official domain. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "lottery-prize-gmail",
+      "scenarioId": "lottery-prize",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for payment by wire, which real organizations don't ask for. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "lottery-prize-outlook",
+      "scenarioId": "lottery-prize",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for payment by wire, which real organizations don't ask for. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "lottery-prize-apple",
+      "scenarioId": "lottery-prize",
+      "category": "scam",
+      "split": "development",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for payment by wire, which real organizations don't ask for. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, use the number on your card or bill instead.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "fake-charity-gmail",
+      "scenarioId": "fake-charity",
+      "category": "scam",
+      "split": "challenge",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Hope Harbor Relief",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for payment by gift card, which real organizations don't ask for. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Hope Harbor Relief at 1-714-832-0207, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "fake-charity-outlook",
+      "scenarioId": "fake-charity",
+      "category": "scam",
+      "split": "challenge",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Hope Harbor Relief",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for payment by gift card, which real organizations don't ask for. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Hope Harbor Relief at 1-714-832-0207, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "fake-charity-apple",
+      "scenarioId": "fake-charity",
+      "category": "scam",
+      "split": "challenge",
+      "expected": "mismatch",
+      "got": "mismatch",
+      "org": "Hope Harbor Relief",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": {
+        "ok": true,
+        "citations": [
+          {
+            "sourceUrl": "https://consumer.ftc.gov/articles/avoiding-and-reporting-gift-card-scams",
+            "quote": "But government agencies won’t contact you to demand immediate payment, and they never demand payment by gift card.",
+            "verified": true
+          }
+        ]
+      },
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "It asks for payment by gift card, which real organizations don't ask for. Forwarded text cannot confirm who sent it. Don't call or click anything in that email. If you're worried, call Hope Harbor Relief at 1-714-832-0207, the number on their official website.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "medicare-summary-notice-gmail",
+      "scenarioId": "medicare-summary-notice",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Medicare",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender and checked details match Medicare's official information; this does not authenticate the sender. Forwarded text cannot confirm who sent it. Keep it with your other Medicare mail.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "medicare-summary-notice-outlook",
+      "scenarioId": "medicare-summary-notice",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Medicare",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender and details match Medicare's official information. Forwarded text cannot confirm who sent it. Keep it with your other Medicare mail.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "medicare-summary-notice-apple",
+      "scenarioId": "medicare-summary-notice",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Medicare",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender and checked details match Medicare's official information; this does not authenticate the sender. Forwarded text cannot confirm who sent it. Keep it with your other Medicare mail.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "bank-statement-ready-gmail",
+      "scenarioId": "bank-statement-ready",
+      "category": "legit",
+      "split": "challenge",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Chase",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "bank-statement-ready-outlook",
+      "scenarioId": "bank-statement-ready",
+      "category": "legit",
+      "split": "challenge",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Chase",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "bank-statement-ready-apple",
+      "scenarioId": "bank-statement-ready",
+      "category": "legit",
+      "split": "challenge",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Chase",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "pharmacy-refill-gmail",
+      "scenarioId": "pharmacy-refill",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "pharmacy-refill-outlook",
+      "scenarioId": "pharmacy-refill",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "pharmacy-refill-apple",
+      "scenarioId": "pharmacy-refill",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "appointment-reminder-gmail",
+      "scenarioId": "appointment-reminder",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Oak Clinic",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "appointment-reminder-outlook",
+      "scenarioId": "appointment-reminder",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Oak Clinic",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "appointment-reminder-apple",
+      "scenarioId": "appointment-reminder",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Oak Clinic",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "property-tax-gmail",
+      "scenarioId": "property-tax",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Cedar County Treasurer",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "property-tax-outlook",
+      "scenarioId": "property-tax",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Cedar County Treasurer",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "property-tax-apple",
+      "scenarioId": "property-tax",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Cedar County Treasurer",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "insurance-renewal-gmail",
+      "scenarioId": "insurance-renewal",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Pine Insurance",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "insurance-renewal-outlook",
+      "scenarioId": "insurance-renewal",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Pine Insurance",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "insurance-renewal-apple",
+      "scenarioId": "insurance-renewal",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Pine Insurance",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "church-newsletter-gmail",
+      "scenarioId": "church-newsletter",
+      "category": "legit",
+      "split": "challenge",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Elm Street Church",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "church-newsletter-outlook",
+      "scenarioId": "church-newsletter",
+      "category": "legit",
+      "split": "challenge",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Elm Street Church",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "church-newsletter-apple",
+      "scenarioId": "church-newsletter",
+      "category": "legit",
+      "split": "challenge",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Elm Street Church",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "ssa-cola-notice-gmail",
+      "scenarioId": "ssa-cola-notice",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Social Security Administration",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender and checked details match Social Security Administration's official information; this does not authenticate the sender. Forwarded text cannot confirm who sent it. Keep it with your other Social Security Administration mail.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "ssa-cola-notice-outlook",
+      "scenarioId": "ssa-cola-notice",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Social Security Administration",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender and checked details match Social Security Administration's official information; this does not authenticate the sender. Forwarded text cannot confirm who sent it. Keep it with your other Social Security Administration mail.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "ssa-cola-notice-apple",
+      "scenarioId": "ssa-cola-notice",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "Social Security Administration",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender and checked details match Social Security Administration's official information; this does not authenticate the sender. Forwarded text cannot confirm who sent it. Keep it with your other Social Security Administration mail.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "dmv-renewal-gmail",
+      "scenarioId": "dmv-renewal",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "DMV",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender and checked details match DMV's official information; this does not authenticate the sender. Forwarded text cannot confirm who sent it. Keep it with your other DMV mail.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "dmv-renewal-outlook",
+      "scenarioId": "dmv-renewal",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "DMV",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender and checked details match DMV's official information; this does not authenticate the sender. Forwarded text cannot confirm who sent it. Keep it with your other DMV mail.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "dmv-renewal-apple",
+      "scenarioId": "dmv-renewal",
+      "category": "legit",
+      "split": "development",
+      "expected": "matches_official",
+      "got": "matches_official",
+      "org": "DMV",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The quoted sender and checked details match DMV's official information; this does not authenticate the sender. Forwarded text cannot confirm who sent it. Keep it with your other DMV mail.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "jury-summons-gmail",
+      "scenarioId": "jury-summons",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Cedar County Court",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "jury-summons-outlook",
+      "scenarioId": "jury-summons",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Cedar County Court",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "jury-summons-apple",
+      "scenarioId": "jury-summons",
+      "category": "legit",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Cedar County Court",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "friend-email-gmail",
+      "scenarioId": "friend-email",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "friend-email-outlook",
+      "scenarioId": "friend-email",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "friend-email-apple",
+      "scenarioId": "friend-email",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "newsletter-gmail",
+      "scenarioId": "newsletter",
+      "category": "unverifiable",
+      "split": "challenge",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Cedar Garden Club",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "newsletter-outlook",
+      "scenarioId": "newsletter",
+      "category": "unverifiable",
+      "split": "challenge",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Cedar Garden Club",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "newsletter-apple",
+      "scenarioId": "newsletter",
+      "category": "unverifiable",
+      "split": "challenge",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "Cedar Garden Club",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "local-promo-gmail",
+      "scenarioId": "local-promo",
+      "category": "unverifiable",
+      "split": "challenge",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "local-promo-outlook",
+      "scenarioId": "local-promo",
+      "category": "unverifiable",
+      "split": "challenge",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "North Corner Books",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "local-promo-apple",
+      "scenarioId": "local-promo",
+      "category": "unverifiable",
+      "split": "challenge",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": "North Corner Books",
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "no-claim-greeting-gmail",
+      "scenarioId": "no-claim-greeting",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "no-claim-greeting-outlook",
+      "scenarioId": "no-claim-greeting",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    },
+    {
+      "id": "no-claim-greeting-apple",
+      "scenarioId": "no-claim-greeting",
+      "category": "unverifiable",
+      "split": "development",
+      "expected": "cannot_verify",
+      "got": "cannot_verify",
+      "org": null,
+      "senderOk": true,
+      "urlsOk": true,
+      "phonesOk": true,
+      "evidence": null,
+      "replyOk": true,
+      "boundedReply": true,
+      "reply": "The available details were not enough to confirm this. Don't act on it, click links, or send money. If it matters, use the number on your card or bill.\n— The Demo Family's helper (Second Look)",
+      "notes": []
+    }
+  ]
+}
