@@ -3,6 +3,7 @@
 - **Project:** Second Look
 - **Event:** Convex All Gas Hackathon
 - **What it does:** An older parent forwards a suspicious email to a helper inbox; Second Look checks the claimed sender against verified official sources and replies in plain language with one action and the organization's real phone number.
+- **Why it matters:** in 2025 people aged 60 and over filed 201,266 complaints with the FBI's Internet Crime Complaint Center and reported $7.7 billion in losses, more complaints and more money lost than any other age group ([2025 IC3 Internet Crime Report](https://www.ic3.gov/AnnualReport/Reports/2025_IC3Report.pdf)). Most of it starts with a message and a number to call. This product's job is to get the right next step, and the organization's real phone number, into that person's hands within a minute, through the only interface they use.
 - **Who it's for:** the adult child who is already the person their parent forwards confusing mail to. The parent uses email only and never signs in.
 - **Live app:** https://friendly-retriever-712.convex.site/
 - **Try it, no sign-up:** https://friendly-retriever-712.convex.site/?demo=1 — three synthetic samples run the real workflow, checks and verdict, and the family board updates live while they run. The demo uses deterministic extraction and saved reference sources, and every reply it prepares stays an unsent draft.
