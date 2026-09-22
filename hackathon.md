@@ -1,18 +1,20 @@
 # Hackathon log
 
-- **Project:** agh
+- **Project:** Second Look
 - **Event:** Convex All Gas Hackathon
-- **What it does:** Not documented yet
-- **Live app:** not deployed
-- **Repo:** none
-- **Frontend:** Codex Sites
-- **Convex deployment:** not deployed
-- **Components:** none
-- **Convex features:** none yet
-- **Auth:** none
-- **AI models:** none
-- **Started:** 2026-09-15T06:52:17Z
-- **Last updated:** 2026-09-15T06:52:56Z
+- **What it does:** An older parent forwards a suspicious email to a helper inbox; Second Look checks the claimed sender against verified official sources and replies in plain language with one action and the organization's real phone number.
+- **Live app:** https://friendly-retriever-712.convex.site/
+- **Repo:** https://github.com/zaeem-rafiq/second-look
+- **Demo:** (pending)
+- **Frontend:** React + Vite, served by Convex static hosting
+- **Convex deployment:** friendly-retriever-712
+- **Components:** @convex-dev/workflow, @convex-dev/rate-limiter, @convex-dev/static-hosting
+- **Convex features:** schema, indexes, queries, mutations, actions, HTTP actions, file storage, crons, scheduler, durable workflows, auth
+- **Auth:** @convex-dev/auth, Password provider with email verification and per-address rate limiting
+- **Sponsor stack:** OpenAI (extraction + reply text), Firecrawl (source resolution + weekly refresh), AgentMail (inbound webhook + outbound replies)
+- **AI models:** gpt-5.4-nano (extraction), gpt-5.6-luna (replies)
+- **Started:** 2026-09-15
+- **Last updated:** 2026-09-22
 
 ## Log
 
