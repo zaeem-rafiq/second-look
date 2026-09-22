@@ -180,15 +180,26 @@ Demo prerequisites below.
 
 ## Gaps, ranked by (weight × gap size) ÷ effort
 
-**Progress as of 2026-09-22 04:58 UTC.** PR #4 merged at 04:56 UTC.
+**Progress as of 2026-09-22 05:03 UTC.** PR #4 merged at 04:56 UTC; Zaeem ran
+the generate-and-deploy pass at 05:00 UTC (`main` now at `6632f88`).
 
-- **G1 — partly done.** The `.gitignore` rule is gone. `convex/_generated/`
-  still has to be generated once with `npx convex dev --once` and committed;
-  that needs Convex credentials and so is Zaeem's step. Until then a clean
-  clone still does not build.
-- **G3 — done in the repo, not yet live.** The tags, card image and favicon are
-  on `main`. They reach the site only after a rebuild and re-upload.
+- **G1 — DONE and verified.** `convex/_generated/` is committed. Re-checked on a
+  fresh clone of the public repo at `6632f88`: `npm ci`, `npm run typecheck`
+  (**0 errors**, was 348), `npm test` (**36/36 files, 512/512 tests**, was 25/36
+  and 352) and `npm run build` all exit 0. The acceptance check passes.
+- **G3 — DONE and verified live.** `https://friendly-retriever-712.convex.site/`
+  serves 13 Open Graph and Twitter tags; `/og-image.png` returns 200 `image/png`
+  (67,447 B) and `/favicon.svg` returns 200 `image/svg+xml`.
 - **G2 and G4 — not started.**
+
+**Incidental, needs cleanup after submitting.** The 05:00 UTC pass also ran
+`npx convex deploy`, which pushed the full app to the stray prod deployment
+`fine-caribou-629`: schema, ~40 indexes, all six components and the cron
+definitions. It has no environment variables, no data and no frontend
+(`fine-caribou-629.convex.site` returns 503), so its crons fail quietly and it
+cannot send mail or call providers. It does not affect the submission, the live
+app or the AgentMail webhook, all of which remain on `friendly-retriever-712`.
+Pause or delete it in the Convex dashboard once the submission is in.
 
 ### G1 — Commit `convex/_generated/` so the repo builds from a clean clone — **S**
 
