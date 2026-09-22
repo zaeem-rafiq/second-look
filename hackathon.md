@@ -3,9 +3,13 @@
 - **Project:** Second Look
 - **Event:** Convex All Gas Hackathon
 - **What it does:** An older parent forwards a suspicious email to a helper inbox; Second Look checks the claimed sender against verified official sources and replies in plain language with one action and the organization's real phone number.
+- **Why it matters:** in 2025 people aged 60 and over filed 201,266 complaints with the FBI's Internet Crime Complaint Center and reported $7.7 billion in losses, more complaints and more money lost than any other age group ([2025 IC3 Internet Crime Report](https://www.ic3.gov/AnnualReport/Reports/2025_IC3Report.pdf)). Most of it starts with a message and a number to call. This product's job is to get the right next step, and the organization's real phone number, into that person's hands within a minute, through the only interface they use.
+- **Who it's for:** the adult child who is already the person their parent forwards confusing mail to. The parent uses email only and never signs in.
 - **Live app:** https://friendly-retriever-712.convex.site/
+- **Try it, no sign-up:** https://friendly-retriever-712.convex.site/?demo=1 — three synthetic samples run the real workflow, checks and verdict, and the family board updates live while they run. The demo uses deterministic extraction and saved reference sources, and every reply it prepares stays an unsent draft.
 - **Repo:** https://github.com/zaeem-rafiq/second-look
 - **Demo:** (pending)
+- **Social post:** (pending)
 - **Frontend:** React + Vite, served by Convex static hosting
 - **Convex deployment:** friendly-retriever-712
 - **Components:** @convex-dev/workflow, @convex-dev/rate-limiter, @convex-dev/static-hosting
@@ -13,6 +17,9 @@
 - **Auth:** @convex-dev/auth, Password provider with email verification and per-address rate limiting
 - **Sponsor stack:** OpenAI (extraction + reply text), Firecrawl (source resolution + weekly refresh), AgentMail (inbound webhook + outbound replies)
 - **AI models:** gpt-5.4-nano (extraction), gpt-5.6-luna (replies)
+- **Safety posture:** the product never says "safe", "scam", "fraud" or "phishing", enforced by a test over every user-facing string. The three verdicts are `matches_official`, `mismatch` and `cannot_verify`, and `cannot_verify` is the default. Pure functions decide the verdict; the model only explains it, and may not write a phone number, a figure or an instruction.
+- **Evaluation gate:** 30 synthetic scenarios in 3 mail-client formats, 90 fixtures. 90/90 expected labels, zero scam fixtures labelled `matches_official`, and every displayed citation matched verbatim against its live source page on the 21 September configured run. A single scam labelled `matches_official` blocks release. Details and limits: `evals/README.md`.
+- **Data:** synthetic only. No real parent, no real institution and no real mail anywhere in the repo, the demo or the evaluation corpus.
 - **Started:** 2026-09-15
 - **Last updated:** 2026-09-22
 
@@ -50,3 +57,6 @@ Jev ran live for the first time. A real forwarded gift-card scam went through th
 
 ### 2026-09-21 - HAC-72 local verification
 Opt-in deadline reminders and Sunday family digests now run on the isolated local Convex backend, with timezone-aware scheduling, recipient consent, idempotent delivery and retry, and truthful board status. Combined HAC-71/72 checks passed: 410 tests, typecheck/build, fixed offline v2 90-case evaluation, and 33 native workflow/scheduler/capture checks including a browser-triggered failed-recipient retry. The owner subsequently approved three labelled synthetic provider emails: the reminder and both digests were accepted and verified in the controlled inboxes with exact content; the identical reminder retry returned the same receipt. HAC-72 cloud activation remains pending; hosted scheduling is not claimed live. Scope, evidence and bounded provider plan: `docs/hac-72-checkpoint.md`.
+
+### 2026-09-22 - release readiness
+Made the repository clone-and-build for a reviewer, and finished the public surface. `convex/_generated/` had been gitignored, so a fresh clone could not build; the ignore rule was removed and the generated code committed. A clean clone now passes typecheck, build and 512 tests across 36 test files. The live site was rebuilt and re-uploaded to the `friendly-retriever-712` deployment with Open Graph and Twitter card tags, a card image and a favicon, all verified on the served page. The synthetic demo was exercised against the live backend over Convex's HTTPS API: the USPS sample returned `mismatch` with a verbatim faq.usps.com quote, Chase returned `matches_official`, and the third sample returned `cannot_verify`. Positioning and messaging context for the project was written up in `.agents/product-marketing.md`. The stray `fine-caribou-629` prod deployment created by an accidental `convex deploy` holds code only, with no environment variables, no data and no frontend; nothing points at it. Hosted scheduling was activated on the dev deployment: deadline reminders and the unrouted-sender notice now run there, with recurring mail restricted to opted-in, allowlisted recipients. The Sunday digest is scheduled and has not sent yet; the next run is 27 September.
