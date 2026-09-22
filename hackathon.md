@@ -15,7 +15,7 @@
 - **Components:** @convex-dev/workflow, @convex-dev/rate-limiter, @convex-dev/static-hosting
 - **Convex features:** schema, indexes, queries, mutations, actions, HTTP actions, file storage, crons, scheduler, durable workflows, auth
 - **Auth:** @convex-dev/auth, Password provider with email verification and per-address rate limiting
-- **Sponsor stack:** OpenAI (extraction + reply text), Firecrawl (source resolution + weekly refresh), AgentMail (inbound webhook + outbound replies)
+- **Sponsor stack:** OpenAI (extraction + reply text), Firecrawl (registry sourcing + weekly re-verification of every cited quote; an organization found by live web lookup is stored as a candidate for review and never decides a verdict), AgentMail (inbound webhook + outbound replies)
 - **AI models:** gpt-5.4-nano (extraction), gpt-5.6-luna (replies)
 - **Safety posture:** the product never says "safe", "scam", "fraud" or "phishing", enforced by a test over every user-facing string. The three verdicts are `matches_official`, `mismatch` and `cannot_verify`, and `cannot_verify` is the default. Pure functions decide the verdict; the model only explains it, and may not write a phone number, a figure or an instruction.
 - **Evaluation gate:** 30 synthetic scenarios in 3 mail-client formats, 90 fixtures. 90/90 expected labels, zero scam fixtures labelled `matches_official`, and every displayed citation matched verbatim against its live source page on the 21 September configured run. A single scam labelled `matches_official` blocks release. Details and limits: `evals/README.md`.
@@ -60,3 +60,16 @@ Opt-in deadline reminders and Sunday family digests now run on the isolated loca
 
 ### 2026-09-22 - release readiness
 Made the repository clone-and-build for a reviewer, and finished the public surface. `convex/_generated/` had been gitignored, so a fresh clone could not build; the ignore rule was removed and the generated code committed. A clean clone now passes typecheck, build and 512 tests across 36 test files. The live site was rebuilt and re-uploaded to the `friendly-retriever-712` deployment with Open Graph and Twitter card tags, a card image and a favicon, all verified on the served page. The synthetic demo was exercised against the live backend over Convex's HTTPS API: the USPS sample returned `mismatch` with a verbatim faq.usps.com quote, Chase returned `matches_official`, and the third sample returned `cannot_verify`. Positioning and messaging context for the project was written up in `.agents/product-marketing.md`. The stray `fine-caribou-629` prod deployment created by an accidental `convex deploy` holds code only, with no environment variables, no data and no frontend; nothing points at it. Hosted scheduling was activated on the dev deployment: deadline reminders and the unrouted-sender notice now run there, with recurring mail restricted to opted-in, allowlisted recipients. The Sunday digest is scheduled and has not sent yet; the next run is 27 September.
+
+### 2026-09-22 - submission-day verification
+
+Checked the hosted deployment again on submission day rather than relying on
+yesterday's run. The public no-sign-in demo was driven over Convex's HTTPS API at
+15:30 UTC: the three samples returned `mismatch`, `matches_official` and
+`cannot_verify`, in that order, with the board updating through each step. A real
+forward was also sent between two AgentMail inboxes at 13:23 UTC - a synthetic
+gift-card request naming a pharmacy that is not in the registry - and the reply
+arrived on the same thread 19 seconds later, naming the gift-card request as the
+reason and declining to say who sent it, which is the correct answer when no
+official source can be established.
+
