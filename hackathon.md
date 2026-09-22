@@ -24,6 +24,17 @@
 - **Started:** 2026-09-15
 - **Last updated:** 2026-09-22
 
+## For judges: where each criterion lives
+
+- **Schema and data modeling:** 14 app tables plus Convex Auth's tables, with 22 indexes, in `convex/schema.ts`. Families, parents and their confirmed addresses, cases, evidence with verbatim quotes, outbound replies, digests and delivery records are separate tables, so every reply and every citation can be traced back to its case.
+- **Queries, mutations and actions:** 5 public queries, 13 public mutations, 9 public actions and 49 internal functions across `convex/`. Actions call OpenAI, Firecrawl and AgentMail; mutations own every write.
+- **Real-time reactivity:** the family board is a live `useQuery` on `cases.listBoard` (`src/App.tsx`, `convex/cases.ts`); a case moves through received, reading, checking and verdict on screen with no refresh, and a second family member's note appears for everyone.
+- **Advanced Convex features:** a durable `@convex-dev/workflow` pipeline (`convex/pipeline.ts`), an HTTP action for the signed AgentMail webhook (`convex/http.ts`), file storage for raw inbound mail, the scheduler, and five crons (weekly source re-verification plus four 15-minute delivery-recovery jobs, `convex/crons.ts`).
+- **Components:** `@convex-dev/workflow`, `@convex-dev/rate-limiter` (`convex/rateLimits.ts`) and `@convex-dev/static-hosting`, mounted in `convex/convex.config.ts`; auth is `@convex-dev/auth`.
+- **Sponsor stack:** OpenAI extracts the claim and writes the explanation (`convex/extract.ts`, `convex/reply.ts`); Firecrawl gathers and weekly re-verifies every cited source (`convex/registry.ts`); AgentMail is the inbox, the signed webhook and the threaded reply (`convex/clients/agentmail.ts`).
+- **Live URL and frontend:** React + Vite served from `friendly-retriever-712.convex.site` by Convex static hosting; `?demo=1` runs the real workflow with no sign-in.
+- **Correctness:** 537 tests, typecheck and build pass on a clean clone; a 90-fixture evaluation blocks release on a single mislabelled case (`evals/README.md`).
+
 ## Log
 
 ### 2026-09-15 - build log started
