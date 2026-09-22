@@ -9,7 +9,7 @@
 - **Try it, no sign-up:** https://friendly-retriever-712.convex.site/?demo=1 — three synthetic samples run the real workflow, checks and verdict, and the family board updates live while they run. The demo uses deterministic extraction and saved reference sources, and every reply it prepares stays an unsent draft.
 - **Repo:** https://github.com/zaeem-rafiq/second-look
 - **Demo:** (pending)
-- **Social post:** (pending)
+- **Social post:** https://x.com/khan_rmzk/status/2102429731429716092
 - **Frontend:** React + Vite, served by Convex static hosting
 - **Convex deployment:** friendly-retriever-712
 - **Components:** @convex-dev/workflow, @convex-dev/rate-limiter, @convex-dev/static-hosting
