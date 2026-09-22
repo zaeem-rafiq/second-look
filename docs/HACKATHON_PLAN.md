@@ -190,7 +190,17 @@ the generate-and-deploy pass at 05:00 UTC (`main` now at `6632f88`).
 - **G3 — DONE and verified live.** `https://friendly-retriever-712.convex.site/`
   serves 13 Open Graph and Twitter tags; `/og-image.png` returns 200 `image/png`
   (67,447 B) and `/favicon.svg` returns 200 `image/svg+xml`.
-- **G2 and G4 — not started.**
+- **G2 — half done.** The stale Codex Sites hosting entry is fixed: PR #6 marked
+  it superseded and names Convex static hosting. The `Demo:` line in
+  `hackathon.md` is still `(pending)`, and a `Social post:` line has since been
+  added and is also `(pending)`. Both close when the video and post exist.
+- **G4 — not started.** Still no `README.md` at the repo root.
+
+**Re-checked against `main` at `a22da69` on 2026-09-22 08:06 UTC**, after PRs #5
+to #8. The figures above are as-measured at `6632f88`; `main` has since added
+tests and now reports a higher count. Nothing in this file's compliance table or
+verification log was invalidated by those merges — they touched `hackathon.md`,
+`.agents/`, and the unrouted-forwarder path, not the audited claims.
 
 **Incidental, needs cleanup after submitting.** The 05:00 UTC pass also ran
 `npx convex deploy`, which pushed the full app to the stray prod deployment
