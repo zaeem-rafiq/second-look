@@ -1,213 +1,302 @@
-# Second Look — hackathon audit and execution plan
+# Second Look — All Gas Hackathon compliance audit and plan
 
-Audited September 21, 2026, at local `main` commit `a87fcbe6f39722aaee4cd01711916205b26cd8bc`. This file is the audit's only write. No implementation, installation, code generation, deployment, provider call, email, publication or submission was performed.
+Audit run 2026-09-22 04:31–04:45 UTC against the public repo at commit `67552ac`
+(`main`), not against any local folder. Rules read directly from
+<https://www.convex.dev/hackathons/all-gas> (the page was reachable; every quote
+below is verbatim from it).
 
-**Verdict: PASS for the revised repository compliance gate. Product verification is incomplete.** Submission artifacts are PENDING; personal eligibility is UNVERIFIABLE and excluded from ranked gaps. Passing this audit gate does not mean submission is complete or every product check passes.
+**Deadline: Sep 22, 12:00 PM PT (19:00 UTC).** About 14 hours remained when this
+audit finished.
 
-## Rules and interpretation
+---
 
-Sources retrieved September 21: [official rules and rubric](https://www.convex.dev/hackathons/all-gas) and [linked organizer registration page](https://luma.com/convex-allgas-hackathon). Neither publishes numerical judging weights. Criterion names below are short verbatim quotations; requirements are summarized, with full wording available at those sources.
+## Step 1 — The rules, verbatim
 
-The owner's revised audit gate checks implemented sponsor technology, the first Git commit after August 25 at noon Pacific, and a present license declaration. The official rules do not prescribe a particular software license. This audit interprets license present as the explicit ISC declaration in `package.json:22`; there is no standalone project LICENSE file. That distinction remains visible in the submission checklist.
+### Hard requirements
 
-First-commit timing is the requested repository proxy, not proof of all work before Git history. The official eligibility rule concerns when the app was started. Authentication is useful for judging but the organizer page explicitly allows apps without it.
-
-## Step 2 — revised compliance table
-
-### Repository gates
-
-| Requirement | Status | Current evidence |
-|---|---|---|
-| Convex backend performs product work | PASS | `convex/inbound.ts:57-89` persists cases and starts the workflow; `convex/pipeline.ts:24-36` runs extraction, organization resolution, checks and reply; `src/App.tsx:403-407` subscribes to the board. `convex/convex.config.ts:6-11` mounts workflow, rate limiting and static hosting. |
-| OpenAI performs product work | PASS (code) | `convex/extract.ts:53-72` and `convex/reply.ts:47-67` call Responses structured parsing for extraction/explanations. The calls are in the production path and guarded by configuration. Fresh provider execution was not attempted. |
-| Firecrawl performs product work | PASS (code) | `convex/registry.ts:167-174` calls search and scrape; `convex/registry.ts:213-245` refreshes reviewed sources. `convex/clients/firecrawl.ts:27-79` implements the actual API requests. Unreviewed search candidates cannot become trusted evidence. |
-| AgentMail performs product work | PASS (code) | `convex/http.ts:33-87` handles signed ingress; `convex/reply.ts:81-123` validates the recipient and sends through `convex/clients/agentmail.ts:68-81`, requiring provider receipt IDs. |
-| First commit after August 25, 2026, noon PT | PASS | `git log --max-parents=0 --format='%H%nAuthor date: %aI%nCommit date: %cI%n%s'` exited 0. Root: `8f6de642d97cb5f11ffe7b5de7cfaeb1f7a33ed9`; author and committer dates both `2026-09-15T23:14:04-05:00`, equivalent to September 15, 21:14:04 PDT. |
-| License declaration present | PASS | `package.json:22` declares `ISC`. Searches found no standalone project LICENSE/LICENCE/COPYING file. No legal sufficiency opinion is implied. |
-
-### Other requirements and their disposition
-
-| Requirement | Status | Evidence / handling |
-|---|---|---|
-| Registration on Luma | UNVERIFIABLE | Owner will confirm; not a product gap. |
-| Team has at most four people; every participant is at least 18 | UNVERIFIABLE | Owner will confirm roster and ages; not a product gap. |
-| No excluded sponsor/cohost employment or immediate-family relationship | UNVERIFIABLE | Owner confirmation; not a product gap. |
-| Residency/domicile permits participation and prizes | UNVERIFIABLE | Owner confirmation against organizer restrictions; not a product gap. |
-| Original work and rights to submitted material | UNVERIFIABLE | Owner confirmation; not a product gap. |
-| Agent/Convex integration used during the build | UNVERIFIABLE historically | Actual skill files exist under `.agents/skills/`; `skills-lock.json:4-8` records their source. Installation files do not prove every past build action. |
-| Accessible frontend on an approved host | PASS for observed page | Browser rendered `https://friendly-retriever-712.convex.site/?demo=1`. `src/App.tsx:82` exposes this route before authentication checks. Fresh anonymous end-to-end execution remains unverified. |
-| Submission artifacts | PENDING | Public repository, complete build log, social post and video are tracked only in the final Submission checklist. They do not stop this audit. |
-| Submission by the deadline | PENDING | September 22, 2026, 12:00 PM Pacific (2:00 PM Central), through the linked Vibe Apps form. No receipt verified. |
-
-## Current execution evidence
-
-These results were observed during this audit, not copied from prior success claims.
-
-| Check | Result | What it establishes |
-|---|---|---|
-| `npm run typecheck` | Exit 1; 398 TypeScript diagnostics in the equivalent direct compiler readback | This checkout does not currently typecheck. `@convex-dev/auth` 0.0.95 is declared and locked but missing from `node_modules`; ignored generated API types omit auth, families and notifications. Remaining diagnostics cannot yet be attributed to source defects. |
-| Write-restricted Vitest command below | Exit 1; 25 files passed, 11 files failed to load; 352 tests passed | Core unit behavior ran. All 11 failed suites hit the missing `@convex-dev/auth/server` import from `convex/schema.ts:3`; backend/auth integration did not execute. |
-| HTML-only fixture replay below | Exit 0; reproduced missing dates in all three formats and lost Outlook sender/format | An actual input-format bug, despite the existing text-plus-HTML deadline tests passing. |
-| Online report source fingerprint comparison | Exit 0; `sourceMatches=false` | Saved online v2 report passes its historical gates, but its source hash differs from this candidate. |
-| Live browser observation | Judge landing page rendered; screenshot visually inspected; captured warning/error log empty | Readable desktop landing page, three sample controls and clear synthetic/provider limitations. No samples were run because those actions create backend data. Existing browser authentication was preserved. |
-| Build / full offline evaluator / online evaluator | NOT RUN | Build and evaluator emit files; online evaluation also calls providers. Not compatible with this audit's one-file-write constraint. |
-
-The Vitest invocation disabled config bundling and caches and withheld Node filesystem-write permission:
-
-```sh
-node --permission --allow-fs-read='*' --allow-worker --allow-addons \
-  node_modules/vitest/vitest.mjs run --configLoader runner --pool threads \
-  --no-cache --no-fsModuleCache --reporter=dot
-```
-
-Worker/native-addon permission warnings mean this is not an absolute operating-system write guarantee. No test filesystem-writing behavior was found during inspection, and no task-owned source changes were made.
-
-The following reproduction command uses the same read-only fixture replay exercised in this audit; it imports existing synthetic fixtures and does not call providers:
-
-```sh
-TSX_DISABLE_CACHE=1 node --import tsx --input-type=module <<'JS'
-import { FIXTURES } from './evals/fixtures/index.ts';
-import { parseForwardedEmail, deterministicExtract } from './lib/extract.ts';
-for (const client of ['gmail', 'outlook', 'apple']) {
-  const f = FIXTURES.find(x => x.id === `coned-bill-${client}`);
-  for (const htmlOnly of [false, true]) {
-    const text = htmlOnly ? '' : f.text;
-    const parsed = parseForwardedEmail(text, f.html);
-    const result = deterministicExtract(parsed, text, f.html, []);
-    console.log({ client, htmlOnly, format: parsed.format,
-      sender: parsed.originalFrom.address, deadline: result.deadline,
-      ambiguous: result.deadlineAmbiguous });
-  }
-}
-JS
-```
-
-All three text-plus-HTML inputs produced `deadline: '2026-10-03'`, `ambiguous: false`. All three HTML-only inputs produced `deadline: null`, `ambiguous: true`; Outlook also returned `format: 'unknown'` and `sender: null`.
-
-### Historical evidence, not fresh execution
-
-`docs/webhook-hardening-checkpoint.md:61-86` records 512 passing tests, 90 offline v2 cases, deployed webhook probes and desktop/mobile interaction at application commit `2180f98`. `git diff 2180f98 HEAD --stat` shows only two checkpoint documents changed since that application commit. These records are useful, but were not rerun in this checkout and do not erase its observed setup failures.
-
-`evals/results/v2/model-online-all.json` has `passed: true`, `publicationReady: true`, and complete model/payment paths at commit `5981578`. Recomputing its documented source-file fingerprint gave:
-
-- Report source hash: `73948336d15263d887439aaf5dbda3c9e9a083cd67621f36abe2d3824ea71eb3`.
-- Current source hash: `ef14bcf6105fa3476dbc954fafa1b334ebd29a2edae897b09c751bcc0f0fa24e`.
-
-That earlier configured run is real retained evidence, not proof of the current full candidate. `publicationReady` covers the evaluator's executable synthetic model/citation gates, not email delivery, user safety, deployment or submission. V2 is an exposed regression corpus, not a blind holdout. Its approved labels must not be weakened to obtain a pass.
-
-## Step 3 — gaps against judging criteria
-
-The target column is this audit's assessment of strong evidence, not an additional official requirement or a predicted judge score. Every official criterion has weight **not published**.
-
-| Criterion | Demonstrated in code / observed now | What a strong entry demonstrates | Remaining gap |
+| # | Requirement (verbatim) | Source | Class |
 |---|---|---|---|
-| “Everyday apps, not developer tools” | Parent-forwarding workflow, family membership, onboarding, notes and handled state exist in `convex/inbound.ts`, `convex/families.ts`, `convex/cases.ts`, `src/FamilySetup.tsx`. Landing copy describes a concrete family problem. | A parent and helper can complete the ordinary task and understand the result without coaching. | HTML-only date/identity loss (G4); no consented family task-completion evidence found (G5). |
-| “Creativity and usefulness” | The product combines cited email checks with shared family follow-up. `src/App.tsx:506-507` distinguishes unverified information from matching details and avoids authenticating the sender. | Observable improvement in deciding a next step and avoiding duplicated family effort. | Useful behavior is supported largely by synthetic fixtures; outcome evidence remains limited (G5). |
-| “Convex depth” | Durable workflow, database, subscriptions, authenticated membership, rate limiting, cron/scheduler and static hosting are implemented. Historical interaction evidence exists. | Reliable current-candidate processing, isolation, recovery and simultaneous family updates. | Current checkout cannot run all checks (G1); fresh integrated verification must follow fixes (G3). No new Convex feature is needed. |
-| “Sponsor stack” | Actual OpenAI, Firecrawl and AgentMail call paths exist. The public demo deliberately bypasses external providers (`src/Demo.tsx:91`). | Traceable source refresh, model work and controlled real delivery tied to the frozen candidate. | Partial Firecrawl refresh can misstate freshness (G2); current-candidate provider/citation proof needs renewal (G3). |
-| “Live URL” | Hosted desktop judge page is reachable and visually coherent; no warning/error captured on that page. | Fresh anonymous desktop/mobile flows, keyboard operation, recovery and isolation after final changes. | Interactive rerun is a demo prerequisite. A screenshot and historical run do not establish current interactions. |
-| “Social proof” | Assessed as a submission artifact under the revised scope. | Public evidence of use/engagement where available. | PENDING; final checklist only, not a ranked implementation gap. |
-| “Video demo” | Assessed as a submission artifact under the revised scope. | Real product behavior in less than three minutes. | PENDING; final checklist only, after this plan is executed. |
+| R1 | "Only new apps started on or after August 25 at 12 PM PT will qualify for submission." | Rules & guidelines → FAQ | CODE |
+| R2 | "Each submission must include Convex and use hackathon cohost or partner integrations." | Rules & guidelines → Submission requirements | CODE |
+| R3 | "Projects should be original and not violate any intellectual property rights." | Rules & guidelines → Submission requirements | CODE / EXTERNAL |
+| R4 | "All GitHub repos must be public to qualify." | Rules & guidelines → FAQ | SUBMISSION |
+| R5 | "hackathon.md at root" | Submission checklist | SUBMISSION |
+| R6 | "live app URL (convex.site or chatgpt.site)" — "Must be a convex.site or chatgpt.site URL judges or an agent can open without an invite." | Submission checklist; How to participate → step 04 | SUBMISSION |
+| R7 | "three-minute video" — "Under 3 minutes." | Submission checklist; Judging criteria → Video demo | SUBMISSION |
+| R8 | "Tag @convex, @OpenAI, @firecrawl, and @agentmail on X or LinkedIn." | How to participate → step 05 | SUBMISSION |
+| R9 | "Submit on vibeapps.dev" — "Submit before 12:00 PM PT on Sep 22 to vibeapps.dev." | Submission checklist; Rules & guidelines → Eligibility | SUBMISSION |
+| R10 | "Register on Luma" — "Confirm your hackathon participation." | How to participate → step 01 | EXTERNAL |
+| R11 | "Participants must be at least 18 years old." | Rules & guidelines → Eligibility | EXTERNAL |
+| R12 | "Employees of Convex, hackathon sponsors or cohosts, and their immediate family members are not eligible to participate." | Rules & guidelines → Eligibility | EXTERNAL |
+| R13 | "The Hackathon IS NOT open to: Individuals who are residents of, or Organizations domiciled in, a country, state, province or territory where the laws of the United States or local law prohibits participating or receiving a prize in the Hackathon (including, but not limited to, Quebec, Russia, Crimea, Cuba, Iran, North Korea, Syria and any other country designated by the United States Treasury's Office of Foreign Assets Control)." | Rules & guidelines → Eligibility | EXTERNAL |
 
-## Step 4 — ranked implementation and evidence work
+No license requirement appears anywhere on the rules page.
 
-Because official weights are absent, the requested formula cannot produce an official weighted ranking. For planning only, use equal weight **1**, estimated gap size **1–5**, and effort units **S=1, M=3, L=5**. Priority = `(1 × estimated gap size) ÷ effort`. These are prioritization estimates, not measured quality scores. Ties favor prerequisites, then demonstrated defects. Eligibility and submission artifacts are excluded.
+### Judging criteria
 
-| Rank / ID | Gap | Criterion used for ranking | Gap size | Size / effort | Priority |
-|---|---|---|---:|---|---:|
-| 1 / G1 | Restore a reproducible checkout and complete checks | Convex depth | 4 | S / 1 | 4.00 |
-| 2 / G2 | Keep source freshness truthful after partial Firecrawl failures | Sponsor stack | 4 | S / 1 | 4.00 |
-| 3 / G3 | Renew provider/citation and integrated proof on the final candidate | Sponsor stack | 4 | M / 3 | 1.33 |
-| 4 / G4 | Preserve sender and usable deadlines in HTML-only forwards | Everyday usefulness | 3 | M / 3 | 1.00 |
-| 5 / G5 | Obtain small, consented family usability evidence | Creativity and usefulness | 3 | M / 3 | 1.00 |
+The page lists seven criteria under "Qualification and judging criteria" and
+**publishes no weights or percentages for any of them.** The weights in Step 3
+are this audit's own working estimate, labelled as such — they are not from
+Convex.
 
-### G1 — reproducible checkout
+| Criterion (verbatim heading) | Verbatim body |
+|---|---|
+| Everyday apps, not developer tools | "We score what you ship on Convex, OpenAI, Firecrawl, and AgentMail. Your hackathon build log is what judges read, so include what you built, the stack, the live URL, and your demo link." |
+| Creativity and usefulness | "Build something a real person would use this week: law, hospitality, health, construction, whatever you know. Copycats and developer-only tools score low." |
+| Convex depth | "Real use of queries, mutations, live updates, auth, and components. A thin frontend on a hosted page does not count." |
+| Sponsor stack | "OpenAI, Firecrawl, and AgentMail do real work in your product. They generate, crawl, or send, not just sit in the README." |
+| Live URL | "Judges can open what you built. Publish on convex.site or chatgpt.site. No localhost demos." |
+| Social proof | "You posted your build on X or LinkedIn. Engagement counts." |
+| Video demo | "Under 3 minutes. Talk less, click through the real product." |
 
-**Change:** Install the existing lockfile dependencies, regenerate Convex types, and establish a fresh-checkout procedure. Commit generated Convex API files as recommended by the installed CLI; `.gitignore:6` currently excludes them. Preserve environment/credential exclusions. Do not hand-edit generated types or change application logic to conceal missing-module errors. Investigate any errors remaining after setup restoration.
+---
 
-**Files touched in execution:** `.gitignore`, generated `convex/_generated/*`, and a concise root `README.md` setup section. `package.json` / lockfile need no change unless a separately reproduced dependency issue requires it. Installation updates ignored `node_modules`.
+## Step 2 — Compliance table
 
-**Acceptance:** A clean isolated checkout installs with `npm ci`; `npx convex codegen --typecheck disable` generates current definitions against the intended existing/local target; `npm run typecheck`, `npm test`, and a configured `npm run build` each exit 0. All 36 existing test files must load and pass; compare the full case count with the recorded 512 baseline and explain any difference. Repeat from the documented clean-checkout steps without borrowed worktree dependencies. [Convex CLI documentation](https://docs.convex.dev/cli/overview) and installed `node_modules/convex/src/cli/codegen.ts:12-18` describe code generation; codegen does not deploy application code. Do not substitute `convex dev` against a shared cloud target.
+### CODE
 
-### G2 — truthful Firecrawl freshness
+| # | Requirement | Verdict | Proof |
+|---|---|---|---|
+| R1 | New app started on/after Aug 25, 12 PM PT | **PASS** | `git log --reverse` → root commit `8f6de642d97cb5f11ffe7b5de7cfaeb1f7a33ed9`, authored **2026-09-15 23:14:04 -0500**, 21 days after the cutoff. 58 commits, single author, no grafted pre-history. |
+| R2a | Includes Convex | **PASS** | `convex/schema.ts` defines 13 tables with indexes. 76 function declarations across `convex/*.ts`; exported public surface is 5 `query`, 13 `mutation`, 9 `action`, 1 `httpAction`. Three components registered in `convex/convex.config.ts`: `@convex-dev/workflow`, `@convex-dev/rate-limiter`, `@convex-dev/static-hosting`. Auth via `@convex-dev/auth` (`convex/auth.ts`, `convex/auth.config.ts`). Scheduled work in `convex/crons.ts` (weekly registry refresh + three 15-minute recovery jobs). |
+| R2b | Uses cohost/partner integrations | **PASS** | **Firecrawl** — `convex/clients/firecrawl.ts` calls `api.firecrawl.dev/v2` `/scrape` and `/search`; used by `convex/registry.ts` for unknown-org resolution and by the weekly `refresh official registry` cron. **AgentMail** — `convex/clients/agentmail.ts`; inbound Svix-verified webhook in `convex/http.ts`, outbound threaded replies in `convex/reply.ts`, digests in `convex/lib/notificationMail.ts`. **OpenAI** — `convex/clients/openai.ts`; structured extraction in `convex/extract.ts`, reply explanations in `convex/reply.ts`. None of the three is README-only. |
+| R3 | Original work | **PASS (repo side)** | All 58 commits authored by Zaeem Khan between 2026-09-15 and 2026-09-22. No vendored third-party source. Ownership itself is EXTERNAL — see below. |
 
-**Evidence and impact:** `convex/registry.ts:236-238` keeps a quote when its page failed, but any successful page leads to `markCrawled` at line 242. That mutation stamps the whole organization at line 111. `convex/pipeline.ts:99` stores that date with new case evidence, and `src/App.tsx:515` displays it. A successful contact-page fetch can therefore make an unfetched policy quote appear newly crawled. This finding is source-inspected; handler reproduction was blocked by the missing dependency.
+**No CODE FAILs. Proceeding to Step 3.**
 
-**Change:** Use the existing global timestamp conservatively: treat incomplete source fetches as a skipped refresh and preserve the prior data/timestamp. Only advance the complete-refresh timestamp when every required source URL succeeded. Keep retry behavior and trusted-source restrictions; no per-source schema or review dashboard is needed for this fix.
+### SUBMISSION
 
-**Files touched:** `convex/registry.ts`, `convex/registry.provenance.test.ts`.
+| # | Item | Status | Evidence |
+|---|---|---|---|
+| R4 | Public GitHub repo | **DONE** | <https://github.com/zaeem-rafiq/second-look> — GitHub API reports `"visibility": "public"`, `"private": false`. |
+| R5 | `hackathon.md` at root | **DONE** | Present, 8.9 KB, header carries project, live URL, repo, stack, components, models, start date. `Demo:` is still `(pending)` — closed by G2 below. |
+| R6 | Live app URL on convex.site | **DONE** | <https://friendly-retriever-712.convex.site/> returns HTTP 200 in 0.71 s. Rendered headlessly at 04:42 UTC: full landing page, three synthetic samples, empty board state, no sign-in wall for a cold visitor. Screenshot in the audit thread. |
+| R7 | Three-minute video | **PENDING** | None recorded. |
+| R8 | Social post tagging the four accounts | **PENDING** | None posted. |
+| R9 | Submitted on vibeapps.dev | **PENDING** | Not submitted. |
 
-**Acceptance:** `npm test -- convex/registry.provenance.test.ts` exits 0 with a regression that injects one successful contact page and one failed policy page. The old quote and timestamp stay unchanged. An all-success refresh advances the timestamp; a successfully fetched page that no longer contains a quote removes that quote. Check the resulting case/UI date rather than relying only on the mutation's return value. Run the complete suite after integration.
+Per the audit brief, SUBMISSION items are never marked FAIL — only DONE or PENDING.
 
-### G3 — current-candidate operational proof
+### EXTERNAL — UNVERIFIABLE, for Zaeem to confirm, not gaps
 
-**Change:** Reuse the existing evaluator and controlled integration path after G2/G4 and any usability corrections. Freeze the candidate, retain a new configured v2 result plus source applicability/readability review, and verify the actual provider-backed family flow. Preserve the safe public demo's provider exclusions. Firecrawl's curated-source refresh is an appropriate useful sponsor demonstration; do not promote lexical search candidates to trusted organizations.
+R10 Luma registration · R11 age 18+ · R12 not an employee or immediate family
+of Convex/OpenAI/Firecrawl/AgentMail · R13 residency outside the listed
+jurisdictions · R3 ownership of all rights in the submitted work.
 
-**Files touched:** New result/review files in `evals/results/v2/`; update `docs/hac-73-release-checkpoint.md` with sanitized evidence and exact candidate identity. Existing `scripts/send-fixture.ts` and `scripts/replay-webhook.ts` are inspection/reuse candidates, not permission to execute them blindly. Product files change only if a reproduced failure demands it.
+---
 
-**Acceptance:** After a bounded provider budget and controlled recipients are authorized, run the existing evaluator with configured keys kept outside artifacts:
+## Step 3 — Gap analysis vs the judging criteria
 
-```sh
-EVAL_VERSION=v2 EVAL_SPLIT=all EVAL_ONLINE=1 PAYMENT_GATE_MODE=jev_cascade \
-  EVAL_OUTPUT=evals/results/v2/model-online-submission-candidate.json \
-  node --import tsx evals/run.ts
+Weights below are this audit's estimate, **not** published by Convex. "Claimed"
+means asserted in a doc; "verified" means this audit ran it.
+
+### Everyday apps, not developer tools — weight ~15%, gap: none
+
+**Verified.** A consumer product for adult children watching an older parent's
+inbox. Nothing about it is a developer tool. The landing page leads with "A
+confusing email. A calmer next step." and a three-step explanation in plain
+language. No gap.
+
+### Creativity and usefulness — weight ~20%, gap: none material
+
+**Verified end to end on the live deployment at 04:39 UTC**, by driving
+`demo:start` → `demo:runSample` → `demo:board` over HTTPS POST. All three
+verdict paths produced real, grounded results:
+
+| Sample | Verdict | Org resolved | Applicable evidence | Reply |
+|---|---|---|---|---|
+| suspicious | `mismatch` | United States Postal Service | `policy_contradiction` quoting "Scheduling a Redelivery is free." from `faq.usps.com/articles/FAQ/Redelivery-The-Basics`, plus `urgency_pressure` | 47 words, cites 1-800-275-8777 |
+| legitimate | `matches_official` | Chase | `sender_domain`, `policy_contradiction`, `urgency_pressure`, all sourced to chase.com | 30 words |
+| unverifiable | `cannot_verify` | none | `urgency_pressure` | 33 words |
+
+Every reply stayed an unsent draft, as the demo copy promises. The distinction
+that matters for judging: the verdict is computed by pure unit-tested code
+(`lib/checks.ts`, `lib/verdict.ts`), and the model writes only the explanation —
+that is a real product decision, not a wrapper.
+
+### Convex depth — weight ~20%, gap: G1 (the repo does not build for a judge)
+
+**Verified in code:** 13 tables with indexes, 76 functions, three components,
+`@convex-dev/auth` with per-address rate limiting, durable `@convex-dev/workflow`
+pipeline, crons, scheduler, file storage, and a reactive `useQuery` board
+(`src/App.tsx:404`, `convex/cases.ts:333`).
+
+**Not verified here:** the live WebSocket board update. This audit environment's
+proxy rejects WebSocket handshakes (`wss://…/api/1.45.0/sync` → HTTP 400), so the
+browser fell back to "Connecting to the live board…". That is an environment
+limit, not an app defect — the page degrades honestly. It must be shown in the
+video.
+
+**The gap — G1.** `convex/_generated/` is listed in `.gitignore` and is not
+tracked. On a clean clone of the public repo with `npm ci` completed:
+
+```
+npm run build      → FAIL: Could not resolve '../convex/_generated/api' in src/App.tsx
+npm run typecheck  → FAIL: 348 errors across 34 files
+npm test           → 11 of 36 test files fail to load; 352 tests pass in the other 25
+npx convex codegen → "No CONVEX_DEPLOYMENT set"  (needs Convex credentials)
 ```
 
-Use a new output name for every retained attempt. Require exit 0, all 90 expected labels and executable model/payment/citation gates, and matching start/end candidate hashes. Independently review citation applicability and reply wording. This evaluator does not send AgentMail messages.
+A judge who clones this repo cannot build it, typecheck it, or run two thirds of
+the test files. Everything the build log claims about test counts is
+unreproducible for them. This is the single highest-leverage fix in this plan
+and it is a one-line change.
 
-Separately observe controlled ingress → model extraction → cited checks → board update → one actual parent reply. Record a receipt and verify the message in the controlled inbox; replay must create no extra case or mail. Observe a successful real Firecrawl refresh with its source URL and fetched evidence. For a changed application, deploy only the approved exact candidate and repeat the affected live flow. Preserve synthetic/public and provider/private evidence distinctions.
+### Sponsor stack — weight ~20%, gap: none
 
-The existing runner bounds a full model run at 90 logical extraction calls, 90 reply calls and up to 90 payment-gate invocations, plus configured retries and cached source operations (`evals/README.md`). Resolve the concrete run budget before execution; this audit did not spend it.
+**Verified.** Firecrawl, AgentMail and OpenAI each do real work on the request
+path, as detailed under R2b. Firecrawl additionally runs a standing weekly job.
+Offline eval suite runs clean: `npm run test:evals` → 90 fixtures across three
+forward formats, `"passed": true`. It reports `"publicationReady": false` only
+because the model and online-lookup paths need API keys this environment does not
+have; that flag is correct behaviour, not a failure.
 
-### G4 — HTML-only forwarding parity
+### Live URL — weight ~10%, gap: none
 
-**Change:** Preserve recognized HTML forward/header boundaries and distinguish a complete due-date field from following navigation/question text. `lib/forwardParser.ts:18-20` drops Outlook's horizontal-rule separator; `lib/deadline.ts:31-44` can merge surrounding fields into an ambiguous clause. Fix shared parsing, not individual fixtures or reminder callers. Keep conditional, conflicting and invalid dates ambiguous.
+**Verified.** See R6. On convex.site, no invite, no localhost.
 
-**Files touched:** `lib/forwardParser.ts`, `lib/deadline.ts`, `tests/forwardParser.test.ts`, `tests/deadline.test.ts`; add one relevant case to `convex/notifications.test.ts` if needed to protect downstream eligibility. Preserve the existing fixture bytes and reviewed verdict labels.
+### Social proof — weight ~10%, gap: G3
 
-**Acceptance:** `npm test -- tests/forwardParser.test.ts tests/deadline.test.ts convex/notifications.test.ts` exits 0. The three unchanged Con Edison fixtures supplied with empty text retain the correct sender, original body and October 3 date. Existing conditional/conflicting/invalid-date cases remain blocked. A consented, otherwise eligible notice reaches the same reminder eligibility from text and HTML; do not enable actual recurring mail just to test parsing. Rerun fixed offline v2 evaluation and full regression checks after integration.
+Nothing posted yet (R8). Separately, `index.html` has **no Open Graph or Twitter
+card tags and no favicon** — confirmed by fetching the live page. When the link
+is posted to X or LinkedIn it will render as a bare URL with no title card, image
+or description, which measurably suppresses the engagement this criterion scores.
 
-### G5 — practical usefulness evidence
+### Video demo — weight ~5% as a criterion (but a hard requirement, R7), gap: G2 prerequisite
 
-**Change:** Run a small observed task-completion check with consenting parent/helper participants using synthetic mail. Measure whether they can choose the appropriate next step, find a cited source, add a family note and tell whether someone already handled the message. Record confusion and assistance; resolve observed blockers before collecting final evidence. This is usability evidence, not proof of scam-detection accuracy.
+Not recorded. Per the audit brief no script or storyboard is written here; see
+Demo prerequisites below.
 
-**Files touched:** A compact anonymized `docs/user-validation.md` evidence record; `src/Demo.tsx`, `src/App.tsx` or `src/FamilySetup.tsx` only when observed friction justifies a specific correction. No speculative UI redesign.
+---
 
-**Acceptance:** At least two consented family/helper sessions with task results, time/assistance observations, misunderstood wording, and follow-up retests for blockers. Participants can explain that matching details do not authenticate the sender and that synthetic drafts are unsent. Report the small sample honestly; do not invent conversion or safety metrics. If participants are unavailable, keep this evidence item open rather than converting a self-test into user validation.
+## Gaps, ranked by (weight × gap size) ÷ effort
 
-## Execution order, boundaries and recovery
+### G1 — Commit `convex/_generated/` so the repo builds from a clean clone — **S**
 
-Impact traces: forward body → parser/extraction → verdict/date → family board and reminder eligibility; Firecrawl pages → registry → evidence snapshot → displayed provenance; lockfile/generated API → backend imports/types → all checks.
+*Criterion:* Convex depth. *Why it ranks first:* largest gap, smallest effort,
+and it is what a judge hits in the first sixty seconds.
 
-Execute G1 first. G2 and G4 can then proceed in disjoint files, each with focused tests. Integrate and run full checks; perform G5 and resolve any resulting changes; freeze the final candidate; execute G3 and the demo prerequisites. Priority rank does not override these dependencies. The engineer owns implementation and technical review; the owner is not asked to review code.
+- **Change:** delete the `convex/_generated/` line from `.gitignore`; run
+  `npx convex dev --once` on Zaeem's Mac to regenerate; commit the directory.
+- **Files touched:** `.gitignore`, `convex/_generated/**` (added).
+- **Acceptance check:** in a throwaway directory —
+  `git clone https://github.com/zaeem-rafiq/second-look && cd second-look && npm ci && npm run typecheck && npm test && npm run build`
+  all four exit 0, with 36/36 test files loading.
 
-Future implementation should use an isolated branch/worktree and coherent commits. Existing unrelated untracked instruction/skill files must remain untouched. No schema change is required by the proposed minimum fixes. Provider sends, deployment, publication and submission need authorization for their concrete targets. Keep old evaluation reports and source history; if a gate fails, preserve the failure and correct the cause. Never backfill old cases or enable broad recurring mail as a side effect of verification.
+### G2 — Finish `hackathon.md`: fill `Demo:` and fix the stale hosting entry — **S**
 
-## Demo prerequisites
+*Criterion:* Everyday apps ("Your hackathon build log is what judges read") and
+R7. *Why it ranks second:* this file is the judges' entry point.
 
-These are behavior gates before recording, not a script or storyboard.
+- **Change:** (a) replace `- **Demo:** (pending)` with the video URL once
+  recorded; (b) the 2026-09-15 log entry records the hosting choice as "Codex
+  Sites (`chatgpt.site`)", which the shipped app contradicts — append a one-line
+  correction under it noting the app ships on `convex.site`, rather than
+  rewriting history.
+- **Files touched:** `hackathon.md`.
+- **Acceptance check:** `grep -n "pending" hackathon.md` returns nothing, and a
+  cold read top-to-bottom contains no statement contradicted by the live app.
 
-- G1–G4 acceptance checks pass for one frozen source candidate; any unresolved G5 finding is stated plainly.
-- Fresh anonymous desktop and mobile visits can run all three isolated synthetic outcomes, inspect evidence, add a keyboard-entered note, observe a second fictional family member's update without refresh, mark handled, repeat a sample without duplication, and reset/rerun. Verify loading, failure/retry, expired-session and private-access denial states. No unexpected browser/request errors or clipped essential controls.
-- Synthetic samples remain unmistakably fictional, with unsent drafts and provider calls disabled. Separate controlled evidence establishes actual sponsor operation and email receipt on the approved candidate.
-- Partial source failures cannot make old evidence appear freshly verified. HTML-only sender/date behavior matches the corrected acceptance cases; unsupported/ambiguous dates remain blocked.
-- Family setup, consent, invitation and authorized access work on the recording target. Tokens, private mail, credentials and recipient details stay out of public capture.
-- Decide the notification demonstration boundary before recording. Recurring delivery is documented as disabled after prior controlled tests; keep that truthful state unless a new bounded activation is authorized. If reminders/digests are shown as operating, observe native scheduling and controlled receipt, then restore the agreed state. An accelerated digest is not proof that a natural Sunday elapsed.
-- Tie hosted frontend/backend identity and all current proof to the frozen application candidate. Readable browser observation is required in addition to passing compilation/tests.
+### G3 — Add link-preview metadata and a favicon — **S**
 
-## Open questions only the owner can answer
+*Criterion:* Social proof. *Why it ranks third:* the social post is a scored
+deliverable and this decides how it looks in every feed it lands in.
 
-1. Which controlled inboxes and bounded provider-call/email budget may be used for final verification, and may a changed candidate be deployed to the existing development app?
-2. Who can participate in two consented family/helper usability sessions, and what anonymized observations may be shared publicly?
-3. Should reminders/digests remain paused for submission, or should the demo include a separately authorized bounded activation? Recommended default: preserve the paused public state and use clearly labeled controlled proof.
+- **Change:** add `og:title`, `og:description`, `og:image`, `og:url`,
+  `og:type`, `twitter:card=summary_large_image` and a favicon link to
+  `index.html`; add the referenced image to the static assets. Requires a
+  rebuild and re-upload to take effect on the live site.
+- **Files touched:** `index.html`, one new image asset.
+- **Acceptance check:** after re-upload,
+  `curl -sS https://friendly-retriever-712.convex.site/ | grep -c "og:"` returns
+  ≥ 4, and pasting the URL into the X or LinkedIn composer shows a title card
+  with an image.
 
-Eligibility remains the owner's confirmation task in the compliance table, not an engineering gap. No usable repository URL was supplied: the latest Links line is an unfilled placeholder, not a destination.
+### G4 — Add a `README.md` — **S**
 
-## Submission checklist
+*Criterion:* Everyday apps / first impression. *Why it ranks last of the four:*
+real but cosmetic; `hackathon.md` already carries the substance.
 
-All items below are **PENDING** and do not gate this audit. Complete them before submitting through the [official Vibe Apps form](https://vibeapps.dev/judging/convex-all-gas-hackathon-openai/submit) by September 22, 2026, 12:00 PM Pacific. Submission and public posting require explicit authorization. Retain a submission receipt only after the final video is linked; checklist placement below is not permission to submit early.
+- **Change:** short README — one-paragraph what-and-who, the live URL, a
+  screenshot, the stack, and a working local-setup section (which only becomes
+  truthful after G1). Link out to `hackathon.md` for the build log.
+- **Files touched:** `README.md` (new).
+- **Acceptance check:** the GitHub repo landing page renders a README whose
+  setup commands succeed verbatim on a clean clone.
 
-- [ ] **Public repository — PENDING.** Supply/choose the GitHub destination, prepare the frozen candidate with reproducible setup, and inspect the exact public file set for secrets, private recipient data and nonpublic evidence. Add standalone ISC license text consistent with `package.json` and the owner's rights confirmation. Publish only with authorization, then verify signed-out access and the intended commit. `git remote -v` currently returns no remote; absence of a supplied URL is not proof that no external repository exists.
-- [ ] **Complete `hackathon.md` — PENDING.** Replace stale setup-era summary fields with the verified product, stack, hosted app URL, public repository, current source identity and accurate limitations. Preserve dated history. Add the finished video link only after the last checklist item is complete. Cross-check every deployed/provider claim against retained evidence.
-- [ ] **Social post — PENDING.** Prepare an evidence-based X or LinkedIn post tagging Convex, OpenAI, Firecrawl and AgentMail. Publish only after approval; retain the public URL and report observed engagement without invention.
-- [ ] **Video — PENDING; recorded last, after this plan is executed.** Record actual working behavior only after the demo prerequisites pass. Duration must be strictly under three minutes. Review the complete recording at normal speed for readable UI, understandable audio and truthful provider/synthetic distinctions. Publish with authorization, verify signed-out playback, add the link to the build log/submission package, then complete the authorized submission and retain its receipt. No script or storyboard is part of this plan.
+---
+
+## Submission checklist — every PENDING item from Step 2, in order
+
+1. [ ] **R4 repo public** — already DONE, no action.
+2. [ ] **R5 `hackathon.md` at root** — DONE; still needs the `Demo:` link (G2).
+3. [ ] **R6 live URL** — DONE; re-verify after any rebuild for G3.
+4. [ ] **R8 social post** — post on X or LinkedIn tagging **@convex, @OpenAI,
+   @firecrawl, @agentmail**, with the live URL. Do this after G3 so the link
+   renders a card. Keep the post URL for the submission form.
+5. [ ] **R9 submit on vibeapps.dev** — repo URL, live app URL, video URL.
+   **Before 12:00 PM PT / 19:00 UTC on Sep 22.**
+6. [ ] **R7 three-minute video — record this LAST**, after G1–G4 are done and
+   the prerequisites below all hold. Then fill `Demo:` in `hackathon.md` (G2)
+   and push before submitting.
+
+Housekeeping, outside the rules: after submitting, pause or delete the stray
+unconfigured prod deployment `fine-caribou-629`.
+
+### Demo prerequisites — what must be working before recording
+
+- [ ] The live board updates over WebSocket in a real browser. This audit could
+      not exercise it (proxy blocks `wss://`), so it is **unconfirmed** and must
+      be eyeballed first: open <https://friendly-retriever-712.convex.site/>,
+      run a synthetic sample, and watch the card move through its states without
+      a page reload. If it does not, nothing else in the video matters.
+- [ ] A clean clone builds (G1 acceptance check passes).
+- [ ] The three synthetic samples all reach a verdict on the deployment being
+      filmed — verified working at 04:39 UTC today.
+- [ ] A real AgentMail round trip is ready if it will be filmed: helper inbox
+      reachable, `AGENTMAIL_WEBHOOK_SECRET` set, and a forward that lands a
+      threaded reply. The synthetic demo deliberately leaves replies unsent, so a
+      sent reply needs the real path.
+- [ ] Evidence rows show verbatim quotes with source URLs on screen — this is
+      the product's strongest differentiator and the clearest thing to film.
+- [ ] The deployment is `friendly-retriever-712`, never `fine-caribou-629`.
+- [ ] Recording is under 3:00, and the live URL is visible in the address bar.
+
+---
+
+## Open questions only a human can answer
+
+1. **EXTERNAL eligibility (R10–R13, R3).** Are you registered on Luma, 18+, not
+   an employee or immediate family member of Convex, OpenAI, Firecrawl or
+   AgentMail, resident outside the listed jurisdictions, and the sole owner of
+   the rights in this work? This audit cannot check any of these.
+2. **Is `convex/_generated/` gitignored deliberately?** G1 assumes it is not. If
+   there is a reason to keep it out, the alternative is a documented
+   `npx convex dev --once` bootstrap step in the README — weaker, because it
+   needs a judge to have Convex credentials.
+3. **Which platform for the social post, X or LinkedIn?** It decides the image
+   aspect ratio for G3.
+4. **Will the video show a real emailed forward, or only the synthetic demo?**
+   The real path is far more convincing but needs a live AgentMail round trip
+   rehearsed beforehand.
+5. **Any reason not to add a LICENSE file?** The rules do not require one and
+   `package.json` declares `ISC`, but a public repo with no LICENSE is
+   technically all-rights-reserved. Not a compliance gap — your call.
+
+---
+
+## Verification log
+
+| What | When (UTC) | Result |
+|---|---|---|
+| Rules page fetched from convex.dev | 04:32 | Reachable; all quotes above are verbatim |
+| `git log` on the public repo | 04:33 | Root commit 2026-09-15, 58 commits |
+| `npm ci` on a clean clone | 04:34 | exit 0 |
+| `npm run typecheck` | 04:35 | **FAIL** — 348 errors, all from missing `convex/_generated/` |
+| `npm test` | 04:36 | **11 of 36 files fail to load**; 352 tests pass |
+| `npm run build` | 04:37 | **FAIL** — unresolved `../convex/_generated/api` |
+| `npm run test:evals` (offline) | 04:44 | exit 0, 90 fixtures, `"passed": true` |
+| Live site HTTP fetch | 04:38 | 200, 0.71 s |
+| Live demo pipeline over HTTPS | 04:39 | All 3 verdict paths correct, evidence sourced |
+| Live site rendered in headless Chromium | 04:42 | Full page renders; `wss://` blocked by this environment's proxy only |
+| GitHub repo visibility via API | 04:40 | `public` |
