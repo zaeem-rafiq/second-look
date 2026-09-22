@@ -189,6 +189,16 @@ export default defineSchema({
     .index("by_message", ["agentmailMessageId"])
     .index("by_status", ["status"]),
 
+  /**
+   * One row per sender address that has ever been sent the unregistered-forward note.
+   * Inserted in the same transaction that schedules the send, so a failed or
+   * rate-limited send is never retried: at most one note per address, for all time.
+   */
+  unroutedNotices: defineTable({
+    email: v.string(),
+    claimedAt: v.number(),
+  }).index("by_email", ["email"]),
+
   cases: defineTable({
     familyId: v.id("families"),
     demoSessionId: v.optional(v.id("demoSessions")),
