@@ -77,11 +77,20 @@ Convex.
 
 Per the audit brief, SUBMISSION items are never marked FAIL — only DONE or PENDING.
 
-### EXTERNAL — UNVERIFIABLE, for Zaeem to confirm, not gaps
+### EXTERNAL — confirmed by Zaeem on 2026-09-22
 
-R10 Luma registration · R11 age 18+ · R12 not an employee or immediate family
-of Convex/OpenAI/Firecrawl/AgentMail · R13 residency outside the listed
-jurisdictions · R3 ownership of all rights in the submitted work.
+These cannot be checked from the repo. Zaeem confirmed all four in the project
+thread at 04:58 UTC on 2026-09-22:
+
+| # | Requirement | Status |
+|---|---|---|
+| R10 | Registered on Luma | **CONFIRMED** |
+| R11 | At least 18 years old | **CONFIRMED** |
+| R12 | Not an employee or immediate family member of Convex, OpenAI, Firecrawl or AgentMail | **CONFIRMED** |
+| R13 | Not resident in a restricted jurisdiction | **CONFIRMED** |
+| R3 | Owns all rights in the submitted work | Not separately asked; the repo side passes (all 58 commits authored by Zaeem, no vendored third-party source) |
+
+Eligibility is therefore settled. Nothing in this section blocks submission.
 
 ---
 
@@ -170,6 +179,16 @@ Demo prerequisites below.
 ---
 
 ## Gaps, ranked by (weight × gap size) ÷ effort
+
+**Progress as of 2026-09-22 04:58 UTC.** PR #4 merged at 04:56 UTC.
+
+- **G1 — partly done.** The `.gitignore` rule is gone. `convex/_generated/`
+  still has to be generated once with `npx convex dev --once` and committed;
+  that needs Convex credentials and so is Zaeem's step. Until then a clean
+  clone still does not build.
+- **G3 — done in the repo, not yet live.** The tags, card image and favicon are
+  on `main`. They reach the site only after a rebuild and re-upload.
+- **G2 and G4 — not started.**
 
 ### G1 — Commit `convex/_generated/` so the repo builds from a clean clone — **S**
 
@@ -266,13 +285,15 @@ unconfigured prod deployment `fine-caribou-629`.
 
 ## Open questions only a human can answer
 
-1. **EXTERNAL eligibility (R10–R13, R3).** Are you registered on Luma, 18+, not
-   an employee or immediate family member of Convex, OpenAI, Firecrawl or
-   AgentMail, resident outside the listed jurisdictions, and the sole owner of
-   the rights in this work? This audit cannot check any of these.
-2. **Is `convex/_generated/` gitignored deliberately?** G1 assumes it is not. If
-   there is a reason to keep it out, the alternative is a documented
-   `npx convex dev --once` bootstrap step in the README — weaker, because it
+1. ~~**EXTERNAL eligibility (R10–R13).**~~ **Answered 2026-09-22 04:58 UTC** —
+   Zaeem confirmed all four. See the EXTERNAL table above.
+2. ~~**Is `convex/_generated/` gitignored deliberately?**~~ **Answered** — it was
+   not. `npx convex codegen --help` states the generated code "should be
+   committed to the repo (your code won't typecheck without it!)". The ignore
+   rule was removed in PR #4, merged 2026-09-22 04:56 UTC. The directory itself
+   still has to be generated once with `npx convex dev --once` and committed.
+   The superseded alternative, kept for the record: a documented bootstrap step
+   in the README — weaker, because it
    needs a judge to have Convex credentials.
 3. **Which platform for the social post, X or LinkedIn?** It decides the image
    aspect ratio for G3.
